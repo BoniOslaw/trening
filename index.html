@@ -39,8 +39,8 @@
   --push-soft: rgba(255,95,74,0.12);
   --pull: #4a8eff;
   --pull-soft: rgba(74,142,255,0.12);
-  --press: #b566ff;
-  --press-soft: rgba(181,102,255,0.12);
+  --legs: #b566ff;
+  --legs-soft: rgba(181,102,255,0.12);
   --success: #4ade80;
   --danger: #ef4444;
   --warning: #fb923c;
@@ -76,7 +76,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .tab.active { color: var(--text); }
 .tab[data-type="push"].active { border-color: var(--push); background: var(--push-soft); color: var(--push); }
 .tab[data-type="pull"].active { border-color: var(--pull); background: var(--pull-soft); color: var(--pull); }
-.tab[data-type="press"].active { border-color: var(--press); background: var(--press-soft); color: var(--press); }
+.tab[data-type="legs"].active { border-color: var(--legs); background: var(--legs-soft); color: var(--legs); }
 .tab i { font-size: 16px; vertical-align: -2px; margin-right: 6px; }
 
 /* ===== SECTION HEADER ===== */
@@ -177,7 +177,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .history-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 9px; border-radius: 100px; font-weight: 600; }
 .history-badge.push { background: var(--push-soft); color: var(--push); }
 .history-badge.pull { background: var(--pull-soft); color: var(--pull); }
-.history-badge.press { background: var(--press-soft); color: var(--press); }
+.history-badge.legs { background: var(--legs-soft); color: var(--legs); }
 .history-stats { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
 .history-stats strong { color: var(--text); font-weight: 500; }
 .history-exs { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
@@ -185,6 +185,24 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .history-del:hover { color: var(--danger); }
 
 /* ===== IMPORT MODAL ===== */
+.import-mode-tabs { display: flex; gap: 4px; margin-bottom: 14px; padding: 4px; background: var(--bg-elev2); border-radius: var(--radius-sm); }
+.import-mode-tab { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.import-mode-tab.active { background: var(--bg-elev); color: var(--text); }
+.import-mode-tab i { font-size: 14px; }
+.import-csv-area { display: none; }
+.import-csv-area.active { display: block; }
+.import-text-area { display: block; }
+.import-text-area.hidden { display: none; }
+.csv-drop-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 32px 16px; text-align: center; transition: all 0.2s; cursor: pointer; }
+.csv-drop-zone:hover { border-color: var(--accent); background: var(--accent-soft); }
+.csv-drop-zone.has-file { border-style: solid; border-color: var(--success); background: rgba(74,222,128,0.06); }
+.csv-drop-zone i { font-size: 32px; color: var(--text-muted); margin-bottom: 8px; }
+.csv-drop-zone.has-file i { color: var(--success); }
+.csv-drop-text { font-size: 13px; color: var(--text); margin-bottom: 4px; font-weight: 500; }
+.csv-drop-hint { font-size: 11px; color: var(--text-muted); }
+.csv-file-info { margin-top: 12px; padding: 10px 12px; background: var(--bg-elev); border-radius: 6px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.csv-file-info i { color: var(--accent); }
+
 .import-tabs { display: flex; gap: 4px; margin-bottom: 16px; padding: 4px; background: var(--bg-elev2); border-radius: var(--radius-sm); }
 .import-tab { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
 .import-tab.active { background: var(--bg-elev); color: var(--text); }
@@ -453,8 +471,8 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <button class="tab" data-type="pull" onclick="switchTab('pull')">
       <i class="ti ti-arrow-down-left"></i>Pull
     </button>
-    <button class="tab" data-type="press" onclick="switchTab('press')">
-      <i class="ti ti-arrow-up"></i>Press
+    <button class="tab" data-type="legs" onclick="switchTab('legs')">
+      <i class="ti ti-stairs-up"></i>Legs
     </button>
   </div>
 
@@ -629,13 +647,26 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <button class="modal-close" onclick="closeImportModal()" aria-label="Zamknij"><i class="ti ti-x"></i></button>
     <div class="modal-title"><i class="ti ti-upload" style="vertical-align:-2px"></i> Importuj trening</div>
 
-    <div class="import-type-select">
-      <button class="import-type-btn active" data-type="push" onclick="setImportType('push')">Push</button>
-      <button class="import-type-btn" data-type="pull" onclick="setImportType('pull')">Pull</button>
-      <button class="import-type-btn" data-type="press" onclick="setImportType('press')">Press</button>
+    <!-- TRYB IMPORTU: TEKST vs CSV -->
+    <div class="import-mode-tabs">
+      <button class="import-mode-tab active" data-mode="text" onclick="setImportMode('text')">
+        <i class="ti ti-edit"></i>Tekst (AI)
+      </button>
+      <button class="import-mode-tab" data-mode="csv" onclick="setImportMode('csv')">
+        <i class="ti ti-file-spreadsheet"></i>Plik CSV
+      </button>
     </div>
 
-    <textarea class="import-textarea" id="importText" placeholder="Wklej swoje wyniki, np:
+    <!-- WYBÓR TYPU TRENINGU (dla trybu tekstowego) -->
+    <div class="import-type-select" id="importTypeSelect">
+      <button class="import-type-btn active" data-type="push" onclick="setImportType('push')">Push</button>
+      <button class="import-type-btn" data-type="pull" onclick="setImportType('pull')">Pull</button>
+      <button class="import-type-btn" data-type="legs" onclick="setImportType('legs')">Legs</button>
+    </div>
+
+    <!-- TRYB TEKSTOWY -->
+    <div class="import-text-area" id="importTextArea">
+      <textarea class="import-textarea" id="importText" placeholder="Wklej swoje wyniki, np:
 
 1. Wyciskanie sztangi: 3x8 80kg
 2. Pompki: 3x15
@@ -646,9 +677,25 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 Czas: 45 min
 Notatka: dobra forma"></textarea>
 
-    <div class="import-help">
-      💡 Wpisz każde ćwiczenie w nowej linii: <code>nazwa: powtórzenia x serie ciężar</code><br>
-      Możesz pisać luźno — Claude rozpozna formaty typu <code>3x10 80kg</code>, <code>10 powt @ 80</code>, <code>2x8 60kg</code>
+      <div class="import-help">
+        💡 Wpisz każde ćwiczenie w nowej linii: <code>nazwa: powtórzenia x serie ciężar</code><br>
+        Możesz pisać luźno — Claude rozpozna formaty typu <code>3x10 80kg</code>, <code>10 powt @ 80</code>, <code>2x8 60kg</code>
+      </div>
+    </div>
+
+    <!-- TRYB CSV -->
+    <div class="import-csv-area" id="importCsvArea">
+      <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none;" onchange="handleCsvFile(event)">
+      <div class="csv-drop-zone" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
+        <i class="ti ti-file-spreadsheet"></i>
+        <div class="csv-drop-text">Kliknij aby wybrać plik CSV</div>
+        <div class="csv-drop-hint">lub przeciągnij plik tutaj</div>
+      </div>
+      <div id="csvFileInfo" style="display:none;"></div>
+      <div class="import-help">
+        💡 Importuj wcześniej wyeksportowany CSV z aplikacji (przycisk CSV w panelu Historia).<br>
+        ⚠️ Treningi zostaną <strong>dopisane</strong> do istniejącej historii (duplikaty są filtrowane po dacie).
+      </div>
     </div>
 
     <div id="importResult"></div>
@@ -736,6 +783,8 @@ let isAnalyzing = false;
 let importType = 'push';
 let isImporting = false;
 let pendingImport = null;
+let importMode = 'text';
+let csvParsedData = null;
 
 const STORAGE_TIMER_PREFS = 'tp_timer_prefs_v1';
 
@@ -931,7 +980,7 @@ async function generatePlan() {
   const typeLabels = { 
     push: 'Push (klatka, barki przednie, triceps - wyciskanie i pchanie)',
     pull: 'Pull (plecy, barki tylne, biceps - ciąganie)',
-    press: 'Press (barki, ramiona - wyciskanie nad głowę)'
+    legs: 'Legs (nogi - przysiady, martwy rumuński, wykroki, łydki, dolny odcinek pleców)'
   };
   
   const profile = getCurrentProfile();
@@ -1260,7 +1309,7 @@ function refreshChart() {
     const key = d.toISOString().slice(0, 10);
     const label = d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
     days.push({ key, label });
-    dayMap[key] = { push: 0, pull: 0, press: 0 };
+    dayMap[key] = { push: 0, pull: 0, legs: 0 };
   }
   
   p.history.forEach(e => {
@@ -1273,7 +1322,7 @@ function refreshChart() {
   const labels = days.map(d => d.label);
   const pushData = days.map(d => dayMap[d.key].push);
   const pullData = days.map(d => dayMap[d.key].pull);
-  const pressData = days.map(d => dayMap[d.key].press);
+  const legsData = days.map(d => dayMap[d.key].legs);
   
   if (chart) chart.destroy();
   
@@ -1284,7 +1333,7 @@ function refreshChart() {
       datasets: [
         { label: 'Push', data: pushData, backgroundColor: '#ff5f4a', borderRadius: 3, stack: 's' },
         { label: 'Pull', data: pullData, backgroundColor: '#4a8eff', borderRadius: 3, stack: 's' },
-        { label: 'Press', data: pressData, backgroundColor: '#b566ff', borderRadius: 3, stack: 's' }
+        { label: 'Legs', data: legsData, backgroundColor: '#b566ff', borderRadius: 3, stack: 's' }
       ]
     },
     options: {
@@ -1709,7 +1758,7 @@ async function analyzeWithAI() {
     }
   });
 
-  const totalsByType = { push: 0, pull: 0, press: 0 };
+  const totalsByType = { push: 0, pull: 0, legs: 0 };
   profile.history.forEach(w => totalsByType[w.type] = (totalsByType[w.type] || 0) + 1);
 
   const lastWeekTimestamp = Date.now() - 7 * 86400000;
@@ -1719,7 +1768,7 @@ async function analyzeWithAI() {
 
 DANE TRENINGOWE:
 - Łącznie treningów: ${profile.history.length}
-- Push: ${totalsByType.push}, Pull: ${totalsByType.pull}, Press: ${totalsByType.press}
+- Push: ${totalsByType.push}, Pull: ${totalsByType.pull}, Legs: ${totalsByType.legs}
 - Treningi w ostatnim tygodniu: ${lastWeekCount}
 
 HISTORIA CIĘŻARÓW (chronologicznie, najstarsze pierwsze):
@@ -1727,7 +1776,7 @@ ${JSON.stringify(dataForAI, null, 1)}
 
 ZASADY ANALIZY:
 1. Znajdź 3-5 najważniejszych obserwacji (max 5)
-2. Skup się na: stagnacji ciężaru >3 sesje (trzeba zwiększyć), szybkim progresie (gratulacje), zaniedbanych grupach mięśniowych (nierówny stosunek push/pull/press), ciężarach które idą w dół (co się stało?)
+2. Skup się na: stagnacji ciężaru >3 sesje (trzeba zwiększyć), szybkim progresie (gratulacje), zaniedbanych grupach mięśniowych (nierówny stosunek push/pull/legs), ciężarach które idą w dół (co się stało?)
 3. Każda porada MUSI być konkretna - z nazwą ćwiczenia i liczbami
 4. Używaj polskiego, zwracaj się per "Ty"
 5. Ton: rzeczowy trener, bez infantylizacji
@@ -2341,10 +2390,263 @@ if ('serviceWorker' in navigator) {
 }
 
 // ============ IMPORT TRENINGU ============
+function setImportMode(mode) {
+  importMode = mode;
+  csvParsedData = null;
+  pendingImport = null;
+  document.querySelectorAll('.import-mode-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  document.getElementById('importTextArea').classList.toggle('hidden', mode !== 'text');
+  document.getElementById('importCsvArea').classList.toggle('active', mode === 'csv');
+  document.getElementById('importTypeSelect').style.display = mode === 'text' ? 'flex' : 'none';
+  document.getElementById('importResult').innerHTML = '';
+
+  const btn = document.getElementById('importParseBtn');
+  if (mode === 'csv') {
+    btn.innerHTML = '<i class="ti ti-file-import"></i>Wczytaj plik CSV najpierw';
+    btn.disabled = true;
+  } else {
+    btn.innerHTML = '<i class="ti ti-sparkles"></i>Analizuj z AI';
+    btn.disabled = false;
+  }
+
+  // Reset CSV drop zone
+  const dropZone = document.getElementById('csvDropZone');
+  if (dropZone) dropZone.classList.remove('has-file');
+  const fileInfo = document.getElementById('csvFileInfo');
+  if (fileInfo) fileInfo.style.display = 'none';
+  const fileInput = document.getElementById('csvFileInput');
+  if (fileInput) fileInput.value = '';
+}
+
+function handleCsvFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      const parsed = parseCsvData(text);
+      if (!parsed || !parsed.length) {
+        showToast('Plik CSV jest pusty lub w złym formacie', 'error');
+        return;
+      }
+      csvParsedData = parsed;
+
+      // UI: pokaż info o pliku
+      const dropZone = document.getElementById('csvDropZone');
+      dropZone.classList.add('has-file');
+      const fileInfo = document.getElementById('csvFileInfo');
+      fileInfo.style.display = 'block';
+      fileInfo.innerHTML = `<div class="csv-file-info"><i class="ti ti-check"></i><div><strong>${escapeHtml(file.name)}</strong> · ${parsed.length} treningów (${parsed.reduce((s,w) => s + w.exercises.length, 0)} ćwiczeń)</div></div>`;
+
+      // Aktywuj przycisk
+      const btn = document.getElementById('importParseBtn');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-check"></i>Pokaż podgląd';
+
+      // Pokaż podgląd
+      showCsvPreview(parsed);
+    } catch (err) {
+      console.error(err);
+      showToast('Błąd odczytu CSV: ' + err.message, 'error');
+    }
+  };
+  reader.onerror = () => showToast('Nie udało się odczytać pliku', 'error');
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCsvData(text) {
+  // Parser CSV z aplikacji - format ze średnikiem
+  // Header: Data;Typ;Cwiczenie;Powtorzenia w serii;Serie;Lacznie;Ciezar (kg);1RM (kg);Czas treningu;Cel
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  // Wykryj separator (; lub ,)
+  const firstLine = lines[0];
+  const sep = firstLine.includes(';') ? ';' : ',';
+
+  // Pomiń nagłówek
+  const dataLines = lines.slice(1);
+
+  // Grupuj wiersze po dacie+typie (jeden trening = wiele wierszy = jedno ćwiczenie na wiersz)
+  const workoutMap = new Map();
+
+  dataLines.forEach(line => {
+    // Parsuj wiersz uwzględniając cudzysłowy
+    const cells = parseCsvLine(line, sep);
+    if (cells.length < 3) return;
+
+    const date = cells[0];
+    const type = (cells[1] || '').toLowerCase().trim();
+    const exName = cells[2];
+    const reps = parseInt(cells[3]) || 0;
+    const sets = parseInt(cells[4]) || 3;
+    const total = parseInt(cells[5]) || (reps * sets);
+    const kg = parseFloat(cells[6]) || 0;
+    const orm = parseFloat(cells[7]) || 0;
+    const durationStr = cells[8] || '';
+    const target = cells[9] || '';
+
+    if (!date || !exName || !['push', 'pull', 'legs', 'press'].includes(type)) return;
+
+    const key = date + '|' + type;
+    if (!workoutMap.has(key)) {
+      // Parsuj datę z formatu DD.MM.YYYY HH:MM lub DD.MM.YYYY, HH:MM
+      const ts = parsePolishDate(date);
+      // Parsuj czas trwania (np "45 min 12s")
+      const duration = parseDurationStr(durationStr);
+      workoutMap.set(key, {
+        id: 'w_csv_' + ts + '_' + Math.random().toString(36).slice(2, 7),
+        type: type === 'press' ? 'legs' : type, // Migracja starych zapisów
+        timestamp: ts,
+        date: date,
+        exercises: [],
+        totalReps: 0,
+        duration: duration
+      });
+    }
+    const w = workoutMap.get(key);
+    w.exercises.push({
+      name: exName,
+      target: target,
+      tip: '',
+      reps: reps,
+      kg: kg,
+      sets: sets,
+      total: total,
+      orm: orm
+    });
+    w.totalReps += total;
+  });
+
+  return Array.from(workoutMap.values()).sort((a, b) => b.timestamp - a.timestamp);
+}
+
+function parseCsvLine(line, sep) {
+  const cells = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === sep && !inQuotes) {
+      cells.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  cells.push(current);
+  return cells.map(c => c.trim());
+}
+
+function parsePolishDate(dateStr) {
+  // Format: "08.05.2026, 18:30" lub "08.05.2026 18:30"
+  const match = dateStr.match(/(\d{2})\.(\d{2})\.(\d{4})[,\s]+(\d{2}):(\d{2})/);
+  if (match) {
+    const [, day, month, year, hour, min] = match;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(min)).getTime();
+  }
+  // Fallback: tylko data
+  const dateOnly = dateStr.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+  if (dateOnly) {
+    const [, day, month, year] = dateOnly;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0).getTime();
+  }
+  return Date.now();
+}
+
+function parseDurationStr(str) {
+  if (!str) return 0;
+  // Format: "45 min 12s" lub "1h 30min"
+  let total = 0;
+  const hours = str.match(/(\d+)\s*h/);
+  const mins = str.match(/(\d+)\s*min/);
+  const secs = str.match(/(\d+)\s*s(?!\w)/);
+  if (hours) total += parseInt(hours[1]) * 3600;
+  if (mins) total += parseInt(mins[1]) * 60;
+  if (secs) total += parseInt(secs[1]);
+  return total;
+}
+
+function showCsvPreview(workouts) {
+  const result = document.getElementById('importResult');
+  const profile = getCurrentProfile();
+  const existingIds = new Set(profile.history.map(w => w.timestamp));
+
+  // Filtruj duplikaty po timestamp
+  const newWorkouts = workouts.filter(w => !existingIds.has(w.timestamp));
+  const duplicates = workouts.length - newWorkouts.length;
+
+  let html = '<div class="import-result success">';
+  html += `<strong style="color: var(--success);">✓ Rozpoznano ${workouts.length} treningów`;
+  if (duplicates > 0) html += ` (${newWorkouts.length} nowych, ${duplicates} duplikatów do pominięcia)`;
+  html += '</strong>';
+  html += '<div class="import-preview-list">';
+
+  // Pokaż max 8 ostatnich
+  const preview = newWorkouts.slice(0, 8);
+  preview.forEach(w => {
+    const exCount = w.exercises.length;
+    const totalReps = w.totalReps || w.exercises.reduce((s, e) => s + (e.total || 0), 0);
+    html += '<div class="import-preview-item">';
+    html += '<div class="import-preview-name">' + escapeHtml(w.date) + ' · ' + w.type.toUpperCase() + ' · ' + exCount + ' ćw.</div>';
+    html += '<div class="import-preview-stats">' + totalReps + ' rep</div>';
+    html += '</div>';
+  });
+  if (newWorkouts.length > 8) {
+    html += '<div style="text-align: center; padding: 6px; color: var(--text-muted); font-size: 11px;">... i ' + (newWorkouts.length - 8) + ' więcej</div>';
+  }
+  html += '</div>';
+  html += '</div>';
+  result.innerHTML = html;
+
+  // Aktualizuj przycisk
+  const btn = document.getElementById('importParseBtn');
+  if (newWorkouts.length === 0) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-info-circle"></i>Wszystkie treningi już są w historii';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-database-import"></i>Importuj ' + newWorkouts.length + ' treningów';
+  }
+
+  // Zapisz przefiltrowane do późniejszego zapisu
+  csvParsedData = newWorkouts;
+}
+
+function importCsvWorkouts() {
+  if (!csvParsedData || !csvParsedData.length) return;
+
+  updateCurrentProfile(p => {
+    p.history = [...csvParsedData, ...p.history]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 200);
+    return p;
+  });
+
+  const count = csvParsedData.length;
+  closeImportModal();
+  refreshHistory();
+  refreshStats();
+  refreshChart();
+  refreshExerciseSelect();
+  checkBackupReminder();
+  showToast(`Zaimportowano ${count} treningów z CSV`, 'success');
+  csvParsedData = null;
+}
+
 function openImportModal() {
   document.getElementById('importText').value = '';
   document.getElementById('importResult').innerHTML = '';
   pendingImport = null;
+  csvParsedData = null;
+  // Reset trybu na tekstowy
+  setImportMode('text');
   // Domyślnie ustaw typ ostatniego treningu
   const profile = getCurrentProfile();
   if (profile.history.length > 0) {
@@ -2362,6 +2664,33 @@ document.getElementById('importModal').addEventListener('click', (e) => {
   if (e.target.id === 'importModal') closeImportModal();
 });
 
+// Drag & drop dla CSV
+(function() {
+  const dropZone = document.getElementById('csvDropZone');
+  if (!dropZone) return;
+  ['dragenter', 'dragover'].forEach(ev => {
+    dropZone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.borderColor = 'var(--accent)';
+    });
+  });
+  ['dragleave', 'drop'].forEach(ev => {
+    dropZone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.borderColor = '';
+    });
+  });
+  dropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].name.endsWith('.csv')) {
+      const fakeEvent = { target: { files: [files[0]] } };
+      handleCsvFile(fakeEvent);
+    }
+  });
+})();
+
 function setImportType(type) {
   importType = type;
   document.querySelectorAll('.import-type-btn').forEach(b => {
@@ -2371,6 +2700,14 @@ function setImportType(type) {
 
 async function parseImport() {
   if (isImporting) return;
+
+  // Tryb CSV - bez AI, parsowanie lokalne
+  if (importMode === 'csv') {
+    if (csvParsedData && csvParsedData.length > 0) {
+      importCsvWorkouts();
+    }
+    return;
+  }
 
   // Jeśli już mamy sparsowany wynik - to drugie kliknięcie = potwierdzenie i zapis
   if (pendingImport) {
