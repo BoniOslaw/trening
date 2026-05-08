@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trening Pro</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trening Pro">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Trening Pro">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -201,6 +212,30 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .api-section .help { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
 .api-section .help a { color: var(--accent); text-decoration: none; }
 .api-section .help a:hover { text-decoration: underline; }
+
+/* ===== INSTALL PROMPT ===== */
+.install-prompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--bg-elev); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 14px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 250; max-width: calc(100vw - 32px); }
+.install-prompt.show { transform: translateX(-50%) translateY(0); }
+.install-prompt-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.install-prompt-text { flex: 1; min-width: 0; }
+.install-prompt-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.install-prompt-sub { font-size: 11px; color: var(--text-muted); }
+.install-prompt-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.install-prompt-btn { padding: 8px 14px; border-radius: 100px; border: none; background: var(--accent); color: #000; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.install-prompt-btn:hover { opacity: 0.85; }
+.install-prompt-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 6px; font-size: 14px; transition: color 0.15s; }
+.install-prompt-close:hover { color: var(--text); }
+
+.offline-badge { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-200%); background: var(--bg-elev); border: 1px solid var(--warning); border-radius: 100px; padding: 6px 14px; color: var(--warning); font-size: 12px; font-weight: 500; z-index: 200; transition: transform 0.3s ease; display: flex; align-items: center; gap: 6px; }
+.offline-badge.show { transform: translateX(-50%) translateY(0); }
+.offline-badge i { font-size: 13px; }
+
+@media (max-width: 480px) {
+  .install-prompt { bottom: 16px; flex-wrap: wrap; padding: 12px 14px; gap: 10px; }
+  .install-prompt-text { flex: 1 0 calc(100% - 54px); }
+  .install-prompt-actions { flex: 1 0 100%; margin-top: 6px; }
+  .install-prompt-btn { flex: 1; }
+}
 
 /* ===== TOAST ===== */
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 12px 20px; background: var(--bg-elev); border: 1px solid var(--accent); border-radius: 100px; color: var(--accent); font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 200; box-shadow: var(--shadow); }
@@ -527,6 +562,23 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   <span class="save-reminder-text">Wszystko wypełnione — <strong>zapisać trening?</strong></span>
   <button class="save-reminder-btn" onclick="saveFromReminder()">Zapisz teraz</button>
   <button class="save-reminder-close" onclick="dismissReminder()" aria-label="Zamknij">×</button>
+</div>
+
+<div class="offline-badge" id="offlineBadge">
+  <i class="ti ti-wifi-off"></i>
+  <span>Tryb offline</span>
+</div>
+
+<div class="install-prompt" id="installPrompt">
+  <div class="install-prompt-icon"><i class="ti ti-device-mobile-down"></i></div>
+  <div class="install-prompt-text">
+    <div class="install-prompt-title">Zainstaluj jako aplikację</div>
+    <div class="install-prompt-sub">Dodaj do ekranu głównego — działa offline</div>
+  </div>
+  <div class="install-prompt-actions">
+    <button class="install-prompt-btn" onclick="installApp()">Zainstaluj</button>
+    <button class="install-prompt-close" onclick="dismissInstall()" aria-label="Zamknij"><i class="ti ti-x"></i></button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1920,6 +1972,78 @@ function speak(text) {
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {};
   window.speechSynthesis.getVoices();
+}
+
+// ============ PWA INSTALL & OFFLINE ============
+let deferredInstallPrompt = null;
+const STORAGE_INSTALL_DISMISSED = 'tp_install_dismissed_v1';
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Pokaż prompt jeśli użytkownik wcześniej go nie zamknął (lub minęło 7 dni)
+  const dismissed = localStorage.getItem(STORAGE_INSTALL_DISMISSED);
+  if (!dismissed || (Date.now() - parseInt(dismissed)) > 7 * 86400000) {
+    setTimeout(() => {
+      const prompt = document.getElementById('installPrompt');
+      if (prompt) prompt.classList.add('show');
+    }, 3000);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  const prompt = document.getElementById('installPrompt');
+  if (prompt) prompt.classList.remove('show');
+  deferredInstallPrompt = null;
+  showToast('Aplikacja zainstalowana! 🎉', 'success');
+});
+
+async function installApp() {
+  if (!deferredInstallPrompt) {
+    showToast('Aby zainstalować: menu przeglądarki → "Dodaj do ekranu głównego"', '');
+    return;
+  }
+  document.getElementById('installPrompt').classList.remove('show');
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  if (choice.outcome === 'accepted') {
+    showToast('Instaluję aplikację...', 'success');
+  }
+  deferredInstallPrompt = null;
+}
+
+function dismissInstall() {
+  document.getElementById('installPrompt').classList.remove('show');
+  localStorage.setItem(STORAGE_INSTALL_DISMISSED, Date.now().toString());
+}
+
+// === OFFLINE DETECTION ===
+function updateOnlineStatus() {
+  const badge = document.getElementById('offlineBadge');
+  if (!badge) return;
+  if (navigator.onLine) {
+    badge.classList.remove('show');
+  } else {
+    badge.classList.add('show');
+  }
+}
+window.addEventListener('online', () => {
+  updateOnlineStatus();
+  showToast('Połączenie przywrócone', 'success');
+});
+window.addEventListener('offline', () => {
+  updateOnlineStatus();
+  showToast('Tryb offline — generowanie planów wymaga internetu', '');
+});
+updateOnlineStatus();
+
+// === SERVICE WORKER REGISTRATION ===
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.warn('SW registration failed:', err));
+  });
 }
 
 // ============ INIT ============
