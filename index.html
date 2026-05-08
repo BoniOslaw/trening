@@ -760,11 +760,30 @@ function saveTimerPrefs() {
 
 // ============ PROFILES ============
 function getProfiles() {
-  try { 
-    const p = JSON.parse(localStorage.getItem(STORAGE_PROFILES) || 'null');
-    if (!p || !p.length) return [{ id: 'default', name: 'Łukasz', history: [] }];
-    return p;
-  } catch { return [{ id: 'default', name: 'Łukasz', history: [] }]; }
+  const defaultProfile = () => [{ id: 'default', name: 'Łukasz', history: [] }];
+  try {
+    const raw = localStorage.getItem(STORAGE_PROFILES);
+    if (!raw) return defaultProfile();
+    const p = JSON.parse(raw);
+    if (!Array.isArray(p) || !p.length) return defaultProfile();
+    // Sanityzacja - odrzuć niepoprawne wpisy, napraw popsute
+    return p.map(profile => ({
+      id: typeof profile?.id === 'string' && profile.id ? profile.id : 'p_' + Date.now(),
+      name: typeof profile?.name === 'string' && profile.name ? profile.name : 'Użytkownik',
+      history: Array.isArray(profile?.history)
+        ? profile.history.filter(w =>
+            w && typeof w === 'object' &&
+            typeof w.timestamp === 'number' &&
+            typeof w.type === 'string' &&
+            Array.isArray(w.exercises) &&
+            w.exercises.every(ex => ex && typeof ex.name === 'string')
+          )
+        : []
+    }));
+  } catch (e) {
+    console.warn('getProfiles: błąd deserializacji, zwracam domyślny profil', e);
+    return defaultProfile();
+  }
 }
 function saveProfiles(p) { localStorage.setItem(STORAGE_PROFILES, JSON.stringify(p)); }
 function getCurrentProfileId() { return localStorage.getItem(STORAGE_CURRENT) || 'default'; }
@@ -1041,6 +1060,7 @@ function renderExercises(exs) {
 
 function stepReps(i, dir) {
   const input = document.getElementById(`reps_${i}`);
+  if (!input) return;
   const val = (parseInt(input.value) || 0) + dir;
   if (val < 0 || val > 999) return;
   input.value = val;
@@ -1049,6 +1069,7 @@ function stepReps(i, dir) {
 
 function stepKg(i, dir) {
   const input = document.getElementById(`kg_${i}`);
+  if (!input) return;
   const val = Math.round(((parseFloat(input.value) || 0) + dir * 2.5) * 10) / 10;
   if (val < 0 || val > 999) return;
   input.value = val;
@@ -1056,9 +1077,12 @@ function stepKg(i, dir) {
 }
 
 function updateTotal(i) {
-  const v = parseInt(document.getElementById(`reps_${i}`).value) || 0;
-  const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
+  const repsEl = document.getElementById(`reps_${i}`);
+  const kgEl = document.getElementById(`kg_${i}`);
   const el = document.getElementById(`total_${i}`);
+  if (!repsEl || !el) return;
+  const v = parseInt(repsEl.value) || 0;
+  const kg = parseFloat(kgEl?.value) || 0;
   if (v > 0) {
     const kgText = kg > 0 ? ` · ${kg} kg` : '';
     let ormText = '';
@@ -1658,8 +1682,11 @@ async function analyzeWithAI() {
   content.innerHTML = '<div class="coach-loading"><i class="ti ti-loader-2 spin"></i>Claude analizuje Twoje postępy...</div>';
 
   // Przygotuj dane: po każdym ćwiczeniu - historia ciężarów
+  // Limit do 50 najnowszych treningów - chroni przed dużymi kosztami API
+  const MAX_WORKOUTS_FOR_AI = 50;
+  const recentHistory = profile.history.slice(0, MAX_WORKOUTS_FOR_AI);
   const exerciseMap = new Map();
-  profile.history.slice().reverse().forEach(w => {
+  recentHistory.slice().reverse().forEach(w => {
     w.exercises.forEach(ex => {
       if (ex.kg > 0 && ex.reps > 0) {
         if (!exerciseMap.has(ex.name)) exerciseMap.set(ex.name, []);
@@ -1677,7 +1704,8 @@ async function analyzeWithAI() {
   const dataForAI = {};
   exerciseMap.forEach((sessions, name) => {
     if (sessions.length >= 2) {
-      dataForAI[name] = sessions;
+      // Dla każdego ćwiczenia max 10 ostatnich sesji (Claude widzi trend bez zalewu)
+      dataForAI[name] = sessions.slice(-10);
     }
   });
 
@@ -2290,7 +2318,24 @@ updateOnlineStatus();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
+      .then(reg => {
+        console.log('SW registered:', reg.scope);
+        // Wykryj nową wersję - powiadom użytkownika
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Nowa wersja gotowa - delikatnie poinformuj
+              setTimeout(() => {
+                showToast('🔄 Dostępna nowa wersja - odśwież stronę', '');
+              }, 1000);
+            }
+          });
+        });
+        // Sprawdzaj aktualizacje co godzinę gdy aplikacja jest otwarta
+        setInterval(() => reg.update().catch(() => {}), 3600000);
+      })
       .catch(err => console.warn('SW registration failed:', err));
   });
 }
@@ -2336,6 +2381,12 @@ async function parseImport() {
   const text = document.getElementById('importText').value.trim();
   if (!text) {
     showToast('Wpisz dane treningu', 'error');
+    return;
+  }
+  // Limit długości - chroni przed przypadkowym wklejeniem długiego tekstu
+  const MAX_IMPORT_LENGTH = 4000;
+  if (text.length > MAX_IMPORT_LENGTH) {
+    showToast(`Tekst za długi (${text.length}/${MAX_IMPORT_LENGTH} znaków). Skróć i spróbuj ponownie.`, 'error');
     return;
   }
 
