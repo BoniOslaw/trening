@@ -1,191 +1,212 @@
 # 💪 Trening Pro
 
-Personalna aplikacja treningowa Push / Pull / Press z generowaniem planów przez AI (Claude), trwałą historią, wykresami postępu, analizą siły i timerem odpoczynku z głosem polskim. Działa offline jako PWA — zainstalujesz na telefonie i komputerze.
+Osobista aplikacja treningowa Push / Pull / Legs z generowaniem planów przez AI (Claude), historią treningów, wykresami postępu i analizą siły. Działa offline jako PWA — możesz zainstalować ją na telefonie i komputerze.
 
 ---
 
 ## ✨ Funkcje
 
 ### 🎯 Plany treningowe
-- **3 typy treningu:** Push (klatka, barki, triceps) / Pull (plecy, biceps) / Press (barki, ramiona)
-- **Generowanie planów przez Claude AI** — 5 ćwiczeń z opisem techniki
-- **Zróżnicowanie** — Claude widzi historię i nie powtarza ćwiczeń
+- **3 typy treningu:** Push (klatka, barki, triceps) / Pull (plecy, biceps) / Legs (nogi, dolny odcinek pleców)
+- **Generowanie planu przez Claude AI** — 5 ćwiczeń z opisem techniki wykonania
+- **Zróżnicowanie ćwiczeń** — Claude analizuje historię i nie powtarza tych samych ćwiczeń
 - **Wskazówki techniczne** przy każdym ćwiczeniu
-- **🎬 Linki do YouTube** — przy każdym ćwiczeniu jest przycisk "Pokaż" otwierający wyszukiwanie techniki na YouTube
+- **🎬 Linki do YouTube** — przycisk „Pokaż" przy każdym ćwiczeniu otwiera wyszukiwanie techniki na YouTube
 
-### 📝 Logowanie treningu
-- **Powtórzenia × 3 serie** — wpisujesz raz, aplikacja mnoży automatycznie
-- **Ciężar w kg** — śledzenie progresji ciężarów
-- **💪 Kalkulator 1RM** — szacowany maksymalny ciężar jednopowtórzeniowy (wzory Brzycki + Epley)
-- **⏱️ Stoper czasu treningu** — pokazuje ile trwa cała sesja, automatyczny start i zapis
-- **⏰ Timer odpoczynku** z presetami 60s / 90s / 2min / 3min
-- **🎤 Powiadomienie głosowe po polsku** po zakończeniu przerwy (Web Speech API)
-- **🔔 Dźwięk dzwonka + wibracja** (konfigurowalne)
-- **💾 Auto-save** — odświeżenie strony nie powoduje utraty danych
-- **⚠️ Przypomnienie o zapisie** gdy wszystkie pola wypełnione
+### 📝 Rejestrowanie treningu
+- **Powtórzenia × 3 serie** — wpisujesz liczbę powtórzeń, aplikacja liczy łączną sumę automatycznie
+- **Ciężar w kg** — śledzenie postępu obciążeń
+- **💪 Kalkulator 1RM** — szacowany maksymalny ciężar jednopowtórzeniowy (wzory Brzycki i Epley)
+- **⏱️ Stoper czasu treningu** — mierzy czas całej sesji od wygenerowania planu do zapisu
+- **⏰ Timer odpoczynku** z ustawieniami 60 s / 90 s / 2 min / 3 min
+- **🎤 Komunikat głosowy po polsku** — informuje o końcu przerwy (Web Speech API)
+- **🔔 Dźwięk dzwonka i wibracja** — konfigurowalne niezależnie
+- **💾 Automatyczny zapis roboczy** — odświeżenie strony nie powoduje utraty danych
+- **⚠️ Przypomnienie o zapisaniu** — pojawia się gdy wszystkie pola są wypełnione
 
 ### 📊 Analiza i statystyki
-- **Statystyki tygodniowe** — treningi, powtórzenia, średnie
-- **Wykres postępu** ostatnich 14 dni (Push/Pull/Press)
-- **Analiza per ćwiczenie** — rekord, średnia, trend ciężaru
-- **🔥 Najlepszy 1RM dla ćwiczenia** — historyczny rekord siły
+- **Statystyki tygodniowe** — liczba treningów, powtórzeń, wartości średnie
+- **Wykres ostatnich 14 dni** — podział na Push / Pull / Legs
+- **Analiza wybranego ćwiczenia** — rekord, średnia, trend ciężaru
+- **🔥 Najlepszy 1RM** — historyczny rekord siły dla każdego ćwiczenia
 - **Wykres progresji ciężaru** dla wybranego ćwiczenia
-- **🧠 AI Coach** — Claude analizuje historię i daje konkretne porady (stagnacja, postępy, sugestie zwiększenia ciężaru)
+- **🧠 AI Coach** — Claude analizuje historię treningów i wskazuje stagnację, postępy oraz sugestie zwiększenia obciążenia
 
 ### 📥 Import treningu
-- **Wklejasz luźny tekst** ze swojego treningu (np. *"1. Wyciskanie 3x10 80kg, 2. Pompki 3x15..."*)
-- **AI parsuje automatycznie** — rozpoznaje różne formaty zapisu, czas treningu, notatki
-- **Podgląd przed zapisem** — możesz zweryfikować zanim wgrasz do historii
-- **Niestandardowe ilości serii** — obsługa np. 2×8 zamiast 3×8 (gdy trening był przerwany)
+- **Import z tekstu (AI)** — wklej opis treningu w dowolnym formacie, np. *„1. Wyciskanie 3×10 80 kg, 2. Pompki 3×15"*, a Claude rozpozna wszystkie dane
+- **Import z pliku CSV** — wczytaj wcześniej wyeksportowany plik CSV bez użycia API (bezpłatnie)
+- **Podgląd przed zapisem** — sprawdź poprawność danych zanim trafią do historii
+- **Obsługa niestandardowej liczby serii** — np. 2×8 zamiast 3×8, gdy trening był przerwany
+- **Wykrywanie duplikatów** — treningi już obecne w historii nie zostaną dodane ponownie
 
 ### 👥 Profile i dane
-- **Wiele profili** — Twój, partnera, znajomych
-- **Trwała historia** — zapisana lokalnie w przeglądarce
-- **Eksport CSV i PDF** — kopia zapasowa do druku/Excela (z 1RM, czasem treningu, ciężarami)
-- **🛡️ Przypomnienie o backupie** co 3 tygodnie
+- **Wiele profili** — osobne profile dla Ciebie, partnera lub znajomych
+- **Trwała historia** — dane przechowywane lokalnie w przeglądarce
+- **Eksport do CSV i PDF** — kopia zapasowa z pełnymi danymi (1RM, czas treningu, ciężary)
+- **🛡️ Przypomnienie o kopii zapasowej** co 3 tygodnie
 
-### 📱 Progressive Web App (PWA)
+### 📱 Progresywna Aplikacja Webowa (PWA)
 - **Instalacja na telefonie** — działa jak natywna aplikacja
-- **Instalacja na komputerze** — Chrome/Edge
-- **Pełna obsługa offline** (poza generowaniem planów)
-- **Automatyczne wykrywanie aktualizacji** — aplikacja powiadomi gdy będzie nowa wersja
-- **Ikona na ekranie głównym** + dark mode
-- **Tryb offline z badge** — widzisz gdy nie masz internetu
+- **Instalacja na komputerze** — Chrome i Edge
+- **Pełna obsługa trybu offline** (z wyjątkiem generowania planów i AI Coach)
+- **Automatyczne wykrywanie aktualizacji** — aplikacja wyświetli powiadomienie o nowej wersji
+- **Ikona na ekranie głównym** i ciemny motyw (dark mode)
+- **Wskaźnik trybu offline** — widoczna informacja o braku połączenia z internetem
 
 ---
 
-## 🚀 Pierwsze użycie
+## 🚀 Pierwsze uruchomienie
 
-1. Wejdź na `https://[twoja-nazwa].github.io/trening/`
-2. Kliknij ikonę profilu (litera w kółku w prawym górnym rogu)
+1. Otwórz `https://bonioslaw.github.io/trening/`
+2. Kliknij ikonę profilu (litera w kółku, prawy górny róg)
 3. Wklej klucz API Anthropic (zaczyna się od `sk-ant-...`)
-   - Pobierz na [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys
-   - Wymaga doładowania konta minimum 5 USD
-4. Wybierz typ treningu (Push / Pull / Press)
-5. Kliknij **Generuj plan** — 5 ćwiczeń pojawi się w 2-3 sekundy
-6. Trenuj — wpisuj powtórzenia i kg, używaj timera odpoczynku
-7. **Zapisz trening** — dane zostaną w historii wraz z czasem trwania
+   - Utwórz klucz na [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys
+   - Wymagane doładowanie konta (minimum 5 USD)
+4. Wybierz typ treningu (Push / Pull / Legs)
+5. Kliknij **Generuj plan** — 5 ćwiczeń pojawi się w ciągu 2–3 sekund
+6. Ćwicz — wpisuj powtórzenia i ciężary, korzystaj z timera odpoczynku
+7. Kliknij **Zapisz trening** — dane trafią do historii wraz z czasem trwania sesji
 
 ---
 
 ## 💪 Kalkulator 1RM — jak to działa
 
-**1RM (One-Rep Max)** to szacowany maksymalny ciężar, który możesz podnieść w jednym powtórzeniu. Aplikacja używa średniej z dwóch standardowych wzorów stosowanych w branży:
+**1RM (One-Rep Max)** to szacowany maksymalny ciężar, który możesz podnieść w jednym powtórzeniu. Aplikacja oblicza go jako średnią z dwóch sprawdzonych wzorów:
 
 ```
-Brzycki:  1RM = ciężar × (36 / (37 - powtórzenia))
+Brzycki:  1RM = ciężar × (36 / (37 − powtórzenia))
 Epley:    1RM = ciężar × (1 + powtórzenia / 30)
 ```
 
 **Przykład:** Wyciskanie 80 kg × 8 powtórzeń → szacowany 1RM ≈ 99 kg
 
-Działa w zakresie 2-12 powtórzeń (powyżej tego wzory tracą dokładność). Wynik zaokrąglany do 0.5 kg.
+Kalkulator działa dla zakresu 2–12 powtórzeń — powyżej tej granicy wzory tracą dokładność. Wynik jest zaokrąglany do 0,5 kg.
+
+---
+
+## 📥 Import z pliku CSV
+
+Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wczytać do aplikacji:
+
+1. Otwórz panel **Historia** → kliknij przycisk **Import**
+2. Wybierz zakładkę **Plik CSV**
+3. Kliknij strefę przeciągania lub przeciągnij plik CSV bezpośrednio na nią
+4. Aplikacja wyświetli podgląd — ile treningów zostanie dodanych, ile zostanie pominiętych jako duplikaty
+5. Kliknij **Importuj** — dane trafią do historii
+
+> Import z CSV nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
 
 ---
 
 ## 📲 Instalacja jako aplikacja
 
 ### Android (Chrome)
-- Po wejściu na stronę pojawi się banner **"Zainstaluj jako aplikację"**
-- Klikasz → aplikacja ląduje na ekranie głównym
+- Po wejściu na stronę pojawi się baner **„Zainstaluj jako aplikację"**
+- Kliknij baner — ikona aplikacji pojawi się na ekranie głównym
 
 ### iPhone (Safari)
-- Otwórz stronę
-- Kliknij przycisk **Udostępnij** (kwadrat ze strzałką w górę)
-- Przewiń niżej → **Dodaj do ekranu początkowego**
+- Otwórz stronę w Safari
+- Kliknij przycisk **Udostępnij** (kwadrat ze strzałką skierowaną w górę)
+- Przewiń listę w dół i wybierz **Dodaj do ekranu głównego**
 
-### Windows / Mac (Chrome / Edge)
+### Windows i macOS (Chrome / Edge)
 - W pasku adresu pojawi się ikona instalacji (monitor ze strzałką)
-- Klikasz → aplikacja zainstaluje się jako oddzielny program
+- Kliknij ikonę — aplikacja zainstaluje się jako oddzielny program
 
 ---
 
 ## 💰 Koszty
 
-- ✅ **Hosting (GitHub Pages):** darmowy
-- ✅ **Aplikacja:** darmowa
-- 💵 **Anthropic API:**
-  - Generowanie planu: ~$0.005-0.01 (2-4 grosze)
-  - AI Coach: ~$0.01-0.02 (4-8 groszy)
-  - Import treningu: ~$0.005 (2 grosze)
-- 💵 **Minimum doładowania:** $5 USD = setki/tysiące planów
+| Co | Koszt |
+|---|---|
+| Hosting (GitHub Pages) | Bezpłatny |
+| Aplikacja | Bezpłatna |
+| Generowanie planu (AI) | ~0,005–0,01 USD (2–4 grosze) |
+| AI Coach | ~0,01–0,02 USD (4–8 groszy) |
+| Import z tekstu (AI) | ~0,005 USD (2 grosze) |
+| Import z pliku CSV | Bezpłatny |
+| Minimum doładowania API | 5 USD |
 
-> 💡 AI Coach automatycznie ogranicza dane do 50 ostatnich treningów żeby koszt jednej analizy zawsze pozostał niski, niezależnie od długości historii.
+> 💡 AI Coach analizuje maksymalnie 50 ostatnich treningów, dzięki czemu koszt pojedynczej analizy pozostaje niski niezależnie od długości historii.
 
 ---
 
-## 🛠️ Stack technologiczny
+## 🛠️ Użyte technologie
 
-- **HTML5 + CSS3 + Vanilla JavaScript** — bez frameworków
+- **HTML5, CSS3, Vanilla JavaScript** — bez zewnętrznych frameworków
 - [Chart.js 4.4](https://www.chartjs.org/) — wykresy
-- [jsPDF 2.5](https://github.com/parallax/jsPDF) — eksport PDF
-- [Tabler Icons](https://tabler-icons.io/) — ikonografia
-- [Claude API](https://www.anthropic.com/) — generowanie planów (Sonnet 4.6)
-- **Web Audio API** — dźwięk dzwonka (generowany syntezatorem)
-- **Web Speech API** — komunikat głosowy po polsku (TTS)
-- **Vibration API** — wibracja telefonu
-- **localStorage** — trwała pamięć
-- **Service Worker** — offline + PWA + auto-update
+- [jsPDF 2.5](https://github.com/parallax/jsPDF) — eksport do PDF
+- [Tabler Icons](https://tabler-icons.io/) — ikony
+- [Claude API](https://www.anthropic.com/) — generowanie planów i analiza AI (model Sonnet 4.6)
+- **Web Audio API** — dźwięk dzwonka generowany przez syntezator
+- **Web Speech API** — komunikat głosowy po polsku (synteza mowy)
+- **Vibration API** — wibracja telefonu po zakończeniu przerwy
+- **localStorage** — trwałe przechowywanie danych lokalnie
+- **Service Worker** — tryb offline, PWA i automatyczne aktualizacje
 
 ---
 
-## 📁 Struktura plików
+## 📁 Struktura repozytorium
 
 ```
 trening/
-├── index.html                  # Główny plik aplikacji (~110 KB)
-├── manifest.json               # Konfiguracja PWA
-├── sw.js                       # Service Worker (offline + auto-update)
-├── icon-192.png                # Ikona aplikacji 192×192
-├── icon-512.png                # Ikona aplikacji 512×512
-├── icon-maskable-512.png       # Ikona maskable Android
-└── README.md                   # Ten plik
+├── index.html              # Główny plik aplikacji (~123 KB)
+├── manifest.json           # Konfiguracja PWA
+├── sw.js                   # Service Worker (offline i automatyczne aktualizacje)
+├── icon-192.png            # Ikona aplikacji 192×192 px
+├── icon-512.png            # Ikona aplikacji 512×512 px
+├── icon-maskable-512.png   # Ikona z obszarem bezpiecznym dla Androida
+└── README.md               # Ten plik
 ```
 
 ---
 
 ## 🔒 Prywatność i bezpieczeństwo
 
-- 🔐 **Klucz API** przechowywany lokalnie w localStorage przeglądarki
-- 📦 **Historia treningów** zapisywana lokalnie — nigdzie nie wychodzi
-- 🚫 **Brak rejestracji, brak konta, brak trackingu, brak reklam**
-- 📡 Internetu używa **wyłącznie** do komunikacji z Claude API (generowanie planów + AI Coach + import)
-- 🛡️ **Walidacja danych** z localStorage — uszkodzone wpisy są filtrowane, aplikacja nie umiera
-- 🔍 **Sanityzacja XSS** — odpowiedzi z AI są bezpiecznie renderowane (escapeHtml)
+- 🔐 **Klucz API** przechowywany wyłącznie lokalnie w przeglądarce (localStorage)
+- 📦 **Historia treningów** zapisywana lokalnie — nie jest nigdzie przesyłana
+- 🚫 **Brak rejestracji, konta, śledzenia aktywności i reklam**
+- 📡 Połączenie z internetem służy **wyłącznie** do komunikacji z Claude API (generowanie planów, AI Coach, import z tekstu)
+- 🛡️ **Walidacja danych** — uszkodzone lub niekompletne wpisy w pamięci lokalnej są automatycznie filtrowane
+- 🔍 **Ochrona przed XSS** — odpowiedzi z AI są bezpiecznie przetwarzane przed wyświetleniem
 
 ---
 
-## ⚠️ Ważne uwagi
+## ⚠️ Ważne informacje
 
-- Dane są przypisane do **konkretnej przeglądarki na konkretnym urządzeniu**
-- Wyczyszczenie cache przeglądarki = utrata danych
-- **Rób backup co 3 tygodnie** — aplikacja przypomni
-- Limit historii: 200 ostatnich treningów na profil (starsze są automatycznie usuwane)
-- Limit długości tekstu w imporcie: 4000 znaków
-- AI Coach analizuje maksymalnie 50 ostatnich treningów (chroni przed wysokimi kosztami)
+- Dane są przypisane do **konkretnej przeglądarki na konkretnym urządzeniu** — nie synchronizują się automatycznie
+- Wyczyszczenie danych przeglądarki spowoduje utratę historii — **rób regularne kopie zapasowe** (aplikacja przypomni co 3 tygodnie)
+- Limit historii: 200 ostatnich treningów na profil — starsze wpisy są usuwane automatycznie
+- Limit tekstu przy imporcie przez AI: 4000 znaków
+- AI Coach analizuje maksymalnie 50 ostatnich treningów
 
 ---
 
-## 🐛 Najczęstsze problemy
+## 🐛 Rozwiązywanie problemów
 
 ### Aplikacja nie aktualizuje się po wgraniu nowej wersji
-Service Worker cachuje pliki. Rozwiązania (od najprostszego):
-1. Poczekaj — aplikacja sama wykryje aktualizację i pokaże toast
-2. Twarde odświeżenie: `Ctrl+Shift+R` (komputer) lub wyczyść cache Chrome (telefon)
-3. Odinstaluj PWA i zainstaluj na nowo
 
-### Banner "Zainstaluj" się nie pojawia na Androidzie
-- Sprawdź czy używasz Chrome (nie Firefox/Opera)
-- Sprawdź w menu Chrome (3 kropki) → "Zainstaluj aplikację"
-- Banner pojawia się dopiero przy 2. wizycie (po 5+ minutach od pierwszej)
+Service Worker przechowuje pliki w pamięci podręcznej. Wypróbuj kolejno:
 
-### Banner się nie pojawia na iPhone
-To normalne — Apple ogranicza PWA. Trzeba zainstalować ręcznie:
-- Safari → Udostępnij → "Dodaj do ekranu początkowego"
+1. Poczekaj chwilę — aplikacja sama wykryje aktualizację i wyświetli powiadomienie
+2. Wymuś odświeżenie: **Ctrl+Shift+R** (komputer) lub wyczyść pamięć podręczną Chrome (telefon)
+3. Odinstaluj aplikację PWA i zainstaluj ją ponownie
 
-### Głos nie działa
-- Sprawdź czy telefon ma zainstalowany polski głos (Ustawienia → Dostępność → Mowa)
-- Na iPhone — pierwsza interakcja z aplikacją wymagana przed audio
+### Baner „Zainstaluj" nie pojawia się na Androidzie
+
+- Upewnij się, że używasz Chrome (nie Firefoksa ani Opery)
+- Sprawdź menu Chrome (trzy kropki) → „Zainstaluj aplikację"
+- Baner pojawia się dopiero podczas drugiej wizyty, minimum 5 minut po pierwszej
+
+### Baner „Zainstaluj" nie pojawia się na iPhonie
+
+To zamierzone ograniczenie Apple — PWA na iOS instaluje się wyłącznie ręcznie:
+Safari → Udostępnij → **Dodaj do ekranu głównego**
+
+### Komunikat głosowy nie działa
+
+- Sprawdź, czy telefon ma zainstalowany polski głos: Ustawienia → Dostępność → Synteza mowy
+- Na iPhonie dźwięk wymaga wcześniejszego dotknięcia ekranu (ograniczenie systemu iOS)
 
 ---
 
