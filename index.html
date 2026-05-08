@@ -460,10 +460,54 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 
   <!-- ACTIONS -->
   <div class="section-head">
-    <span class="section-title">Plan na dziś</span>
+    <div style="display: flex; align-items: center;">
+      <span class="section-title">Plan na dziś</span>
+      <span class="workout-timer-badge" id="workoutTimerBadge" style="display:none;">
+        <span class="pulse-dot"></span>
+        <i class="ti ti-clock"></i>
+        <span id="workoutTimerText">0:00</span>
+      </span>
+    </div>
     <div class="btn-group">
       <button class="btn btn-primary" id="genBtn" onclick="generatePlan()">
         <i class="ti ti-sparkles"></i><span id="genBtnText">Generuj plan</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- REST TIMER -->
+  <div class="rest-timer-bar" id="restTimer" style="display:none;">
+    <div class="rest-timer-row">
+      <div class="rest-timer-icon" id="restTimerIcon"><i class="ti ti-clock"></i></div>
+      <div class="rest-timer-info">
+        <div class="rest-timer-label" id="restTimerLabel">Przerwa między seriami</div>
+        <div class="rest-timer-display" id="restTimerDisplay">1:30</div>
+      </div>
+      <div class="rest-timer-presets">
+        <button class="rest-preset-btn" data-sec="60" onclick="setRestPreset(60)">60s</button>
+        <button class="rest-preset-btn active" data-sec="90" onclick="setRestPreset(90)">90s</button>
+        <button class="rest-preset-btn" data-sec="120" onclick="setRestPreset(120)">2min</button>
+        <button class="rest-preset-btn" data-sec="180" onclick="setRestPreset(180)">3min</button>
+      </div>
+      <div class="rest-timer-controls">
+        <button class="rest-control-btn primary" id="restStartBtn" onclick="toggleRestTimer()" aria-label="Start/Pauza">
+          <i class="ti ti-player-play" id="restStartIcon"></i>
+        </button>
+        <button class="rest-control-btn danger" onclick="stopRestTimer()" aria-label="Zatrzymaj">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+    </div>
+    <div class="rest-progress-bar"><div class="rest-progress-fill" id="restProgressFill"></div></div>
+    <div class="rest-settings-row">
+      <button class="rest-toggle on" id="restToggleVoice" onclick="toggleRestSetting('voice')">
+        <i class="ti ti-microphone"></i><span>Głos</span>
+      </button>
+      <button class="rest-toggle on" id="restToggleSound" onclick="toggleRestSetting('sound')">
+        <i class="ti ti-bell"></i><span>Dźwięk</span>
+      </button>
+      <button class="rest-toggle on" id="restToggleVibrate" onclick="toggleRestSetting('vibrate')">
+        <i class="ti ti-device-mobile"></i><span>Wibracja</span>
       </button>
     </div>
   </div>
