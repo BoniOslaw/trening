@@ -208,6 +208,45 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .toast.error { color: var(--danger); border-color: var(--danger); }
 .toast.success { color: var(--success); border-color: var(--success); }
 
+/* ===== REST TIMER ===== */
+.rest-timer-bar { background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev2) 100%); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; transition: all 0.3s ease; }
+.rest-timer-bar.active { border-color: var(--pull); background: linear-gradient(135deg, rgba(74,142,255,0.10) 0%, rgba(74,142,255,0.04) 100%); }
+.rest-timer-bar.finishing { border-color: var(--accent); background: linear-gradient(135deg, rgba(212,255,58,0.14) 0%, rgba(212,255,58,0.06) 100%); animation: timerPulse 0.6s ease infinite; }
+@keyframes timerPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.005); } }
+.rest-timer-row { display: flex; align-items: center; gap: 12px; }
+.rest-timer-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-elev2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; font-size: 18px; color: var(--text-muted); }
+.rest-timer-bar.active .rest-timer-icon { background: rgba(74,142,255,0.15); color: var(--pull); }
+.rest-timer-bar.finishing .rest-timer-icon { background: var(--accent-soft); color: var(--accent); }
+.rest-timer-info { flex: 1; min-width: 0; }
+.rest-timer-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+.rest-timer-display { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 600; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.rest-timer-bar.finishing .rest-timer-display { color: var(--accent); }
+.rest-timer-presets { display: flex; gap: 4px; flex-shrink: 0; }
+.rest-preset-btn { padding: 7px 12px; border-radius: 100px; border: 1px solid var(--border-strong); background: var(--bg-elev2); color: var(--text-muted); font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; min-width: 42px; }
+.rest-preset-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.rest-preset-btn.active { background: var(--pull); color: white; border-color: var(--pull); }
+.rest-timer-controls { display: flex; gap: 4px; flex-shrink: 0; }
+.rest-control-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-elev2); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
+.rest-control-btn:hover { background: var(--bg-hover); border-color: var(--text-muted); }
+.rest-control-btn.primary { background: var(--pull); color: white; border-color: var(--pull); }
+.rest-control-btn.primary:hover { opacity: 0.85; }
+.rest-control-btn.danger:hover { background: rgba(239,68,68,0.15); border-color: var(--danger); color: var(--danger); }
+.rest-progress-bar { height: 3px; background: rgba(255,255,255,0.05); border-radius: 100px; margin-top: 12px; overflow: hidden; }
+.rest-progress-fill { height: 100%; background: var(--pull); border-radius: 100px; transition: width 1s linear, background-color 0.3s; width: 0%; }
+.rest-timer-bar.finishing .rest-progress-fill { background: var(--accent); }
+.rest-settings-row { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.rest-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg-elev2); border: 1px solid var(--border-strong); border-radius: 100px; font-size: 11px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; }
+.rest-toggle:hover { color: var(--text); border-color: var(--text-muted); }
+.rest-toggle.on { background: rgba(74,142,255,0.15); border-color: var(--pull); color: var(--pull); }
+.rest-toggle i { font-size: 13px; }
+@media (max-width: 600px) {
+  .rest-timer-row { flex-wrap: wrap; }
+  .rest-timer-info { flex: 1 0 calc(100% - 50px); }
+  .rest-timer-presets { flex: 1 0 100%; justify-content: space-between; margin-top: 10px; }
+  .rest-preset-btn { flex: 1; }
+  .rest-timer-controls { flex: 1 0 100%; justify-content: center; margin-top: 10px; }
+}
+
 /* ===== EXERCISE PROGRESS PANEL ===== */
 .section-divider { margin: 32px 0 20px; padding-top: 24px; border-top: 1px solid var(--border); }
 .section-divider-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
@@ -512,6 +551,23 @@ let reminderShown = false;
 let reminderDismissed = false;
 let isAnalyzing = false;
 
+const STORAGE_TIMER_PREFS = 'tp_timer_prefs_v1';
+let restDuration = 90;
+let restRemaining = 90;
+let restInterval = null;
+let restPaused = true;
+let restPrefs = (function() {
+  try {
+    const raw = localStorage.getItem(STORAGE_TIMER_PREFS);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { voice: true, sound: true, vibrate: true, duration: 90 };
+})();
+
+function saveTimerPrefs() {
+  try { localStorage.setItem(STORAGE_TIMER_PREFS, JSON.stringify(restPrefs)); } catch {}
+}
+
 // ============ PROFILES ============
 function getProfiles() {
   try { 
@@ -571,6 +627,8 @@ function renderProfileList() {
 function switchProfile(id) {
   setCurrentProfileId(id);
   refreshProfileUI();
+  hideRestTimerBar();
+  stopRestTimer();
   refreshHistory();
   refreshStats();
   refreshChart();
@@ -630,6 +688,8 @@ function switchTab(type) {
   reminderShown = false;
   reminderDismissed = false;
   document.getElementById('saveReminder').classList.remove('show');
+  hideRestTimerBar();
+  stopRestTimer();
   renderExercises([]);
   document.getElementById('saveBtn').disabled = true;
   document.getElementById('genBtnText').textContent = 'Generuj plan';
@@ -713,6 +773,7 @@ Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
     reminderDismissed = false;
     document.getElementById('saveReminder').classList.remove('show');
     document.getElementById('saveBtn').disabled = false;
+    showRestTimerBar();
     showToast('Plan gotowy!', 'success');
   } catch (e) {
     console.error(e);
@@ -1148,6 +1209,7 @@ function restoreDraft() {
     });
     document.getElementById('saveBtn').disabled = false;
     document.getElementById('genBtnText').textContent = 'Nowy plan';
+    showRestTimerBar();
     setTimeout(checkAllFilled, 500);
     return true;
   } catch(e) { return false; }
@@ -1632,6 +1694,232 @@ function checkBackupReminder() {
   } else {
     hideBackupBanner();
   }
+}
+
+// ============ REST TIMER ============
+function showRestTimerBar() {
+  const bar = document.getElementById('restTimer');
+  bar.style.display = 'block';
+  if (restPrefs.duration) {
+    restDuration = restPrefs.duration;
+    restRemaining = restPrefs.duration;
+    document.querySelectorAll('.rest-preset-btn').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.sec) === restPrefs.duration);
+    });
+  }
+  ['voice', 'sound', 'vibrate'].forEach(k => {
+    const el = document.getElementById('restToggle' + k.charAt(0).toUpperCase() + k.slice(1));
+    if (el) el.classList.toggle('on', restPrefs[k]);
+  });
+  updateRestDisplay();
+}
+
+function hideRestTimerBar() {
+  const bar = document.getElementById('restTimer');
+  if (bar) bar.style.display = 'none';
+}
+
+function setRestPreset(sec) {
+  document.querySelectorAll('.rest-preset-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.sec) === sec);
+  });
+  restDuration = sec;
+  restRemaining = sec;
+  restPrefs.duration = sec;
+  saveTimerPrefs();
+  if (restInterval) {
+    clearInterval(restInterval);
+    restInterval = null;
+    restPaused = true;
+    setRestStartIcon('play');
+  }
+  updateRestDisplay();
+  document.getElementById('restTimer').classList.remove('active', 'finishing');
+}
+
+function toggleRestTimer() {
+  if (restPaused) startRestTimer(); else pauseRestTimer();
+}
+
+function startRestTimer() {
+  if (restRemaining <= 0) restRemaining = restDuration;
+  restPaused = false;
+  setRestStartIcon('pause');
+  document.getElementById('restTimer').classList.add('active');
+  document.getElementById('restTimer').classList.remove('finishing');
+  document.getElementById('restTimerLabel').textContent = 'Przerwa - trwa odliczanie';
+  getAudioCtx();
+  if (restInterval) clearInterval(restInterval);
+  restInterval = setInterval(() => {
+    restRemaining--;
+    updateRestDisplay();
+    if (restRemaining <= 5 && restRemaining > 0) {
+      document.getElementById('restTimer').classList.add('finishing');
+    }
+    if (restRemaining <= 0) finishRestTimer();
+  }, 1000);
+}
+
+function pauseRestTimer() {
+  restPaused = true;
+  if (restInterval) { clearInterval(restInterval); restInterval = null; }
+  setRestStartIcon('play');
+  document.getElementById('restTimerLabel').textContent = 'Przerwa - wstrzymana';
+}
+
+function stopRestTimer() {
+  if (restInterval) { clearInterval(restInterval); restInterval = null; }
+  restPaused = true;
+  restRemaining = restDuration;
+  setRestStartIcon('play');
+  const bar = document.getElementById('restTimer');
+  if (bar) {
+    bar.classList.remove('active', 'finishing');
+    const label = document.getElementById('restTimerLabel');
+    if (label) label.textContent = 'Przerwa między seriami';
+  }
+  updateRestDisplay();
+}
+
+function finishRestTimer() {
+  clearInterval(restInterval);
+  restInterval = null;
+  restPaused = true;
+  restRemaining = restDuration;
+  setRestStartIcon('play');
+  const bar = document.getElementById('restTimer');
+  bar.classList.remove('active');
+  bar.classList.remove('finishing');
+  document.getElementById('restTimerLabel').textContent = 'Koniec przerwy - wracaj do treningu!';
+  updateRestDisplay();
+  if (restPrefs.sound) playRestEndSound();
+  if (restPrefs.vibrate && navigator.vibrate) {
+    navigator.vibrate([200, 100, 200, 100, 200]);
+  }
+  if (restPrefs.voice) speakRestEnd();
+  setTimeout(() => {
+    const label = document.getElementById('restTimerLabel');
+    if (label && !restInterval) label.textContent = 'Przerwa między seriami';
+  }, 5000);
+}
+
+function updateRestDisplay() {
+  const min = Math.floor(restRemaining / 60);
+  const sec = restRemaining % 60;
+  const display = min + ':' + sec.toString().padStart(2, '0');
+  const el = document.getElementById('restTimerDisplay');
+  if (el) el.textContent = display;
+  const fill = document.getElementById('restProgressFill');
+  if (fill) {
+    const pct = ((restDuration - restRemaining) / restDuration) * 100;
+    fill.style.width = pct + '%';
+  }
+}
+
+function setRestStartIcon(type) {
+  const icon = document.getElementById('restStartIcon');
+  if (!icon) return;
+  icon.className = type === 'pause' ? 'ti ti-player-pause' : 'ti ti-player-play';
+}
+
+function toggleRestSetting(key) {
+  restPrefs[key] = !restPrefs[key];
+  const el = document.getElementById('restToggle' + key.charAt(0).toUpperCase() + key.slice(1));
+  if (el) el.classList.toggle('on', restPrefs[key]);
+  saveTimerPrefs();
+  if (restPrefs[key]) {
+    if (key === 'sound') playTestPing();
+    else if (key === 'vibrate' && navigator.vibrate) navigator.vibrate(100);
+    else if (key === 'voice') speakTest();
+  }
+}
+
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch { return null; }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  return audioCtx;
+}
+
+function playRestEndSound() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  [0, 0.45, 0.9].forEach(delay => {
+    setTimeout(() => playBell(ctx), delay * 1000);
+  });
+}
+
+function playTestPing() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  playBell(ctx);
+}
+
+function playBell(ctx) {
+  const now = ctx.currentTime;
+  const gain = ctx.createGain();
+  gain.connect(ctx.destination);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.4, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(880, now);
+  osc1.frequency.exponentialRampToValueAtTime(660, now + 1.0);
+  osc1.connect(gain);
+  osc1.start(now);
+  osc1.stop(now + 1.2);
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(1320, now);
+  osc2.frequency.exponentialRampToValueAtTime(990, now + 1.0);
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.15, now);
+  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+  osc2.connect(gain2);
+  gain2.connect(ctx.destination);
+  osc2.start(now);
+  osc2.stop(now + 1.0);
+}
+
+function speakRestEnd() {
+  if (!('speechSynthesis' in window)) return;
+  const messages = [
+    'Koniec przerwy! Wracaj do treningu',
+    'Czas na kolejną serię',
+    'Koniec odpoczynku, zaczynaj',
+    'Przerwa zakończona, do dzieła'
+  ];
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  speak(msg);
+}
+
+function speakTest() { speak('Głos włączony'); }
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pl-PL';
+    utter.rate = 1.0;
+    utter.pitch = 1.0;
+    utter.volume = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const plVoice = voices.find(v => v.lang.toLowerCase().startsWith('pl'));
+    if (plVoice) utter.voice = plVoice;
+    window.speechSynthesis.speak(utter);
+  } catch(e) { console.warn('TTS failed:', e); }
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+  window.speechSynthesis.getVoices();
 }
 
 // ============ INIT ============
