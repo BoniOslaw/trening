@@ -208,6 +208,93 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .toast.error { color: var(--danger); border-color: var(--danger); }
 .toast.success { color: var(--success); border-color: var(--success); }
 
+/* ===== EXERCISE PROGRESS PANEL ===== */
+.section-divider { margin: 32px 0 20px; padding-top: 24px; border-top: 1px solid var(--border); }
+.section-divider-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+.section-divider-title .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: livePulse 2s ease infinite; }
+@keyframes livePulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+
+.exercise-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 768px) { .exercise-stats-grid { grid-template-columns: 1fr; } }
+
+.exercise-select { width: 100%; padding: 10px 14px; background: var(--bg-elev2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 13px; outline: none; cursor: pointer; transition: all 0.2s; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a8a92' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.exercise-select:hover, .exercise-select:focus { border-color: var(--accent); }
+.exercise-select option { background: var(--bg-elev); color: var(--text); }
+
+.ex-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+.ex-stat { padding: 10px 12px; background: var(--bg-elev2); border-radius: var(--radius-sm); }
+.ex-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+.ex-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; }
+.ex-stat-value .unit { font-size: 11px; color: var(--text-muted); margin-left: 2px; font-weight: 400; }
+.ex-stat-trend { font-size: 11px; margin-top: 2px; font-weight: 500; }
+.ex-stat-trend.up { color: var(--success); }
+.ex-stat-trend.down { color: var(--danger); }
+.ex-stat-trend.flat { color: var(--warning); }
+
+.weight-chart-wrap { position: relative; height: 180px; margin-top: 8px; }
+.weight-chart-empty { display: flex; align-items: center; justify-content: center; height: 180px; color: var(--text-dim); font-size: 12px; text-align: center; padding: 0 20px; }
+
+/* ===== AI COACH PANEL ===== */
+.coach-panel { background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev2) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; position: relative; overflow: hidden; }
+.coach-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5; }
+.coach-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+.coach-title { display: flex; align-items: center; gap: 10px; }
+.coach-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); border: 1px solid var(--accent-soft-2); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 16px; }
+.coach-title-text { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; }
+.coach-title-text small { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+
+.coach-content { font-size: 13px; line-height: 1.6; color: var(--text); }
+.coach-empty { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 13px; }
+.coach-empty i { display: block; font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+.coach-loading { display: flex; align-items: center; gap: 8px; padding: 1rem 0; color: var(--accent); font-size: 13px; }
+
+.coach-insight { background: var(--bg-elev2); border-left: 2px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 12px 14px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; }
+.coach-insight.priority { border-left-color: var(--warning); background: rgba(251,146,60,0.06); }
+.coach-insight.success { border-left-color: var(--success); background: rgba(74,222,128,0.06); }
+.coach-insight strong { color: var(--text); font-weight: 600; }
+.coach-insight-tag { display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 100px; margin-bottom: 6px; }
+.coach-insight-tag.progress { background: var(--accent-soft); color: var(--accent); }
+.coach-insight-tag.warning { background: rgba(251,146,60,0.15); color: var(--warning); }
+.coach-insight-tag.tip { background: rgba(74,142,255,0.15); color: var(--pull); }
+.coach-insight-tag.success { background: rgba(74,222,128,0.15); color: var(--success); }
+
+.coach-meta { font-size: 11px; color: var(--text-dim); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+/* ===== BACKUP REMINDER BANNER ===== */
+.backup-banner { background: linear-gradient(135deg, rgba(74,142,255,0.08) 0%, rgba(212,255,58,0.08) 100%); border: 1px solid var(--border); border-left: 3px solid var(--pull); border-radius: var(--radius); padding: 14px 18px; margin: 0 0 20px; display: flex; align-items: center; gap: 14px; animation: backupSlide 0.4s ease; }
+@keyframes backupSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.backup-banner-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(74,142,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--pull); font-size: 18px; flex-shrink: 0; }
+.backup-banner-content { flex: 1; min-width: 0; }
+.backup-banner-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.backup-banner-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.backup-banner-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.backup-banner-btn { padding: 7px 12px; border-radius: 100px; border: 1px solid var(--border-strong); background: var(--bg-elev2); color: var(--text); font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.backup-banner-btn:hover { background: var(--bg-hover); border-color: var(--text-muted); }
+.backup-banner-btn.primary { background: var(--pull); color: white; border-color: var(--pull); }
+.backup-banner-btn.primary:hover { opacity: 0.85; }
+.backup-banner-close { background: transparent; border: none; color: var(--text-dim); cursor: pointer; padding: 4px 8px; font-size: 14px; transition: color 0.15s; align-self: flex-start; margin-top: 2px; }
+.backup-banner-close:hover { color: var(--text); }
+@media (max-width: 600px) {
+  .backup-banner { flex-wrap: wrap; }
+  .backup-banner-content { flex: 1 0 calc(100% - 50px); }
+  .backup-banner-actions { flex: 1 0 100%; margin-top: 8px; }
+  .backup-banner-btn { flex: 1; }
+}
+
+/* ===== SAVE REMINDER BANNER ===== */
+.save-reminder { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: var(--bg-elev); border: 1px solid var(--accent); border-radius: 100px; padding: 8px 8px 8px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 150; max-width: calc(100vw - 32px); }
+.save-reminder.show { transform: translateX(-50%) translateY(0); }
+.save-reminder-text { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; }
+.save-reminder-text strong { color: var(--accent); }
+.save-reminder-btn { padding: 8px 16px; border-radius: 100px; border: none; background: var(--accent); color: #000; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+.save-reminder-btn:hover { opacity: 0.85; }
+.save-reminder-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; font-size: 16px; line-height: 1; transition: color 0.15s; }
+.save-reminder-close:hover { color: var(--text); }
+@media (max-width: 480px) {
+  .save-reminder-text { white-space: normal; font-size: 12px; }
+  .save-reminder { padding: 8px 8px 8px 14px; gap: 8px; }
+}
+
 /* ===== MOBILE ===== */
 @media (max-width: 600px) {
   .app { padding: 1rem; }
@@ -232,6 +319,9 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       <button class="profile-icon-btn" id="profileIcon" aria-label="Zmień profil">Ł</button>
     </div>
   </header>
+
+  <!-- BACKUP REMINDER -->
+  <div id="backupBanner" style="display:none;"></div>
 
   <!-- STATS -->
   <div class="stats" id="statsBar"></div>
@@ -305,6 +395,66 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       </div>
     </div>
   </div>
+
+  <!-- ANALIZA PER ĆWICZENIE -->
+  <div class="section-divider">
+    <div class="section-divider-title">
+      <span class="live-dot"></span>
+      Analiza ćwiczeń
+    </div>
+  </div>
+
+  <div class="exercise-stats-grid">
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-target"></i>Statystyki ćwiczenia</div>
+      <select class="exercise-select" id="exerciseSelect" onchange="renderExerciseStats()">
+        <option value="">Wybierz ćwiczenie...</option>
+      </select>
+      <div id="exerciseStatsContent">
+        <div class="empty" style="padding: 1.5rem 1rem;">
+          <p style="font-size: 12px; color: var(--text-muted);">Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-trending-up"></i>Progresja ciężaru</div>
+      <div class="weight-chart-wrap">
+        <canvas id="weightChart"></canvas>
+        <div class="weight-chart-empty" id="weightChartEmpty">Wybierz ćwiczenie z lewej strony</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI COACH -->
+  <div class="section-divider">
+    <div class="section-divider-title">
+      <i class="ti ti-sparkles" style="color: var(--accent);"></i>
+      AI Coach
+    </div>
+  </div>
+
+  <div class="coach-panel">
+    <div class="coach-header">
+      <div class="coach-title">
+        <div class="coach-icon"><i class="ti ti-brain"></i></div>
+        <div class="coach-title-text">
+          Analiza postępów przez AI
+          <small>Claude przeanalizuje Twoją historię i zasugeruje co zmienić</small>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="coachBtn" onclick="analyzeWithAI()">
+        <i class="ti ti-wand"></i>Analizuj postępy
+      </button>
+    </div>
+    <div class="coach-content" id="coachContent">
+      <div class="coach-empty">
+        <i class="ti ti-message-2"></i>
+        <p>Kliknij "Analizuj postępy", aby otrzymać spersonalizowane porady na podstawie Twojej historii treningowej</p>
+        <p style="font-size: 11px; margin-top: 6px; color: var(--text-dim);">Wymaga min. 3 zapisanych treningów</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PROFILE MODAL -->
@@ -334,6 +484,12 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   </div>
 </div>
 
+<div class="save-reminder" id="saveReminder">
+  <span class="save-reminder-text">Wszystko wypełnione — <strong>zapisać trening?</strong></span>
+  <button class="save-reminder-btn" onclick="saveFromReminder()">Zapisz teraz</button>
+  <button class="save-reminder-close" onclick="dismissReminder()" aria-label="Zamknij">×</button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -341,11 +497,20 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 const STORAGE_PROFILES = 'tp_profiles_v1';
 const STORAGE_CURRENT = 'tp_current_v1';
 const STORAGE_API_KEY = 'tp_apikey_v1';
+const STORAGE_DRAFT = 'tp_draft_v1';
+const STORAGE_BACKUP = 'tp_backup_v1';
+
+const BACKUP_INTERVAL_DAYS = 21; // 3 tygodnie
+const BACKUP_DISMISS_DAYS = 7;   // jeśli odłożone — przypomnij za tydzień
 
 let currentType = 'push';
 let currentExercises = [];
 let isLoading = false;
 let chart = null;
+let weightChart = null;
+let reminderShown = false;
+let reminderDismissed = false;
+let isAnalyzing = false;
 
 // ============ PROFILES ============
 function getProfiles() {
@@ -409,6 +574,8 @@ function switchProfile(id) {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshExerciseSelect();
+  checkBackupReminder();
   renderProfileList();
   showToast('Profil zmieniony', 'success');
 }
@@ -459,6 +626,10 @@ function switchTab(type) {
   currentType = type;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
   currentExercises = [];
+  clearDraft();
+  reminderShown = false;
+  reminderDismissed = false;
+  document.getElementById('saveReminder').classList.remove('show');
   renderExercises([]);
   document.getElementById('saveBtn').disabled = true;
   document.getElementById('genBtnText').textContent = 'Generuj plan';
@@ -537,6 +708,10 @@ Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
     
     currentExercises = parsed.exercises;
     renderExercises(currentExercises);
+    saveDraft();
+    reminderShown = false;
+    reminderDismissed = false;
+    document.getElementById('saveReminder').classList.remove('show');
     document.getElementById('saveBtn').disabled = false;
     showToast('Plan gotowy!', 'success');
   } catch (e) {
@@ -623,6 +798,37 @@ function updateTotal(i) {
     el.textContent = '— rep';
     el.classList.remove('has-val');
   }
+  saveDraft();
+  checkAllFilled();
+}
+
+function checkAllFilled() {
+  if (!currentExercises.length || reminderDismissed) return;
+  const allFilled = currentExercises.every((_, i) => {
+    const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
+    const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
+    return reps > 0 && kg > 0;
+  });
+  const reminder = document.getElementById('saveReminder');
+  if (allFilled && !reminderShown) {
+    reminder.classList.add('show');
+    reminderShown = true;
+  } else if (!allFilled && reminderShown) {
+    reminder.classList.remove('show');
+    reminderShown = false;
+  }
+}
+
+function saveFromReminder() {
+  document.getElementById('saveReminder').classList.remove('show');
+  reminderShown = false;
+  saveWorkout();
+}
+
+function dismissReminder() {
+  document.getElementById('saveReminder').classList.remove('show');
+  reminderShown = false;
+  reminderDismissed = true;
 }
 
 // ============ SAVE ============
@@ -643,9 +849,14 @@ function saveWorkout() {
     totalReps
   };
   updateCurrentProfile(p => { p.history = [entry, ...p.history].slice(0, 200); return p; });
+  clearDraft();
+  reminderShown = false;
+  reminderDismissed = false;
+  document.getElementById('saveReminder').classList.remove('show');
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshExerciseSelect();
   const kgInfo = exs.some(e => e.kg > 0) ? '' : '';
   showToast(`Trening zapisany! (${totalReps} powtórzeń)`, 'success');
 }
@@ -656,6 +867,7 @@ function deleteEntry(id) {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshExerciseSelect();
   showToast('Usunięto');
 }
 
@@ -890,11 +1102,549 @@ function showToast(msg, type = '') {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ============ DRAFT (autosave aktywnego planu) ============
+function saveDraft() {
+  if (!currentExercises.length) return;
+  const inputs = currentExercises.map((ex, i) => ({
+    reps: document.getElementById(`reps_${i}`)?.value || '',
+    kg: document.getElementById(`kg_${i}`)?.value || ''
+  }));
+  try {
+    localStorage.setItem(STORAGE_DRAFT, JSON.stringify({
+      type: currentType,
+      exercises: currentExercises,
+      inputs,
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function clearDraft() {
+  localStorage.removeItem(STORAGE_DRAFT);
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_DRAFT);
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    // Nie odtwarzaj draftu starszego niż 24h
+    if (Date.now() - draft.ts > 86400000) { clearDraft(); return false; }
+    currentType = draft.type;
+    currentExercises = draft.exercises;
+    // Przełącz zakładkę
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.type === currentType);
+    });
+    updateTabColors();
+    // Wyrenderuj ćwiczenia
+    renderExercises(currentExercises);
+    // Przywróć wpisane wartości
+    draft.inputs.forEach((inp, i) => {
+      const repsEl = document.getElementById(`reps_${i}`);
+      const kgEl = document.getElementById(`kg_${i}`);
+      if (repsEl && inp.reps) { repsEl.value = inp.reps; updateTotal(i); }
+      if (kgEl && inp.kg) { kgEl.value = inp.kg; updateTotal(i); }
+    });
+    document.getElementById('saveBtn').disabled = false;
+    document.getElementById('genBtnText').textContent = 'Nowy plan';
+    setTimeout(checkAllFilled, 500);
+    return true;
+  } catch(e) { return false; }
+}
+
+// ============ EXERCISE STATS ============
+function getAllUniqueExercises() {
+  const p = getCurrentProfile();
+  const map = new Map();
+  p.history.forEach(w => {
+    w.exercises.forEach(ex => {
+      if (ex.kg > 0 && ex.reps > 0) {
+        if (!map.has(ex.name)) map.set(ex.name, 0);
+        map.set(ex.name, map.get(ex.name) + 1);
+      }
+    });
+  });
+  // Sortuj wg liczby wystąpień (najpopularniejsze na górze)
+  return Array.from(map.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({ name, count }));
+}
+
+function refreshExerciseSelect() {
+  const select = document.getElementById('exerciseSelect');
+  if (!select) return;
+  const prevValue = select.value;
+  const exercises = getAllUniqueExercises();
+  select.innerHTML = '<option value="">Wybierz ćwiczenie...</option>' +
+    exercises.map(e => `<option value="${escapeHtml(e.name)}">${escapeHtml(e.name)} (${e.count}×)</option>`).join('');
+  if (prevValue && exercises.some(e => e.name === prevValue)) {
+    select.value = prevValue;
+    renderExerciseStats();
+  } else {
+    document.getElementById('exerciseStatsContent').innerHTML = `
+      <div class="empty" style="padding: 1.5rem 1rem;">
+        <p style="font-size: 12px; color: var(--text-muted);">${exercises.length ? 'Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki' : 'Brak danych — zapisz trening z ciężarem'}</p>
+      </div>`;
+    if (weightChart) { weightChart.destroy(); weightChart = null; }
+    document.getElementById('weightChartEmpty').style.display = 'flex';
+  }
+}
+
+function getExerciseHistory(name) {
+  const p = getCurrentProfile();
+  const points = [];
+  p.history.forEach(w => {
+    w.exercises.forEach(ex => {
+      if (ex.name === name && ex.kg > 0 && ex.reps > 0) {
+        points.push({
+          timestamp: w.timestamp,
+          date: w.date,
+          kg: ex.kg,
+          reps: ex.reps,
+          total: ex.total,
+          volume: Math.round(ex.kg * ex.total * 10) / 10
+        });
+      }
+    });
+  });
+  return points.sort((a, b) => a.timestamp - b.timestamp);
+}
+
+function renderExerciseStats() {
+  const name = document.getElementById('exerciseSelect').value;
+  const content = document.getElementById('exerciseStatsContent');
+  const chartEmpty = document.getElementById('weightChartEmpty');
+  const canvas = document.getElementById('weightChart');
+
+  if (!name) {
+    content.innerHTML = '<div class="empty" style="padding: 1.5rem 1rem;"><p style="font-size: 12px; color: var(--text-muted);">Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki</p></div>';
+    if (weightChart) { weightChart.destroy(); weightChart = null; }
+    chartEmpty.style.display = 'flex';
+    canvas.style.display = 'none';
+    return;
+  }
+
+  const history = getExerciseHistory(name);
+  if (!history.length) return;
+
+  const maxKg = Math.max(...history.map(h => h.kg));
+  const lastKg = history[history.length - 1].kg;
+  const firstKg = history[0].kg;
+  const avgKg = Math.round((history.reduce((s, h) => s + h.kg, 0) / history.length) * 10) / 10;
+  const progress = lastKg - firstKg;
+  const progressPct = firstKg > 0 ? Math.round((progress / firstKg) * 100) : 0;
+
+  // Trend: porównaj średnią ostatnich 3 vs poprzednich 3
+  let trendText = '', trendClass = 'flat';
+  if (history.length >= 4) {
+    const recent = history.slice(-3);
+    const prev = history.slice(-6, -3);
+    if (prev.length) {
+      const recentAvg = recent.reduce((s, h) => s + h.kg, 0) / recent.length;
+      const prevAvg = prev.reduce((s, h) => s + h.kg, 0) / prev.length;
+      const diff = recentAvg - prevAvg;
+      if (diff > 0.5) { trendText = `↑ +${diff.toFixed(1)} kg`; trendClass = 'up'; }
+      else if (diff < -0.5) { trendText = `↓ ${diff.toFixed(1)} kg`; trendClass = 'down'; }
+      else { trendText = '→ stagnacja'; trendClass = 'flat'; }
+    }
+  }
+
+  // Ile dni od ostatniego rekordu
+  const lastRecordIdx = history.map(h => h.kg).lastIndexOf(maxKg);
+  const daysSinceRecord = Math.floor((Date.now() - history[lastRecordIdx].timestamp) / 86400000);
+
+  content.innerHTML = `
+    <div class="ex-stat-row">
+      <div class="ex-stat">
+        <div class="ex-stat-label">Rekord</div>
+        <div class="ex-stat-value">${maxKg}<span class="unit">kg</span></div>
+        <div class="ex-stat-trend flat">${daysSinceRecord === 0 ? 'dziś' : daysSinceRecord + ' dni temu'}</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-label">Ostatnio</div>
+        <div class="ex-stat-value">${lastKg}<span class="unit">kg</span></div>
+        ${trendText ? `<div class="ex-stat-trend ${trendClass}">${trendText}</div>` : '<div class="ex-stat-trend flat">—</div>'}
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-label">Średnia</div>
+        <div class="ex-stat-value">${avgKg}<span class="unit">kg</span></div>
+        <div class="ex-stat-trend ${progress > 0 ? 'up' : progress < 0 ? 'down' : 'flat'}">${progress >= 0 ? '+' : ''}${progress.toFixed(1)} kg (${progressPct >= 0 ? '+' : ''}${progressPct}%)</div>
+      </div>
+    </div>
+    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+      ${history.length} sesji · pierwszy raz: ${new Date(history[0].timestamp).toLocaleDateString('pl-PL')}
+    </div>
+  `;
+
+  // Wykres wagi
+  chartEmpty.style.display = 'none';
+  canvas.style.display = 'block';
+  if (weightChart) weightChart.destroy();
+
+  const labels = history.map(h => new Date(h.timestamp).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }));
+  weightChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Ciężar (kg)',
+        data: history.map(h => h.kg),
+        borderColor: '#d4ff3a',
+        backgroundColor: 'rgba(212,255,58,0.1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: '#d4ff3a',
+        pointBorderColor: '#0a0a0b',
+        pointBorderWidth: 2,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#131316',
+          borderColor: 'rgba(255,255,255,0.12)',
+          borderWidth: 1,
+          titleColor: '#f5f5f7',
+          bodyColor: '#f5f5f7',
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: {
+            label: (ctx) => {
+              const h = history[ctx.dataIndex];
+              return [`${h.kg} kg × ${h.reps} powt.`, `Volume: ${h.volume} kg`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#5a5a62', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#5a5a62', font: { size: 10 }, callback: v => v + ' kg' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+// ============ AI COACH ============
+async function analyzeWithAI() {
+  if (isAnalyzing) return;
+
+  const apiKey = localStorage.getItem(STORAGE_API_KEY);
+  if (!apiKey) {
+    showToast('Najpierw ustaw klucz API', 'error');
+    openProfileModal();
+    return;
+  }
+
+  const profile = getCurrentProfile();
+  if (profile.history.length < 3) {
+    showToast('Potrzeba min. 3 treningów do analizy', 'error');
+    return;
+  }
+
+  isAnalyzing = true;
+  const btn = document.getElementById('coachBtn');
+  const content = document.getElementById('coachContent');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2 spin"></i>Analizuję...';
+  content.innerHTML = '<div class="coach-loading"><i class="ti ti-loader-2 spin"></i>Claude analizuje Twoje postępy...</div>';
+
+  // Przygotuj dane: po każdym ćwiczeniu - historia ciężarów
+  const exerciseMap = new Map();
+  profile.history.slice().reverse().forEach(w => {
+    w.exercises.forEach(ex => {
+      if (ex.kg > 0 && ex.reps > 0) {
+        if (!exerciseMap.has(ex.name)) exerciseMap.set(ex.name, []);
+        exerciseMap.get(ex.name).push({
+          date: new Date(w.timestamp).toISOString().slice(0, 10),
+          type: w.type,
+          kg: ex.kg,
+          reps: ex.reps,
+          target: ex.target
+        });
+      }
+    });
+  });
+
+  const dataForAI = {};
+  exerciseMap.forEach((sessions, name) => {
+    if (sessions.length >= 2) {
+      dataForAI[name] = sessions;
+    }
+  });
+
+  const totalsByType = { push: 0, pull: 0, press: 0 };
+  profile.history.forEach(w => totalsByType[w.type] = (totalsByType[w.type] || 0) + 1);
+
+  const lastWeekTimestamp = Date.now() - 7 * 86400000;
+  const lastWeekCount = profile.history.filter(w => w.timestamp > lastWeekTimestamp).length;
+
+  const prompt = `Jesteś doświadczonym trenerem personalnym. Przeanalizuj historię treningową i wskaż konkretne, spersonalizowane porady. Bądź zwięzły, konkretny, bez ogólników.
+
+DANE TRENINGOWE:
+- Łącznie treningów: ${profile.history.length}
+- Push: ${totalsByType.push}, Pull: ${totalsByType.pull}, Press: ${totalsByType.press}
+- Treningi w ostatnim tygodniu: ${lastWeekCount}
+
+HISTORIA CIĘŻARÓW (chronologicznie, najstarsze pierwsze):
+${JSON.stringify(dataForAI, null, 1)}
+
+ZASADY ANALIZY:
+1. Znajdź 3-5 najważniejszych obserwacji (max 5)
+2. Skup się na: stagnacji ciężaru >3 sesje (trzeba zwiększyć), szybkim progresie (gratulacje), zaniedbanych grupach mięśniowych (nierówny stosunek push/pull/press), ciężarach które idą w dół (co się stało?)
+3. Każda porada MUSI być konkretna - z nazwą ćwiczenia i liczbami
+4. Używaj polskiego, zwracaj się per "Ty"
+5. Ton: rzeczowy trener, bez infantylizacji
+
+Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
+{
+  "insights": [
+    {
+      "type": "warning|progress|tip|success",
+      "title": "Krótki tytuł (max 6 słów)",
+      "message": "Konkretna porada z liczbami i nazwami ćwiczeń (1-3 zdania)"
+    }
+  ],
+  "summary": "Jedna zdanie podsumowania całości"
+}
+
+Typy:
+- "warning" = stagnacja, problem, coś do poprawy (pomarańczowy)
+- "progress" = trend rosnący, postęp (zielony akcent)
+- "tip" = sugestia, rada (niebieski)
+- "success" = osiągnięcie, rekord, gratulacje (zielony)`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const text = data.content.map(c => c.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const analysis = JSON.parse(clean);
+
+    renderCoachAnalysis(analysis);
+    showToast('Analiza gotowa', 'success');
+  } catch (e) {
+    console.error(e);
+    content.innerHTML = `
+      <div class="coach-empty">
+        <i class="ti ti-alert-circle" style="color: var(--danger);"></i>
+        <p style="color: var(--danger);">Błąd analizy: ${escapeHtml(e.message)}</p>
+        <p style="font-size: 11px; margin-top: 4px;">Sprawdź klucz API w ustawieniach</p>
+      </div>`;
+    showToast('Błąd analizy', 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-refresh"></i>Odśwież analizę';
+  isAnalyzing = false;
+}
+
+function renderCoachAnalysis(analysis) {
+  const content = document.getElementById('coachContent');
+  if (!analysis || !analysis.insights || !analysis.insights.length) {
+    content.innerHTML = '<div class="coach-empty"><p>Brak insightów do wyświetlenia</p></div>';
+    return;
+  }
+
+  const tagLabels = { warning: 'Uwaga', progress: 'Postęp', tip: 'Wskazówka', success: 'Sukces' };
+  const insightClass = { warning: 'priority', progress: '', tip: '', success: 'success' };
+
+  let html = '';
+  analysis.insights.forEach(ins => {
+    const cls = insightClass[ins.type] || '';
+    const tag = tagLabels[ins.type] || 'Info';
+    html += `
+      <div class="coach-insight ${cls}">
+        <span class="coach-insight-tag ${ins.type}">${tag}</span>
+        <strong>${escapeHtml(ins.title)}</strong>
+        <div style="margin-top: 4px;">${escapeHtml(ins.message)}</div>
+      </div>`;
+  });
+
+  if (analysis.summary) {
+    html += `<div class="coach-meta"><span><i class="ti ti-bulb" style="vertical-align: -2px;"></i> ${escapeHtml(analysis.summary)}</span><span>${new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span></div>`;
+  }
+
+  content.innerHTML = html;
+}
+
+// ============ BACKUP REMINDER ============
+function getBackupState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_BACKUP);
+    if (!raw) return { lastBackup: null, lastDismissed: null, firstWorkout: null };
+    return JSON.parse(raw);
+  } catch { return { lastBackup: null, lastDismissed: null, firstWorkout: null }; }
+}
+
+function setBackupState(s) {
+  try { localStorage.setItem(STORAGE_BACKUP, JSON.stringify(s)); } catch {}
+}
+
+function markBackupDone() {
+  const s = getBackupState();
+  s.lastBackup = Date.now();
+  s.lastDismissed = null;
+  setBackupState(s);
+  hideBackupBanner();
+}
+
+function dismissBackup() {
+  const s = getBackupState();
+  s.lastDismissed = Date.now();
+  setBackupState(s);
+  hideBackupBanner();
+}
+
+function shouldShowBackupReminder() {
+  const profile = getCurrentProfile();
+  // Min. 5 treningów żeby było co backupować
+  if (profile.history.length < 5) return false;
+
+  const s = getBackupState();
+  const now = Date.now();
+  const dayMs = 86400000;
+
+  // Zarejestruj pierwszy trening jeśli jeszcze nie zarejestrowany
+  if (!s.firstWorkout && profile.history.length > 0) {
+    s.firstWorkout = profile.history[profile.history.length - 1].timestamp;
+    setBackupState(s);
+  }
+
+  // Jeśli niedawno odłożono — sprawdź czy minął tydzień
+  if (s.lastDismissed) {
+    const daysSinceDismiss = (now - s.lastDismissed) / dayMs;
+    if (daysSinceDismiss < BACKUP_DISMISS_DAYS) return false;
+  }
+
+  // Pierwszy backup: sprawdź czy minęły 3 tygodnie od pierwszego treningu
+  if (!s.lastBackup) {
+    const startTimestamp = s.firstWorkout || profile.history[profile.history.length - 1]?.timestamp || now;
+    const daysSinceStart = (now - startTimestamp) / dayMs;
+    return daysSinceStart >= BACKUP_INTERVAL_DAYS;
+  }
+
+  // Kolejne backupy: 3 tygodnie od ostatniego
+  const daysSinceBackup = (now - s.lastBackup) / dayMs;
+  return daysSinceBackup >= BACKUP_INTERVAL_DAYS;
+}
+
+function getBackupContext() {
+  const profile = getCurrentProfile();
+  const s = getBackupState();
+  const now = Date.now();
+  const dayMs = 86400000;
+
+  if (!s.lastBackup) {
+    const startTimestamp = s.firstWorkout || profile.history[profile.history.length - 1]?.timestamp || now;
+    const daysSinceStart = Math.floor((now - startTimestamp) / dayMs);
+    return {
+      isFirst: true,
+      days: daysSinceStart,
+      workoutCount: profile.history.length
+    };
+  }
+  const daysSinceBackup = Math.floor((now - s.lastBackup) / dayMs);
+  const newWorkouts = profile.history.filter(w => w.timestamp > s.lastBackup).length;
+  return {
+    isFirst: false,
+    days: daysSinceBackup,
+    workoutCount: newWorkouts
+  };
+}
+
+function showBackupBanner() {
+  const banner = document.getElementById('backupBanner');
+  if (!banner) return;
+
+  const ctx = getBackupContext();
+  const titleText = ctx.isFirst
+    ? 'Czas na pierwszy backup'
+    : 'Czas na kolejny backup';
+
+  const subText = ctx.isFirst
+    ? `Trenujesz już ${ctx.days} dni i masz ${ctx.workoutCount} zapisanych treningów. Warto zrobić kopię — dane przechowywane są tylko w przeglądarce i mogą zniknąć przy czyszczeniu cache.`
+    : `Minęło ${ctx.days} dni od ostatniego backupu, masz ${ctx.workoutCount} nowych treningów. Eksportuj dane, żeby ich nie stracić.`;
+
+  banner.innerHTML = `
+    <div class="backup-banner">
+      <div class="backup-banner-icon"><i class="ti ti-shield-check"></i></div>
+      <div class="backup-banner-content">
+        <div class="backup-banner-title">${titleText}</div>
+        <div class="backup-banner-text">${subText}</div>
+      </div>
+      <div class="backup-banner-actions">
+        <button class="backup-banner-btn primary" onclick="backupAndMark('csv')">
+          <i class="ti ti-download" style="vertical-align: -2px; font-size: 13px;"></i> CSV
+        </button>
+        <button class="backup-banner-btn" onclick="backupAndMark('pdf')">PDF</button>
+      </div>
+      <button class="backup-banner-close" onclick="dismissBackup()" aria-label="Przypomnij za tydzień" title="Przypomnij za tydzień">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>`;
+  banner.style.display = 'block';
+}
+
+function hideBackupBanner() {
+  const banner = document.getElementById('backupBanner');
+  if (banner) {
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+  }
+}
+
+function backupAndMark(format) {
+  if (format === 'csv') exportCSV();
+  else if (format === 'pdf') exportPDF();
+  markBackupDone();
+  setTimeout(() => showToast('Backup wykonany — dane bezpieczne 🛡️', 'success'), 600);
+}
+
+function checkBackupReminder() {
+  if (shouldShowBackupReminder()) {
+    showBackupBanner();
+  } else {
+    hideBackupBanner();
+  }
+}
+
 // ============ INIT ============
 refreshProfileUI();
 refreshStats();
 refreshHistory();
 refreshChart();
+refreshExerciseSelect();
+checkBackupReminder();
+const restored = restoreDraft();
+if (restored) {
+  setTimeout(() => showToast('Odtworzono poprzedni plan 💪', 'success'), 300);
+}
 </script>
 
 </body>
