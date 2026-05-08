@@ -2,14 +2,17 @@
 
 Osobista aplikacja treningowa Push / Pull / Legs z generowaniem planów przez AI (Claude), historią treningów, wykresami postępu i analizą siły. Działa offline jako PWA — możesz zainstalować ją na telefonie i komputerze.
 
+Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej literaturze naukowej z dziedziny fizjologii sportu, treningu siłowego i periodyzacji. Dobór ćwiczeń, liczba powtórzeń, serie i kolejność ruchów są zgodne z aktualną wiedzą naukową dotyczącą treningu siłowego. Dodatkowo Claude uwzględnia Twoją indywidualną historię — nie powtarza tych samych ćwiczeń i dostosowuje plan do Twojego poziomu zaawansowania.
+
 ---
 
 ## ✨ Funkcje
 
 ### 🎯 Plany treningowe
 - **3 typy treningu:** Push (klatka, barki, triceps) / Pull (plecy, biceps) / Legs (nogi, dolny odcinek pleców)
-- **Generowanie planu przez Claude AI** — 5 ćwiczeń z opisem techniki wykonania
-- **Zróżnicowanie ćwiczeń** — Claude analizuje historię i nie powtarza tych samych ćwiczeń
+- **Generowanie planu przez Claude AI** — 5 ćwiczeń dobranych zgodnie z wiedzą naukową o treningu siłowym, z opisem techniki wykonania
+- **Spersonalizowane plany** — Claude analizuje Twoją historię treningów i dobiera ćwiczenia pod Twój poziom zaawansowania
+- **Zróżnicowanie ćwiczeń** — aplikacja nie powtarza tych samych ćwiczeń przy kolejnych sesjach tego samego typu
 - **Wskazówki techniczne** przy każdym ćwiczeniu
 - **🎬 Linki do YouTube** — przycisk „Pokaż" przy każdym ćwiczeniu otwiera wyszukiwanie techniki na YouTube
 
