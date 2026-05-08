@@ -234,6 +234,11 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .api-section .help a { color: var(--accent); text-decoration: none; }
 .api-section .help a:hover { text-decoration: underline; }
 
+/* ===== YOUTUBE LINK BUTTON ===== */
+.yt-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(255,0,0,0.25); background: rgba(255,0,0,0.08); color: #ff5252; font-family: inherit; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.15s; text-decoration: none; margin-left: 8px; vertical-align: middle; }
+.yt-btn:hover { background: rgba(255,0,0,0.15); border-color: rgba(255,0,0,0.4); color: #ff7878; }
+.yt-btn i { font-size: 13px; }
+
 /* ===== INSTALL PROMPT ===== */
 .install-prompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--bg-elev); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 14px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 250; max-width: calc(100vw - 32px); }
 .install-prompt.show { transform: translateX(-50%) translateY(0); }
@@ -948,11 +953,19 @@ function renderExercises(exs) {
     list.innerHTML = '<div class="empty"><i class="ti ti-barbell"></i><p>Wygeneruj plan treningowy klikając "Generuj plan"</p></div>';
     return;
   }
-  list.innerHTML = exs.map((ex, i) => `
+  list.innerHTML = exs.map((ex, i) => {
+    const ytQuery = encodeURIComponent(ex.name + ' technika ćwiczenia');
+    const ytUrl = `https://www.youtube.com/results?search_query=${ytQuery}`;
+    return `
     <div class="exercise-card">
       <div class="ex-num">${i + 1}</div>
       <div class="ex-info">
-        <div class="ex-name">${escapeHtml(ex.name)}</div>
+        <div class="ex-name">
+          ${escapeHtml(ex.name)}
+          <a href="${ytUrl}" target="_blank" rel="noopener" class="yt-btn" title="Zobacz technikę na YouTube" onclick="event.stopPropagation();">
+            <i class="ti ti-brand-youtube"></i>Pokaż
+          </a>
+        </div>
         <div class="ex-detail">${ex.sets} serie × <span class="reps-target">${escapeHtml(ex.reps)}</span>${ex.tip ? ' · <i style="opacity:0.7">' + escapeHtml(ex.tip) + '</i>' : ''}</div>
       </div>
       <div class="inputs-group">
@@ -978,7 +991,8 @@ function renderExercises(exs) {
       </div>
       <div class="total-display" id="total_${i}">— rep</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function stepReps(i, dir) {
