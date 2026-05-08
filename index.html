@@ -243,6 +243,25 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .toast.error { color: var(--danger); border-color: var(--danger); }
 .toast.success { color: var(--success); border-color: var(--success); }
 
+/* ===== WORKOUT TIMER (czas trwania całego treningu) ===== */
+.workout-timer-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 100px; background: var(--bg-elev2); border: 1px solid var(--border-strong); font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; transition: all 0.2s; margin-left: 12px; }
+.workout-timer-badge.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.workout-timer-badge i { font-size: 14px; }
+.workout-timer-badge .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: livePulse 1.5s ease infinite; }
+
+/* ===== 1RM CALCULATOR ===== */
+.orm-row { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; padding: 3px 8px; background: rgba(74,142,255,0.1); border: 1px solid rgba(74,142,255,0.3); border-radius: 100px; font-size: 11px; color: var(--pull); font-weight: 500; }
+.orm-row .orm-label { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.orm-row .orm-value { color: var(--pull); font-weight: 600; }
+
+.ex-stat-orm { padding: 10px 12px; background: rgba(74,142,255,0.06); border: 1px solid rgba(74,142,255,0.15); border-radius: var(--radius-sm); margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+.ex-stat-orm-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(74,142,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--pull); font-size: 14px; flex-shrink: 0; }
+.ex-stat-orm-content { flex: 1; min-width: 0; }
+.ex-stat-orm-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; }
+.ex-stat-orm-value { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: var(--pull); }
+.ex-stat-orm-value .unit { font-size: 11px; color: var(--text-muted); margin-left: 2px; font-weight: 400; }
+.ex-stat-orm-formula { font-size: 10px; color: var(--text-dim); }
+
 /* ===== REST TIMER ===== */
 .rest-timer-bar { background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev2) 100%); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; transition: all 0.3s ease; }
 .rest-timer-bar.active { border-color: var(--pull); background: linear-gradient(135deg, rgba(74,142,255,0.10) 0%, rgba(74,142,255,0.04) 100%); }
@@ -604,6 +623,10 @@ let reminderDismissed = false;
 let isAnalyzing = false;
 
 const STORAGE_TIMER_PREFS = 'tp_timer_prefs_v1';
+
+// Workout duration timer
+let workoutStartTime = null;
+let workoutTimerInterval = null;
 let restDuration = 90;
 let restRemaining = 90;
 let restInterval = null;
@@ -742,6 +765,7 @@ function switchTab(type) {
   document.getElementById('saveReminder').classList.remove('show');
   hideRestTimerBar();
   stopRestTimer();
+  stopWorkoutTimer();
   renderExercises([]);
   document.getElementById('saveBtn').disabled = true;
   document.getElementById('genBtnText').textContent = 'Generuj plan';
@@ -826,6 +850,7 @@ Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
     document.getElementById('saveReminder').classList.remove('show');
     document.getElementById('saveBtn').disabled = false;
     showRestTimerBar();
+    startWorkoutTimer();
     showToast('Plan gotowy!', 'success');
   } catch (e) {
     console.error(e);
@@ -905,7 +930,12 @@ function updateTotal(i) {
   const el = document.getElementById(`total_${i}`);
   if (v > 0) {
     const kgText = kg > 0 ? ` · ${kg} kg` : '';
-    el.textContent = `${v * 3} rep${kgText}`;
+    let ormText = '';
+    if (kg > 0 && v > 1 && v <= 12) {
+      const orm = calculate1RM(kg, v);
+      if (orm > 0) ormText = ` · 1RM ~${orm}kg`;
+    }
+    el.textContent = `${v * 3} rep${kgText}${ormText}`;
     el.classList.add('has-val');
   } else {
     el.textContent = '— rep';
@@ -950,16 +980,19 @@ function saveWorkout() {
   const exs = currentExercises.map((ex, i) => {
     const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
     const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
-    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps, kg };
+    const orm = calculate1RM(kg, reps);
+    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps, kg, orm };
   });
   const totalReps = exs.reduce((s, e) => s + e.total, 0);
+  const duration = stopWorkoutTimer(); // sekundy
   const entry = {
     id: 'w_' + Date.now(),
     type: currentType,
     timestamp: Date.now(),
     date: new Date().toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     exercises: exs,
-    totalReps
+    totalReps,
+    duration
   };
   updateCurrentProfile(p => { p.history = [entry, ...p.history].slice(0, 200); return p; });
   clearDraft();
@@ -971,7 +1004,8 @@ function saveWorkout() {
   refreshChart();
   refreshExerciseSelect();
   const kgInfo = exs.some(e => e.kg > 0) ? '' : '';
-  showToast(`Trening zapisany! (${totalReps} powtórzeń)`, 'success');
+  const durStr = entry.duration ? ` · ${formatDuration(entry.duration)}` : '';
+  showToast(`Trening zapisany! ${totalReps} rep${durStr}`, 'success');
 }
 
 function deleteEntry(id) {
@@ -1004,6 +1038,7 @@ function refreshHistory() {
       <div class="history-stats">
         <span><strong>${e.totalReps}</strong> rep łącznie</span>
         <span><strong>${e.exercises.length}</strong> ćwiczeń</span>
+        ${e.duration ? `<span><strong>${formatDuration(e.duration)}</strong></span>` : ''}
       </div>
       <div class="history-exs">${e.exercises.map(x => x.reps > 0 ? `${escapeHtml(x.name)} <span style="color:var(--accent)">(${x.total} rep${x.kg > 0 ? ' · ' + x.kg + ' kg' : ''})</span>` : `<span style="opacity:0.5">${escapeHtml(x.name)}</span>`).join(' · ')}</div>
     </div>
@@ -1262,6 +1297,7 @@ function restoreDraft() {
     document.getElementById('saveBtn').disabled = false;
     document.getElementById('genBtnText').textContent = 'Nowy plan';
     showRestTimerBar();
+    startWorkoutTimer();
     setTimeout(checkAllFilled, 500);
     return true;
   } catch(e) { return false; }
@@ -1368,6 +1404,11 @@ function renderExerciseStats() {
   const lastRecordIdx = history.map(h => h.kg).lastIndexOf(maxKg);
   const daysSinceRecord = Math.floor((Date.now() - history[lastRecordIdx].timestamp) / 86400000);
 
+  // Oblicz najlepszy 1RM z historii
+  const ormHistory = history.map(h => calculate1RM(h.kg, h.reps)).filter(o => o > 0);
+  const bestOrm = ormHistory.length ? Math.max(...ormHistory) : 0;
+  const lastOrm = calculate1RM(history[history.length - 1].kg, history[history.length - 1].reps);
+
   content.innerHTML = `
     <div class="ex-stat-row">
       <div class="ex-stat">
@@ -1386,7 +1427,16 @@ function renderExerciseStats() {
         <div class="ex-stat-trend ${progress > 0 ? 'up' : progress < 0 ? 'down' : 'flat'}">${progress >= 0 ? '+' : ''}${progress.toFixed(1)} kg (${progressPct >= 0 ? '+' : ''}${progressPct}%)</div>
       </div>
     </div>
-    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+    ${bestOrm > 0 ? `
+    <div class="ex-stat-orm">
+      <div class="ex-stat-orm-icon"><i class="ti ti-flame"></i></div>
+      <div class="ex-stat-orm-content">
+        <div class="ex-stat-orm-label">Szacowany 1RM (rekord)</div>
+        <div class="ex-stat-orm-value">${bestOrm}<span class="unit">kg</span> · ostatnio ~${lastOrm}kg</div>
+      </div>
+      <div class="ex-stat-orm-formula">Brzycki + Epley</div>
+    </div>` : ''}
+    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
       ${history.length} sesji · pierwszy raz: ${new Date(history[0].timestamp).toLocaleDateString('pl-PL')}
     </div>
   `;
@@ -1746,6 +1796,67 @@ function checkBackupReminder() {
   } else {
     hideBackupBanner();
   }
+}
+
+// ============ 1RM CALCULATOR (Brzycki + Epley average) ============
+function calculate1RM(weight, reps) {
+  if (!weight || !reps || weight <= 0 || reps <= 0) return 0;
+  if (reps === 1) return weight;
+  if (reps > 12) return 0; // wzory tracą dokładność powyżej 12 powtórzeń
+  // Brzycki: weight × (36 / (37 - reps))
+  const brzycki = weight * (36 / (37 - reps));
+  // Epley: weight × (1 + reps/30)
+  const epley = weight * (1 + reps / 30);
+  // Średnia z dwóch wzorów daje najlepsze przybliżenie
+  return Math.round(((brzycki + epley) / 2) * 2) / 2; // zaokrąglenie do 0.5kg
+}
+
+// ============ WORKOUT DURATION TIMER ============
+function startWorkoutTimer() {
+  if (workoutStartTime) return; // już biegnie
+  workoutStartTime = Date.now();
+  const badge = document.getElementById('workoutTimerBadge');
+  if (badge) {
+    badge.style.display = 'inline-flex';
+    badge.classList.add('active');
+  }
+  if (workoutTimerInterval) clearInterval(workoutTimerInterval);
+  workoutTimerInterval = setInterval(updateWorkoutTimer, 1000);
+  updateWorkoutTimer();
+}
+
+function updateWorkoutTimer() {
+  if (!workoutStartTime) return;
+  const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
+  const min = Math.floor(elapsed / 60);
+  const sec = elapsed % 60;
+  const text = `${min}:${sec.toString().padStart(2, '0')}`;
+  const el = document.getElementById('workoutTimerText');
+  if (el) el.textContent = text;
+}
+
+function stopWorkoutTimer() {
+  if (workoutTimerInterval) {
+    clearInterval(workoutTimerInterval);
+    workoutTimerInterval = null;
+  }
+  const duration = workoutStartTime ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
+  workoutStartTime = null;
+  const badge = document.getElementById('workoutTimerBadge');
+  if (badge) {
+    badge.style.display = 'none';
+    badge.classList.remove('active');
+  }
+  return duration; // sekundy
+}
+
+function formatDuration(seconds) {
+  if (!seconds || seconds <= 0) return '—';
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  if (min < 60) return `${min} min ${sec.toString().padStart(2, '0')}s`;
+  const hr = Math.floor(min / 60);
+  return `${hr}h ${(min % 60)}min`;
 }
 
 // ============ REST TIMER ============
