@@ -184,6 +184,27 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .history-del { float: right; background: transparent; border: none; color: var(--text-dim); cursor: pointer; padding: 2px; transition: color 0.2s; }
 .history-del:hover { color: var(--danger); }
 
+/* ===== IMPORT MODAL ===== */
+.import-tabs { display: flex; gap: 4px; margin-bottom: 16px; padding: 4px; background: var(--bg-elev2); border-radius: var(--radius-sm); }
+.import-tab { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+.import-tab.active { background: var(--bg-elev); color: var(--text); }
+.import-textarea { width: 100%; min-height: 140px; padding: 12px; background: var(--bg-elev2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; outline: none; resize: vertical; transition: border-color 0.2s; }
+.import-textarea:focus { border-color: var(--accent); }
+.import-help { font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+.import-help code { background: var(--bg-elev2); padding: 2px 6px; border-radius: 4px; color: var(--accent); font-family: 'Courier New', monospace; }
+.import-type-select { display: flex; gap: 6px; margin-bottom: 12px; }
+.import-type-btn { flex: 1; padding: 8px; border: 1px solid var(--border-strong); background: var(--bg-elev2); color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
+.import-type-btn:hover { color: var(--text); }
+.import-type-btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.import-loading { display: flex; align-items: center; justify-content: center; padding: 20px; gap: 10px; color: var(--accent); font-size: 13px; }
+.import-result { padding: 14px; background: var(--bg-elev2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-top: 12px; font-size: 12px; line-height: 1.6; }
+.import-result.success { border-color: var(--success); background: rgba(74,222,128,0.06); }
+.import-result.error { border-color: var(--danger); background: rgba(239,68,68,0.06); color: var(--danger); }
+.import-preview-list { max-height: 180px; overflow-y: auto; margin-top: 10px; }
+.import-preview-item { padding: 8px 10px; background: var(--bg-elev); border-radius: 6px; margin-bottom: 4px; font-size: 12px; display: flex; justify-content: space-between; gap: 8px; }
+.import-preview-name { color: var(--text); flex: 1; min-width: 0; }
+.import-preview-stats { color: var(--accent); font-weight: 500; white-space: nowrap; font-family: 'Space Grotesk', sans-serif; }
+
 /* ===== MODAL ===== */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
 .modal-bg.active { display: flex; }
@@ -473,6 +494,9 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       <div class="panel-title" style="display:flex; justify-content:space-between;">
         <span><i class="ti ti-history"></i>Historia</span>
         <div class="btn-group">
+          <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px;" onclick="openImportModal()" title="Importuj trening">
+            <i class="ti ti-upload"></i>Import
+          </button>
           <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px;" onclick="exportCSV()" title="Eksport CSV">
             <i class="ti ti-file-spreadsheet"></i>CSV
           </button>
@@ -550,6 +574,45 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   </div>
 </div>
 
+<!-- IMPORT MODAL -->
+<div class="modal-bg" id="importModal">
+  <div class="modal" style="max-width: 520px;">
+    <button class="modal-close" onclick="closeImportModal()" aria-label="Zamknij"><i class="ti ti-x"></i></button>
+    <div class="modal-title"><i class="ti ti-upload" style="vertical-align:-2px"></i> Importuj trening</div>
+
+    <div class="import-type-select">
+      <button class="import-type-btn active" data-type="push" onclick="setImportType('push')">Push</button>
+      <button class="import-type-btn" data-type="pull" onclick="setImportType('pull')">Pull</button>
+      <button class="import-type-btn" data-type="press" onclick="setImportType('press')">Press</button>
+    </div>
+
+    <textarea class="import-textarea" id="importText" placeholder="Wklej swoje wyniki, np:
+
+1. Wyciskanie sztangi: 3x8 80kg
+2. Pompki: 3x15
+3. Rozpiętki: 3x12 12kg
+4. Triceps wyciąg: 3x12 25kg
+5. Pompki na poręczach: 3x10
+
+Czas: 45 min
+Notatka: dobra forma"></textarea>
+
+    <div class="import-help">
+      💡 Wpisz każde ćwiczenie w nowej linii: <code>nazwa: powtórzenia x serie ciężar</code><br>
+      Możesz pisać luźno — Claude rozpozna formaty typu <code>3x10 80kg</code>, <code>10 powt @ 80</code>, <code>2x8 60kg</code>
+    </div>
+
+    <div id="importResult"></div>
+
+    <div style="margin-top: 16px; display: flex; gap: 8px;">
+      <button class="btn btn-ghost" onclick="closeImportModal()" style="flex: 1;">Anuluj</button>
+      <button class="btn btn-primary" id="importParseBtn" onclick="parseImport()" style="flex: 2;">
+        <i class="ti ti-sparkles"></i>Analizuj z AI
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- PROFILE MODAL -->
 <div class="modal-bg" id="profileModal">
   <div class="modal">
@@ -621,6 +684,9 @@ let weightChart = null;
 let reminderShown = false;
 let reminderDismissed = false;
 let isAnalyzing = false;
+let importType = 'push';
+let isImporting = false;
+let pendingImport = null;
 
 const STORAGE_TIMER_PREFS = 'tp_timer_prefs_v1';
 
@@ -2169,6 +2235,210 @@ if ('serviceWorker' in navigator) {
       .then(reg => console.log('SW registered:', reg.scope))
       .catch(err => console.warn('SW registration failed:', err));
   });
+}
+
+// ============ IMPORT TRENINGU ============
+function openImportModal() {
+  document.getElementById('importText').value = '';
+  document.getElementById('importResult').innerHTML = '';
+  pendingImport = null;
+  // Domyślnie ustaw typ ostatniego treningu
+  const profile = getCurrentProfile();
+  if (profile.history.length > 0) {
+    setImportType(profile.history[0].type);
+  }
+  document.getElementById('importModal').classList.add('active');
+}
+
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('active');
+  pendingImport = null;
+}
+
+document.getElementById('importModal').addEventListener('click', (e) => {
+  if (e.target.id === 'importModal') closeImportModal();
+});
+
+function setImportType(type) {
+  importType = type;
+  document.querySelectorAll('.import-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+}
+
+async function parseImport() {
+  if (isImporting) return;
+
+  // Jeśli już mamy sparsowany wynik - to drugie kliknięcie = potwierdzenie i zapis
+  if (pendingImport) {
+    saveImportedWorkout(pendingImport);
+    return;
+  }
+
+  const text = document.getElementById('importText').value.trim();
+  if (!text) {
+    showToast('Wpisz dane treningu', 'error');
+    return;
+  }
+
+  const apiKey = localStorage.getItem(STORAGE_API_KEY);
+  if (!apiKey) {
+    showToast('Wymagany klucz API do parsowania', 'error');
+    closeImportModal();
+    openProfileModal();
+    return;
+  }
+
+  isImporting = true;
+  const btn = document.getElementById('importParseBtn');
+  const result = document.getElementById('importResult');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2 spin"></i>Analizuję tekst...';
+  result.innerHTML = '<div class="import-loading"><i class="ti ti-loader-2 spin"></i>Claude czyta Twój trening...</div>';
+
+  const prompt = `Jesteś parserem danych treningowych. Z poniższego tekstu wyciągnij dane o ćwiczeniach i zwróć JSON.
+
+TEKST UŻYTKOWNIKA:
+"""
+${text}
+"""
+
+ZASADY:
+- Wyciągnij każde ćwiczenie: nazwę, liczbę powtórzeń w jednej serii, liczbę serii i ciężar w kg
+- Format "3x10 80kg" = 3 serie × 10 powtórzeń, ciężar 80kg
+- Format "2x8 60kg" = 2 serie × 8 powtórzeń, ciężar 60kg (nie zaokrąglaj do 3 serii!)
+- Jeśli ciężar nie podany, daj 0
+- Jeśli liczba serii nie podana, daj 3
+- Wyciągnij też czas treningu w sekundach (jeśli wspomniany w minutach, przelicz)
+- Wyciągnij notatkę jeśli jest jakaś (np. "bolało kolano", "dobra forma")
+- Małą sztangę EZ traktuj jako 6.5 kg + obciążenie
+- Standardowa sztanga olimpijska to 20 kg
+
+Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
+{
+  "exercises": [
+    {"name": "nazwa ćwiczenia", "reps": 8, "sets": 3, "kg": 80, "target": "8-10"}
+  ],
+  "duration_seconds": 2700,
+  "note": "notatka lub pusty string"
+}
+
+target = sugerowany zakres powtórzeń, np. "8-10" - zgadnij na podstawie wykonanych powtórzeń (np. zrobił 8 = target "6-10").`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'HTTP ' + resp.status);
+    }
+
+    const data = await resp.json();
+    const responseText = data.content.map(c => c.text || '').join('');
+    const clean = responseText.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    if (!parsed.exercises || !parsed.exercises.length) {
+      throw new Error('Nie udało się rozpoznać żadnego ćwiczenia');
+    }
+
+    // Pokaż preview
+    pendingImport = parsed;
+    let html = '<div class="import-result success">';
+    html += '<strong style="color: var(--success);">✓ Rozpoznano ' + parsed.exercises.length + ' ćwiczeń:</strong>';
+    html += '<div class="import-preview-list">';
+    parsed.exercises.forEach((ex, i) => {
+      const totalReps = ex.reps * ex.sets;
+      const kgStr = ex.kg > 0 ? ' @ ' + ex.kg + 'kg' : '';
+      html += '<div class="import-preview-item">';
+      html += '<div class="import-preview-name">' + (i+1) + '. ' + escapeHtml(ex.name) + '</div>';
+      html += '<div class="import-preview-stats">' + ex.sets + '×' + ex.reps + kgStr + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    if (parsed.duration_seconds) {
+      html += '<div style="margin-top: 8px; color: var(--text-muted); font-size: 11px;">⏱️ Czas: ' + Math.floor(parsed.duration_seconds/60) + ' min</div>';
+    }
+    if (parsed.note) {
+      html += '<div style="margin-top: 4px; color: var(--text-muted); font-size: 11px;">📝 ' + escapeHtml(parsed.note) + '</div>';
+    }
+    html += '</div>';
+    result.innerHTML = html;
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-check"></i>Zapisz trening';
+  } catch(e) {
+    console.error(e);
+    result.innerHTML = '<div class="import-result error">❌ Błąd: ' + escapeHtml(e.message) + '</div>';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-sparkles"></i>Spróbuj ponownie';
+    pendingImport = null;
+  }
+
+  isImporting = false;
+}
+
+function saveImportedWorkout(parsed) {
+  // Buduj entry zgodne ze schematem aplikacji
+  const exercises = parsed.exercises.map(ex => {
+    const reps = parseInt(ex.reps) || 0;
+    const sets = parseInt(ex.sets) || 3;
+    const kg = parseFloat(ex.kg) || 0;
+    return {
+      name: ex.name,
+      target: ex.target || '',
+      tip: '',
+      reps: reps,
+      kg: kg,
+      sets: sets,
+      total: reps * sets,
+      orm: calculate1RM(kg, reps)
+    };
+  });
+
+  const totalReps = exercises.reduce((s, e) => s + e.total, 0);
+  const duration = parsed.duration_seconds || 0;
+
+  const entry = {
+    id: 'w_' + Date.now(),
+    type: importType,
+    timestamp: Date.now(),
+    date: new Date().toLocaleString('pl-PL', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    }),
+    exercises: exercises,
+    totalReps: totalReps,
+    duration: duration,
+    note: parsed.note || ''
+  };
+
+  updateCurrentProfile(p => {
+    p.history = [entry, ...p.history].slice(0, 200);
+    return p;
+  });
+
+  closeImportModal();
+  refreshHistory();
+  refreshStats();
+  refreshChart();
+  refreshExerciseSelect();
+  checkBackupReminder();
+  showToast('Trening zaimportowany! ' + totalReps + ' rep', 'success');
+  pendingImport = null;
 }
 
 // ============ INIT ============
