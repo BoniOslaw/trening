@@ -1,7 +1,7 @@
 // Trening Pro - Service Worker
 // Strategia: cache-first dla statycznych zasobów, network-first dla API
 
-const CACHE_VERSION = 'trening-pro-v2';
+const CACHE_VERSION = 'trening-pro-v3';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 // Pliki do zachowania w cache (działanie offline)
