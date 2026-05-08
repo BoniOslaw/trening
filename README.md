@@ -15,7 +15,9 @@ Personalna aplikacja treningowa Push / Pull / Press z generowaniem planów przez
 ### Logowanie treningu
 - 📝 **Powtórzenia × 3 serie** — wpisujesz raz, aplikacja mnoży automatycznie
 - 🏋️ **Ciężar w kg** — śledzenie progresji ciężarów
-- ⏱️ **Timer odpoczynku** z presetami 60s / 90s / 2min / 3min
+- 💪 **Kalkulator 1RM** — szacowany maksymalny ciężar jednopowtórzeniowy (wzory Brzycki + Epley)
+- ⏱️ **Stoper czasu treningu** — pokazuje ile trwa cała sesja, automatyczny start i zapis
+- ⏰ **Timer odpoczynku** z presetami 60s / 90s / 2min / 3min
 - 🎤 **Powiadomienie głosowe po polsku** po zakończeniu przerwy
 - 🔔 **Dźwięk dzwonka + wibracja** (konfigurowalne)
 - ⚠️ **Auto-save** — odświeżenie strony nie powoduje utraty danych
@@ -25,13 +27,14 @@ Personalna aplikacja treningowa Push / Pull / Press z generowaniem planów przez
 - 📊 **Statystyki tygodniowe** — treningi, powtórzenia, średnie
 - 📈 **Wykres postępu** ostatnich 14 dni (Push/Pull/Press)
 - 🎯 **Analiza per ćwiczenie** — rekord, średnia, trend ciężaru
+- 🔥 **Najlepszy 1RM dla ćwiczenia** — historyczny rekord siły
 - 📉 **Wykres progresji ciężaru** dla wybranego ćwiczenia
 - 🧠 **AI Coach** — Claude analizuje historię i daje konkretne porady (stagnacja, postępy, sugestie)
 
 ### Profile i dane
 - 👥 **Wiele profili** — Twój, partnera, znajomych
 - 💾 **Trwała historia** — zapisana lokalnie w przeglądarce
-- 📤 **Eksport CSV i PDF** — kopia zapasowa do druku/Excela
+- 📤 **Eksport CSV i PDF** — kopia zapasowa do druku/Excela (z 1RM i czasem treningu)
 - 🛡️ **Przypomnienie o backupie** co 3 tygodnie
 
 ### Progressive Web App (PWA)
@@ -51,8 +54,23 @@ Personalna aplikacja treningowa Push / Pull / Press z generowaniem planów przez
    - Wymaga doładowania konta minimum 5 USD
 4. Wybierz typ treningu (Push / Pull / Press)
 5. Kliknij **Generuj plan** — 5 ćwiczeń pojawi się w 2-3 sekundy
-6. Trenuj — wpisuj powtórzenia i kg, używaj timera
-7. **Zapisz trening** — dane zostaną w historii
+6. Trenuj — wpisuj powtórzenia i kg, używaj timera odpoczynku
+7. **Zapisz trening** — dane zostaną w historii wraz z czasem trwania
+
+---
+
+## 💪 Kalkulator 1RM — jak to działa
+
+**1RM (One-Rep Max)** to szacowany maksymalny ciężar, który możesz podnieść w jednym powtórzeniu. Aplikacja używa średniej z dwóch standardowych wzorów stosowanych w branży:
+
+```
+Brzycki:  1RM = ciężar × (36 / (37 - powtórzenia))
+Epley:    1RM = ciężar × (1 + powtórzenia / 30)
+```
+
+**Przykład:** Wyciskanie 80 kg × 8 powtórzeń → szacowany 1RM ≈ 99 kg
+
+Działa w zakresie 2-12 powtórzeń (powyżej tego wzory tracą dokładność). Wynik zaokrąglany do 0.5 kg.
 
 ---
 
