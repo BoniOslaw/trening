@@ -785,8 +785,11 @@ async function generatePlan() {
   isLoading = true;
   const btn = document.getElementById('genBtn');
   const btnText = document.getElementById('genBtnText');
-  btn.disabled = true;
-  btn.querySelector('i').outerHTML = '<i class="ti ti-loader-2 spin"></i>';
+  if (btn) {
+    btn.disabled = true;
+    const btnIcon = btn.querySelector('i');
+    if (btnIcon) btnIcon.outerHTML = '<i class="ti ti-loader-2 spin"></i>';
+  }
   btnText.textContent = 'Generuję...';
 
   document.getElementById('exerciseList').innerHTML = '<div class="loader"><span></span><span></span><span></span></div>';
@@ -854,17 +857,21 @@ Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
     showToast('Plan gotowy!', 'success');
   } catch (e) {
     console.error(e);
-    document.getElementById('exerciseList').innerHTML = `
+    const list = document.getElementById('exerciseList');
+    if (list) {
+      list.innerHTML = `
       <div class="empty">
         <i class="ti ti-alert-circle" style="color:var(--danger)"></i>
         <p style="color:var(--danger)">Błąd: ${escapeHtml(e.message)}</p>
         <p style="font-size:12px;margin-top:4px">Sprawdź klucz API w ustawieniach profilu</p>
       </div>`;
+    }
     showToast('Błąd generowania', 'error');
   }
 
   btn.disabled = false;
-  btn.querySelector('i').outerHTML = '<i class="ti ti-refresh"></i>';
+  const btnIcon = btn.querySelector('i');
+  if (btnIcon) btnIcon.outerHTML = '<i class="ti ti-refresh"></i>';
   btnText.textContent = 'Nowy plan';
   isLoading = false;
 }
@@ -1083,6 +1090,7 @@ function refreshChart() {
   const p = getCurrentProfile();
   const chartEmpty = document.getElementById('chartEmpty');
   const canvas = document.getElementById('progressChart');
+  if (!chartEmpty || !canvas) return;
   
   if (!p.history.length) {
     chartEmpty.style.display = 'flex';
@@ -1332,12 +1340,16 @@ function refreshExerciseSelect() {
     select.value = prevValue;
     renderExerciseStats();
   } else {
-    document.getElementById('exerciseStatsContent').innerHTML = `
+    const content = document.getElementById('exerciseStatsContent');
+    if (content) {
+      content.innerHTML = `
       <div class="empty" style="padding: 1.5rem 1rem;">
         <p style="font-size: 12px; color: var(--text-muted);">${exercises.length ? 'Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki' : 'Brak danych — zapisz trening z ciężarem'}</p>
       </div>`;
+    }
     if (weightChart) { weightChart.destroy(); weightChart = null; }
-    document.getElementById('weightChartEmpty').style.display = 'flex';
+    const emptyEl = document.getElementById('weightChartEmpty');
+    if (emptyEl) emptyEl.style.display = 'flex';
   }
 }
 
@@ -1362,10 +1374,12 @@ function getExerciseHistory(name) {
 }
 
 function renderExerciseStats() {
-  const name = document.getElementById('exerciseSelect').value;
+  const select = document.getElementById('exerciseSelect');
   const content = document.getElementById('exerciseStatsContent');
   const chartEmpty = document.getElementById('weightChartEmpty');
   const canvas = document.getElementById('weightChart');
+  if (!select || !content || !chartEmpty || !canvas) return;
+  const name = select.value;
 
   if (!name) {
     content.innerHTML = '<div class="empty" style="padding: 1.5rem 1rem;"><p style="font-size: 12px; color: var(--text-muted);">Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki</p></div>';
@@ -1442,8 +1456,8 @@ function renderExerciseStats() {
   `;
 
   // Wykres wagi
-  chartEmpty.style.display = 'none';
-  canvas.style.display = 'block';
+  if (chartEmpty) chartEmpty.style.display = 'none';
+  if (canvas) canvas.style.display = 'block';
   if (weightChart) weightChart.destroy();
 
   const labels = history.map(h => new Date(h.timestamp).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }));
