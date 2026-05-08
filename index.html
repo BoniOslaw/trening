@@ -112,11 +112,20 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .ex-detail { font-size: 12px; color: var(--text-muted); }
 .ex-detail .reps-target { color: var(--text); font-weight: 500; }
 
+.inputs-group { display: flex; align-items: center; gap: 10px; }
+.input-block { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.input-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); font-weight: 600; }
 .reps-input-wrap { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 10px; background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); transition: all 0.2s; }
 .reps-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.kg-input-wrap { display: flex; align-items: center; padding: 4px 4px 4px 10px; background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); transition: all 0.2s; }
+.kg-input-wrap:focus-within { border-color: var(--pull); box-shadow: 0 0 0 3px rgba(74,142,255,0.12); }
+.kg-unit { font-size: 11px; color: var(--text-dim); padding: 0 8px 0 2px; font-weight: 500; }
 .reps-input { width: 50px; padding: 6px 0; border: none; background: transparent; color: var(--text); font-family: inherit; font-size: 14px; font-weight: 500; text-align: center; outline: none; }
 .reps-input::-webkit-outer-spin-button, .reps-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .reps-input[type=number] { -moz-appearance: textfield; }
+.kg-input { width: 54px; padding: 6px 0; border: none; background: transparent; color: var(--text); font-family: inherit; font-size: 14px; font-weight: 500; text-align: center; outline: none; }
+.kg-input::-webkit-outer-spin-button, .kg-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.kg-input[type=number] { -moz-appearance: textfield; }
 .reps-stepper { display: flex; flex-direction: column; }
 .reps-step { width: 22px; height: 14px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
 .reps-step:hover { color: var(--accent); }
@@ -203,7 +212,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 @media (max-width: 600px) {
   .app { padding: 1rem; }
   .exercise-card { grid-template-columns: 28px 1fr; row-gap: 8px; }
-  .exercise-card .reps-input-wrap, .exercise-card .total-display { grid-column: span 2; }
+  .exercise-card .inputs-group, .exercise-card .total-display { grid-column: span 2; }
   .total-display { text-align: left; }
   .header { flex-wrap: wrap; gap: 12px; }
 }
@@ -560,12 +569,25 @@ function renderExercises(exs) {
         <div class="ex-name">${escapeHtml(ex.name)}</div>
         <div class="ex-detail">${ex.sets} serie × <span class="reps-target">${escapeHtml(ex.reps)}</span>${ex.tip ? ' · <i style="opacity:0.7">' + escapeHtml(ex.tip) + '</i>' : ''}</div>
       </div>
-      <div class="reps-input-wrap">
-        <input type="number" class="reps-input" id="reps_${i}" min="0" max="999" 
-          oninput="updateTotal(${i})" placeholder="0" aria-label="Powtórzenia">
-        <div class="reps-stepper">
-          <button class="reps-step" onclick="stepReps(${i}, 1)" aria-label="Zwiększ"><i class="ti ti-chevron-up" style="font-size:11px"></i></button>
-          <button class="reps-step" onclick="stepReps(${i}, -1)" aria-label="Zmniejsz"><i class="ti ti-chevron-down" style="font-size:11px"></i></button>
+      <div class="inputs-group">
+        <div class="input-block">
+          <span class="input-label">Powtórzenia</span>
+          <div class="reps-input-wrap">
+            <input type="number" class="reps-input" id="reps_${i}" min="0" max="999"
+              oninput="updateTotal(${i})" placeholder="0" aria-label="Powtórzenia">
+            <div class="reps-stepper">
+              <button class="reps-step" onclick="stepReps(${i}, 1)" aria-label="Zwiększ"><i class="ti ti-chevron-up" style="font-size:11px"></i></button>
+              <button class="reps-step" onclick="stepReps(${i}, -1)" aria-label="Zmniejsz"><i class="ti ti-chevron-down" style="font-size:11px"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="input-block">
+          <span class="input-label">Ciężar</span>
+          <div class="kg-input-wrap">
+            <input type="number" class="kg-input" id="kg_${i}" min="0" max="999" step="0.5"
+              oninput="updateTotal(${i})" placeholder="0" aria-label="Kilogramy">
+            <span class="kg-unit">kg</span>
+          </div>
         </div>
       </div>
       <div class="total-display" id="total_${i}">— rep</div>
@@ -581,11 +603,21 @@ function stepReps(i, dir) {
   updateTotal(i);
 }
 
+function stepKg(i, dir) {
+  const input = document.getElementById(`kg_${i}`);
+  const val = Math.round(((parseFloat(input.value) || 0) + dir * 2.5) * 10) / 10;
+  if (val < 0 || val > 999) return;
+  input.value = val;
+  updateTotal(i);
+}
+
 function updateTotal(i) {
   const v = parseInt(document.getElementById(`reps_${i}`).value) || 0;
+  const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
   const el = document.getElementById(`total_${i}`);
   if (v > 0) {
-    el.textContent = `${v * 3} rep`;
+    const kgText = kg > 0 ? ` · ${kg} kg` : '';
+    el.textContent = `${v * 3} rep${kgText}`;
     el.classList.add('has-val');
   } else {
     el.textContent = '— rep';
@@ -598,7 +630,8 @@ function saveWorkout() {
   if (!currentExercises.length) return;
   const exs = currentExercises.map((ex, i) => {
     const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
-    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps };
+    const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
+    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps, kg };
   });
   const totalReps = exs.reduce((s, e) => s + e.total, 0);
   const entry = {
@@ -613,6 +646,7 @@ function saveWorkout() {
   refreshHistory();
   refreshStats();
   refreshChart();
+  const kgInfo = exs.some(e => e.kg > 0) ? '' : '';
   showToast(`Trening zapisany! (${totalReps} powtórzeń)`, 'success');
 }
 
@@ -646,7 +680,7 @@ function refreshHistory() {
         <span><strong>${e.totalReps}</strong> rep łącznie</span>
         <span><strong>${e.exercises.length}</strong> ćwiczeń</span>
       </div>
-      <div class="history-exs">${e.exercises.map(x => x.reps > 0 ? `${escapeHtml(x.name)} <span style="color:var(--accent)">(${x.total})</span>` : `<span style="opacity:0.5">${escapeHtml(x.name)}</span>`).join(' · ')}</div>
+      <div class="history-exs">${e.exercises.map(x => x.reps > 0 ? `${escapeHtml(x.name)} <span style="color:var(--accent)">(${x.total} rep${x.kg > 0 ? ' · ' + x.kg + ' kg' : ''})</span>` : `<span style="opacity:0.5">${escapeHtml(x.name)}</span>`).join(' · ')}</div>
     </div>
   `).join('');
 }
@@ -776,7 +810,7 @@ function exportCSV() {
   const p = getCurrentProfile();
   if (!p.history.length) { showToast('Brak danych do eksportu', 'error'); return; }
   
-  let csv = 'Data;Typ;Cwiczenie;Powtorzenia w serii;Serie;Lacznie;Cel\n';
+  let csv = 'Data;Typ;Cwiczenie;Powtorzenia w serii;Serie;Lacznie;Ciezar (kg);Cel\n';
   p.history.forEach(e => {
     e.exercises.forEach(x => {
       csv += `"${e.date}";${e.type};"${x.name}";${x.reps};${x.sets};${x.total};"${x.target || ''}"\n`;
