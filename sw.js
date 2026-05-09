@@ -1,7 +1,7 @@
 // Trening Pro - Service Worker
 // Strategia: cache-first dla statycznych zasobów, network-first dla API
 
-const CACHE_VERSION = 'trening-pro-v5';
+const CACHE_VERSION = 'trening-pro-v6';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 // Pliki do zachowania w cache (działanie offline)
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './db.js',
   // CDN-y
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap',
   'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css',

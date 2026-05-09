@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trening Pro</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
+<script src="db.js"></script>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0a0b">
@@ -621,6 +622,9 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       </span>
     </div>
     <div class="btn-group">
+      <button class="btn btn-ghost" id="offlinePlanBtn" onclick="generateOfflinePlan()">
+        <i class="ti ti-database"></i>Plan offline
+      </button>
       <button class="btn btn-primary" id="genBtn" onclick="generatePlan()">
         <i class="ti ti-sparkles"></i><span id="genBtnText">Generuj plan</span>
       </button>
@@ -722,6 +726,12 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       </div>
     </div>
   </div>
+
+  <!-- PARTIE MIĘŚNIOWE -->
+  <div class="section-divider">
+    <div class="section-divider-title">Partie mięśniowe (ostatnie 30 dni)</div>
+  </div>
+  <div id="muscleStatsContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem;"></div>
 
   <!-- ANALIZA PER ĆWICZENIE -->
   <div class="section-divider">
@@ -879,6 +889,19 @@ Notatka: dobra forma"></textarea>
   </div>
 </div>
 
+<div class="modal-bg" id="goalModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeGoalModal()" aria-label="Zamknij"><i class="ti ti-x"></i></button>
+    <div class="modal-title">Wybierz cel treningowy</div>
+    <div id="goalList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
+    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
+      <input type="checkbox" id="goalAskCheckbox" style="accent-color: var(--accent);">
+      Pytaj przy każdym generowaniu planu
+    </label>
+    <button class="btn btn-primary" onclick="confirmGoal()" style="width: 100%; margin-top: 16px;">Zatwierdź cel</button>
+  </div>
+</div>
+
 <div class="save-reminder" id="saveReminder">
   <span class="save-reminder-text">Wszystko wypełnione — <strong>zapisać trening?</strong></span>
   <button class="save-reminder-btn" onclick="saveFromReminder()">Zapisz teraz</button>
@@ -918,6 +941,14 @@ const BACKUP_DISMISS_DAYS = 7;   // jeśli odłożone — przypomnij za tydzień
 let currentType = 'push';
 let currentExercises = [];
 let isLoading = false;
+const GOALS_DATA = {
+  reduction: { name: 'Redukcja', reps: '12-15', sets: '3', rest: 60, restText: '45-60s', desc: 'Wyższa intensywność, krótsze przerwy', icon: '🔥' },
+  sculpt: { name: 'Rzeźba', reps: '12-15', sets: '3-4', rest: 60, restText: '45-60s', desc: 'Skupienie na detalach i czuciu mięśniowym', icon: '🗿' },
+  mass: { name: 'Masa', reps: '8-12', sets: '3-4', rest: 90, restText: '60-90s', desc: 'Hipertrofia, optymalny czas pod napięciem', icon: '💪' },
+  strength: { name: 'Siła', reps: '3-5', sets: '4-5', rest: 180, restText: '3-5 min', desc: 'Niskie zakresy, długie przerwy', icon: '🏋️' },
+  endurance: { name: 'Kondycja', reps: '15-20', sets: '3', rest: 60, restText: '30-45s', desc: 'Bardzo krótkie przerwy, wytrzymałość', icon: '🏃' }
+};
+let pendingGenerate = false;
 let chart = null;
 let weightChart = null;
 let reminderShown = false;
@@ -952,26 +983,45 @@ function saveTimerPrefs() {
 
 // ============ PROFILES ============
 function getProfiles() {
-  const defaultProfile = () => [{ id: 'default', name: 'Łukasz', history: [] }];
+  const defaultProfile = () => [{ id: 'default', name: 'Łukasz', goal: 'reduction', goalSetAt: Date.now(), askGoalEveryTime: true, history: [] }];
   try {
     const raw = localStorage.getItem(STORAGE_PROFILES);
     if (!raw) return defaultProfile();
     const p = JSON.parse(raw);
     if (!Array.isArray(p) || !p.length) return defaultProfile();
-    // Sanityzacja - odrzuć niepoprawne wpisy, napraw popsute
-    return p.map(profile => ({
-      id: typeof profile?.id === 'string' && profile.id ? profile.id : 'p_' + Date.now(),
-      name: typeof profile?.name === 'string' && profile.name ? profile.name : 'Użytkownik',
-      history: Array.isArray(profile?.history)
-        ? profile.history.filter(w =>
-            w && typeof w === 'object' &&
-            typeof w.timestamp === 'number' &&
-            typeof w.type === 'string' &&
-            Array.isArray(w.exercises) &&
-            w.exercises.every(ex => ex && typeof ex.name === 'string')
-          )
-        : []
-    }));
+    
+    let modified = false;
+    const processed = p.map(profile => {
+      const mapped = {
+        id: typeof profile?.id === 'string' && profile.id ? profile.id : 'p_' + Date.now(),
+        name: typeof profile?.name === 'string' && profile.name ? profile.name : 'Użytkownik',
+        goal: typeof profile?.goal === 'string' ? profile.goal : 'reduction',
+        goalSetAt: typeof profile?.goalSetAt === 'number' ? profile.goalSetAt : Date.now(),
+        askGoalEveryTime: typeof profile?.askGoalEveryTime === 'boolean' ? profile.askGoalEveryTime : true,
+        history: Array.isArray(profile?.history)
+          ? profile.history.filter(w =>
+              w && typeof w === 'object' &&
+              typeof w.timestamp === 'number' &&
+              typeof w.type === 'string' &&
+              Array.isArray(w.exercises)
+            )
+          : []
+      };
+      
+      // Retroactive muscle migration
+      mapped.history.forEach(workout => {
+        workout.exercises.forEach(ex => {
+          if (ex.muscle === undefined && window.TPDB) {
+            ex.muscle = window.TPDB.detectMuscle(ex.name);
+            modified = true;
+          }
+        });
+      });
+      return mapped;
+    });
+
+    if (modified) localStorage.setItem(STORAGE_PROFILES, JSON.stringify(processed));
+    return processed;
   } catch (e) {
     console.warn('getProfiles: błąd deserializacji, zwracam domyślny profil', e);
     return defaultProfile();
@@ -1033,6 +1083,7 @@ function switchProfile(id) {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   refreshExerciseSelect();
   checkBackupReminder();
   renderProfileList();
@@ -1054,6 +1105,7 @@ function addProfile() {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   showToast('Profil utworzony', 'success');
 }
 
@@ -1068,6 +1120,7 @@ function deleteProfile(id) {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   showToast('Profil usunięty');
 }
 
@@ -1100,7 +1153,88 @@ function switchTab(type) {
 }
 
 // ============ GENERATE ============
+function generateOfflinePlan() {
+  if (!window.TPDB || !window.TPDB.plans) {
+    showToast('Baza planów niedostępna', 'error');
+    return;
+  }
+  const plan = window.TPDB.getRandomPlan(currentType);
+  if (!plan || !plan.exercises) {
+    showToast('Błąd pobierania planu', 'error');
+    return;
+  }
+  currentExercises = plan.exercises.map(ex => ({
+    name: ex.name,
+    sets: ex.sets,
+    reps: ex.reps,
+    tip: ex.tip
+  }));
+  renderExercises(currentExercises);
+  saveDraft();
+  reminderShown = false;
+  reminderDismissed = false;
+  document.getElementById('saveReminder').classList.remove('show');
+  document.getElementById('saveBtn').disabled = false;
+  showRestTimerBar();
+  startWorkoutTimer();
+  showToast('Plan offline załadowany', 'success');
+}
+
+function openGoalModal(isFromGenerate = false) {
+  pendingGenerate = isFromGenerate;
+  const profile = getCurrentProfile();
+  const list = document.getElementById('goalList');
+  list.innerHTML = Object.entries(GOALS_DATA).map(([key, data]) => `
+    <div class="profile-item ${profile.goal === key ? 'active' : ''}" onclick="selectGoalUI('${key}')" id="goal_btn_${key}">
+      <div style="display: flex; flex-direction: column;">
+        <span style="font-weight: 600; font-size: 14px;">${data.icon} ${data.name}</span>
+        <span style="font-size: 11px; color: var(--text-muted);">${data.sets} serie × ${data.reps} powt. · Przerwy: ${data.restText}</span>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('goalAskCheckbox').checked = profile.askGoalEveryTime !== false;
+  window.tempSelectedGoal = profile.goal || 'reduction';
+  document.getElementById('goalModal').classList.add('active');
+}
+
+function closeGoalModal() {
+  document.getElementById('goalModal').classList.remove('active');
+  pendingGenerate = false;
+}
+
+function selectGoalUI(key) {
+  document.querySelectorAll('#goalList .profile-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('goal_btn_' + key).classList.add('active');
+  window.tempSelectedGoal = key;
+}
+
+function confirmGoal() {
+  const newGoal = window.tempSelectedGoal;
+  const askEveryTime = document.getElementById('goalAskCheckbox').checked;
+  updateCurrentProfile(p => {
+    p.goal = newGoal;
+    p.goalSetAt = Date.now();
+    p.askGoalEveryTime = askEveryTime;
+    return p;
+  });
+  closeGoalModal();
+  if (pendingGenerate) executeGeneratePlan();
+  else {
+    showToast('Cel zaktualizowany', 'success');
+    refreshMuscleStats(); // Refresh just in case
+  }
+}
+
 async function generatePlan() {
+  const profile = getCurrentProfile();
+  if (profile.askGoalEveryTime !== false) {
+    openGoalModal(true);
+    return;
+  }
+  executeGeneratePlan();
+}
+
+async function executeGeneratePlan() {
   if (isLoading) return;
   
   const apiKey = localStorage.getItem(STORAGE_API_KEY);
@@ -1134,17 +1268,25 @@ async function generatePlan() {
     ? recent.map(h => h.exercises.map(e => e.name).join(', ')).join(' | ')
     : 'brak historii';
 
-  const prompt = `Jesteś trenerem personalnym. Wygeneruj plan treningowy "${typeLabels[currentType]}" dla osoby trenującej na siłowni z pełnym wyposażeniem (sztangi, hantle, maszyny, wyciągi).
+  const profileForGoal = getCurrentProfile();
+  const goalData = GOALS_DATA[profileForGoal.goal || 'reduction'];
+  const prompt = `Jesteś trenerem personalnym. Wygeneruj plan treningowy "${typeLabels[currentType]}" dla osoby trenującej na siłowni z pełnym wyposażeniem.
+
+CEL TRENINGOWY UŻYTKOWNIKA: ${goalData.name}
+Dostosuj plan do celu:
+- Powtórzenia: ${goalData.reps}
+- Serie: ${goalData.sets}
+- Rekomendowany czas przerwy: ${goalData.restText}
+- Preferencje ćwiczeń: ${goalData.desc}
 
 ZASADY:
 - Dokładnie 5 ćwiczeń
-- 3 serie każde
 - Plan MUSI być zróżnicowany i INNY niż poprzednie z tej kategorii: ${recentNames}
 - Rotuj między ćwiczeniami sztangowymi, hantlowymi, na maszynach i na wyciągach
-- Podaj zalecaną liczbę powtórzeń (np. "8-12", "6-8", "12-15")
+- Podaj zalecaną liczbę powtórzeń zgodnie z celem
 - Krótka wskazówka techniczna do każdego ćwiczenia (max 6 słów)
 
-Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
+Odpowiedz TYLKO w formacie JSON:
 {"exercises":[{"name":"Wyciskanie sztangi na ławce poziomej","reps":"6-8","sets":3,"tip":"łopatki ściągnięte"}, ...]}`;
 
   try {
@@ -1182,6 +1324,7 @@ Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
     document.getElementById('saveBtn').disabled = false;
     showRestTimerBar();
     startWorkoutTimer();
+    setRestPreset(goalData.rest);
     showToast('Plan gotowy!', 'success');
   } catch (e) {
     console.error(e);
@@ -1362,7 +1505,7 @@ function saveWorkout() {
     const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
     const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
     const orm = calculate1RM(kg, reps);
-    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps, kg, orm };
+    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps, kg, orm, muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null };
   });
   const totalReps = exs.reduce((s, e) => s + e.total, 0);
   const duration = stopWorkoutTimer(); // sekundy
@@ -1383,6 +1526,7 @@ function saveWorkout() {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   refreshExerciseSelect();
   const kgInfo = exs.some(e => e.kg > 0) ? '' : '';
   const durStr = entry.duration ? ` · ${formatDuration(entry.duration)}` : '';
@@ -1421,6 +1565,7 @@ function deleteEntry(id) {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   refreshExerciseSelect();
   showToast('Usunięto');
 }
@@ -1453,6 +1598,51 @@ function refreshHistory() {
 }
 
 // ============ STATS ============
+function refreshMuscleStats() {
+  const container = document.getElementById('muscleStatsContent');
+  if (!container) return;
+  const p = getCurrentProfile();
+  const thirtyDaysAgo = Date.now() - (30 * 86400000);
+  const recentWorkouts = p.history.filter(w => w.timestamp >= thirtyDaysAgo);
+  const muscleData = {};
+  recentWorkouts.forEach(w => {
+    w.exercises.forEach(ex => {
+      if (ex.muscle) {
+        if (!muscleData[ex.muscle]) muscleData[ex.muscle] = { total: 0, sessions: new Set() };
+        muscleData[ex.muscle].total += (ex.total || 0);
+        muscleData[ex.muscle].sessions.add(w.id);
+      }
+    });
+  });
+  const entries = Object.entries(muscleData)
+    .map(([key, data]) => ({ key, total: data.total, sessions: data.sessions.size }))
+    .sort((a, b) => b.total - a.total);
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty" style="grid-column: 1/-1;">Brak danych z ostatnich 30 dni</div>';
+    return;
+  }
+  const maxTotal = entries[0].total;
+  container.innerHTML = entries.map(e => {
+    const name = window.TPDB ? window.TPDB.getMuscleName(e.key) : e.key;
+    const pct = (e.total / maxTotal) * 100;
+    let color = 'var(--text-muted)';
+    if (e.key.startsWith('chest')) color = '#4a8eff'; 
+    else if (e.key.startsWith('back')) color = '#4ade80';
+    else if (e.key.startsWith('quads') || e.key.startsWith('hamstrings') || e.key.startsWith('glutes') || e.key.startsWith('calves') || e.key.startsWith('adductors')) color = '#b566ff';
+    else if (e.key.startsWith('shoulder') || e.key.startsWith('biceps') || e.key.startsWith('triceps') || e.key.startsWith('forearms')) color = '#fb923c'; 
+    else color = 'var(--accent)';
+    return `
+      <div class="panel" style="padding: 12px;">
+        <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px;">${escapeHtml(name)}</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">${e.total} powt. · ${e.sessions} sesji</div>
+        <div style="height: 4px; background: var(--bg-elev2); border-radius: 2px; overflow: hidden;">
+          <div style="height: 100%; width: ${pct}%; background: ${color}; border-radius: 2px;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function refreshStats() {
   const p = getCurrentProfile();
   const h = p.history;
@@ -1653,9 +1843,9 @@ function escapeHtml(s) {
 
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.className = 'toast show' + (type ? ' ' + type : '');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 // ============ DRAFT (autosave aktywnego planu) ============
@@ -2837,6 +3027,7 @@ function importCsvWorkouts() {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   refreshExerciseSelect();
   checkBackupReminder();
   showToast(`Zaimportowano ${count} treningów z CSV`, 'success');
@@ -3054,7 +3245,8 @@ function saveImportedWorkout(parsed) {
       kg: kg,
       sets: sets,
       total: reps * sets,
-      orm: calculate1RM(kg, reps)
+      orm: calculate1RM(kg, reps),
+      muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null
     };
   });
 
@@ -3084,6 +3276,7 @@ function saveImportedWorkout(parsed) {
   refreshHistory();
   refreshStats();
   refreshChart();
+  refreshMuscleStats();
   refreshExerciseSelect();
   checkBackupReminder();
   showToast('Trening zaimportowany! ' + totalReps + ' rep', 'success');
@@ -3106,9 +3299,19 @@ refreshProfileUI();
 refreshStats();
 refreshHistory();
 refreshChart();
+  refreshMuscleStats();
 refreshExerciseSelect();
 checkBackupReminder();
 const restored = restoreDraft();
+setTimeout(() => {
+  const profile = getCurrentProfile();
+  const goalMs = profile.goalSetAt || 0;
+  if (Date.now() - goalMs > 28 * 86400000) {
+    const goalData = GOALS_DATA[profile.goal || 'reduction'];
+    showToast(`💡 Twój cel to <b>${goalData.name}</b>. <button class="btn btn-primary" onclick="openGoalModal()" style="padding: 2px 8px; font-size: 11px; margin-left: 8px;">Zmień</button>`);
+  }
+}, 2000);
+
 if (restored) {
   setTimeout(() => showToast('Odtworzono poprzedni plan 💪', 'success'), 300);
 }
