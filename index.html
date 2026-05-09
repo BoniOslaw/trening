@@ -566,6 +566,28 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   .total-display { text-align: left; }
   .header { flex-wrap: wrap; gap: 12px; }
 }
+
+/* ===== SIDEBAR & VIEWS ===== */
+.view { display: none; animation: fadeIn 0.3s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.menu-overlay.active { opacity: 1; pointer-events: all; }
+
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--bg-elev); border-right: 1px solid var(--border); z-index: 400; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+.sidebar.active { transform: translateX(0); }
+
+.sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.sidebar-nav { padding: 1rem; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
+.sidebar-link { padding: 12px 16px; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; text-align: left; }
+.sidebar-link:hover { background: var(--bg-elev2); color: var(--text); }
+.sidebar-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); }
+.sidebar-link i { font-size: 18px; }
+
+.menu-btn { background: transparent; border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.menu-btn:hover { background: var(--bg-elev2); border-color: var(--text-muted); }
+
 </style>
 </head>
 <body>
@@ -582,9 +604,12 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 <div class="app">
   <!-- HEADER -->
   <header class="header">
-    <div class="brand">
-      <div class="brand-logo"><i class="ti ti-barbell"></i></div>
-      <div class="brand-text">Trening<span>·</span>Pro</div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu"><i class="ti ti-menu-2" style="font-size: 20px;"></i></button>
+      <div class="brand">
+        <div class="brand-logo"><i class="ti ti-barbell"></i></div>
+        <div class="brand-text">Trening<span>·</span>Pro</div>
+      </div>
     </div>
     <div class="profile-selector" onclick="openProfileModal()">
       <span class="profile-name" id="currentProfileName">Łukasz</span>
@@ -592,13 +617,31 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
   </header>
 
-  <!-- BACKUP REMINDER -->
-  <div id="backupBanner" style="display:none;"></div>
+  <!-- SIDEBAR -->
+  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-logo"><i class="ti ti-barbell"></i></div>
+        <div class="brand-text" style="font-size: 16px;">Trening<span>·</span>Pro</div>
+      </div>
+      <button class="btn btn-ghost" onclick="toggleMenu()" style="border:none; padding:4px;"><i class="ti ti-x" style="font-size:20px;"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" onclick="switchView('view-plan', this)"><i class="ti ti-barbell"></i> Plan na dziś</button>
+      <button class="sidebar-link" onclick="switchView('view-history', this)"><i class="ti ti-history"></i> Historia</button>
+      <button class="sidebar-link" onclick="switchView('view-stats', this)"><i class="ti ti-chart-pie"></i> Statystyki i mięśnie</button>
+      <button class="sidebar-link" onclick="switchView('view-analysis', this)"><i class="ti ti-target"></i> Analiza ćwiczeń</button>
+      <button class="sidebar-link" onclick="switchView('view-coach', this)"><i class="ti ti-brain"></i> AI Coach</button>
+    </nav>
+  </aside>
 
-  <!-- STATS -->
-  <div class="stats" id="statsBar"></div>
-
-  <!-- TABS -->
+  <!-- VIEW: PLAN -->
+  <div id="view-plan" class="view active">
+    <!-- BACKUP REMINDER -->
+    <div id="backupBanner" style="display:none;"></div>
+    
+    <!-- TABS -->
   <div class="tabs">
     <button class="tab active" data-type="push" onclick="switchTab('push')">
       <i class="ti ti-arrow-up-right"></i>Push
@@ -611,7 +654,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </button>
   </div>
 
-  <!-- ACTIONS -->
+    <!-- ACTIONS -->
   <div class="section-head">
     <div style="display: flex; align-items: center;">
       <span class="section-title">Plan na dziś</span>
@@ -631,7 +674,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
   </div>
 
-  <!-- REST TIMER -->
+    <!-- REST TIMER -->
   <div class="rest-timer-bar" id="restTimer" style="display:none;">
     <div class="rest-timer-row">
       <div class="rest-timer-icon" id="restTimerIcon"><i class="ti ti-clock"></i></div>
@@ -668,7 +711,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
   </div>
 
-  <!-- EXERCISES PROGRESS BAR -->
+    <!-- EXERCISES PROGRESS BAR -->
   <div class="exercises-progress" id="exercisesProgress">
     <span class="exercises-progress-label">Postęp</span>
     <div class="exercises-progress-bar">
@@ -677,33 +720,24 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <span class="exercises-progress-count" id="exercisesProgressCount">0/0</span>
   </div>
 
-  <!-- EXERCISES -->
-  <div class="exercise-list" id="exerciseList">
-    <div class="empty">
-      <i class="ti ti-barbell"></i>
-      <p>Wygeneruj plan treningowy klikając "Generuj plan"</p>
+    <!-- EXERCISES -->
+    <div class="exercise-list" id="exerciseList">
+      <div class="empty">
+        <i class="ti ti-barbell"></i>
+        <p>Wygeneruj plan treningowy klikając "Generuj plan"</p>
+      </div>
     </div>
-  </div>
 
-  <!-- SAVE -->
+    <!-- SAVE -->
   <div class="save-bar">
     <button class="btn btn-primary" id="saveBtn" onclick="saveWorkout()" disabled>
       <i class="ti ti-device-floppy"></i>Zapisz trening
     </button>
   </div>
+  </div>
 
-  <!-- DASHBOARD -->
-  <div class="dashboard">
-    <div class="panel">
-      <div class="panel-title">
-        <i class="ti ti-chart-line"></i>Postępy (ostatnie 14 dni)
-      </div>
-      <div class="chart-wrap">
-        <canvas id="progressChart"></canvas>
-        <div class="chart-empty" id="chartEmpty">Brak danych — zapisz pierwszy trening</div>
-      </div>
-    </div>
-
+  <!-- VIEW: HISTORY -->
+  <div id="view-history" class="view">
     <div class="panel">
       <div class="panel-title" style="display:flex; justify-content:space-between;">
         <span><i class="ti ti-history"></i>Historia</span>
@@ -727,13 +761,33 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
   </div>
 
-  <!-- PARTIE MIĘŚNIOWE -->
+  <!-- VIEW: STATS -->
+  <div id="view-stats" class="view">
+    <!-- STATS -->
+    <div class="stats" id="statsBar"></div>
+    
+    <div style="margin-top: 1rem; margin-bottom: 2rem;">
+      <div class="panel">
+      <div class="panel-title">
+        <i class="ti ti-chart-line"></i>Postępy (ostatnie 14 dni)
+      </div>
+      <div class="chart-wrap">
+        <canvas id="progressChart"></canvas>
+        <div class="chart-empty" id="chartEmpty">Brak danych — zapisz pierwszy trening</div>
+      </div>
+    </div>
+    </div>
+
+    <!-- PARTIE MIĘŚNIOWE -->
   <div class="section-divider">
     <div class="section-divider-title">Partie mięśniowe (ostatnie 30 dni)</div>
   </div>
   <div id="muscleStatsContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem;"></div>
+  </div>
 
-  <!-- ANALIZA PER ĆWICZENIE -->
+  <!-- VIEW: ANALYSIS -->
+  <div id="view-analysis" class="view">
+    <!-- ANALIZA PER ĆWICZENIE -->
   <div class="section-divider">
     <div class="section-divider-title">
       <span class="live-dot"></span>
@@ -762,8 +816,11 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       </div>
     </div>
   </div>
+  </div>
 
-  <!-- AI COACH -->
+  <!-- VIEW: COACH -->
+  <div id="view-coach" class="view">
+    <!-- AI COACH -->
   <div class="section-divider">
     <div class="section-divider-title">
       <i class="ti ti-sparkles" style="color: var(--accent);"></i>
@@ -791,6 +848,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
         <p style="font-size: 11px; margin-top: 6px; color: var(--text-dim);">Wymaga min. 3 zapisanych treningów</p>
       </div>
     </div>
+  </div>
   </div>
 </div>
 
@@ -1131,6 +1189,29 @@ function saveApiKey() {
   localStorage.setItem(STORAGE_API_KEY, key);
   showToast('Klucz zapisany', 'success');
   closeProfileModal();
+}
+
+
+// ============ SIDEBAR / VIEWS ============
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('active');
+  document.getElementById('menuOverlay').classList.toggle('active');
+}
+
+function switchView(viewId, btnEl) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  
+  if (btnEl) {
+    document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+  
+  toggleMenu();
+  
+  if (viewId === 'view-history') refreshHistory();
+  if (viewId === 'view-stats') { refreshStats(); refreshChart(); refreshMuscleStats(); }
+  if (viewId === 'view-analysis') refreshExerciseSelect();
 }
 
 // ============ TABS ============
