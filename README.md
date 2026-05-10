@@ -116,9 +116,9 @@ Gdy nie masz dostępu do internetu lub nie chcesz korzystać z API:
 3. Aplikacja wybiera plan z wbudowanej bazy — **inteligentnie**, tzn. preferuje ćwiczenia i partie mięśniowe których nie robiłeś w ostatnich 7 dniach
 4. Plan działa tak samo jak plan z AI — timer, zapis, statystyki
 
-Baza zawiera **24 gotowe plany** (8 × Push, 8 × Pull, 8 × Legs) obejmujące różne warianty: klasyczne, siłowe, na rzeźbę, bez sztangi, z superseriami i inne.
+Baza zawiera 30 gotowych planów (10 × Push, 10 × Pull, 10 × Legs) oraz 279 ćwiczeń zmapowanych na 25 głów mięśniowych. Warianty planów obejmują: klasyczne, siłowe, na rzeźbę, bez sztangi, cable i maszyny, z superseriami, jednonóż, sumo, izolację bicepsa i inne.
 
-> Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
+Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
 
 ---
 
