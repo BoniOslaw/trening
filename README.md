@@ -15,17 +15,21 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **Zróżnicowanie ćwiczeń** — aplikacja nie powtarza tych samych ćwiczeń przy kolejnych sesjach tego samego typu
 - **Wskazówki techniczne** przy każdym ćwiczeniu
 - **🎬 Linki do YouTube** — przycisk „Pokaż" przy każdym ćwiczeniu otwiera wyszukiwanie techniki na YouTube
+- **🎯 Wybór celu treningowego** — Redukcja / Masa / Siła / Rzeźba / Kondycja (wpływa na liczbę serii, powtórzeń i czas przerw)
+- **📦 Plan offline** — gotowe plany bez internetu i bez kosztów API (inteligentny wybór uzupełniający brakujące partie)
 
 ### 📝 Rejestrowanie treningu
-- **Powtórzenia × 3 serie** — wpisujesz liczbę powtórzeń, aplikacja liczy łączną sumę automatycznie
+- **Powtórzenia × serie** — wpisujesz liczbę powtórzeń, aplikacja liczy łączną sumę automatycznie
 - **Ciężar w kg** — śledzenie postępu obciążeń
 - **💪 Kalkulator 1RM** — szacowany maksymalny ciężar jednopowtórzeniowy (wzory Brzycki i Epley)
 - **⏱️ Stoper czasu treningu** — mierzy czas całej sesji od wygenerowania planu do zapisu
-- **⏰ Timer odpoczynku** z ustawieniami 60 s / 90 s / 2 min / 3 min
+- **📅 Wybór daty treningu** — możliwość wpisania treningu z poprzedniego dnia gdy zapomnisz uruchomić aplikację na siłowni
+- **⏰ Timer odpoczynku** z ustawieniami 60 s / 90 s / 2 min / 3 min (domyślny preset dostosowany do wybranego celu)
 - **🎤 Komunikat głosowy po polsku** — informuje o końcu przerwy (Web Speech API)
 - **🔔 Dźwięk dzwonka i wibracja** — konfigurowalne niezależnie
 - **💾 Automatyczny zapis roboczy** — odświeżenie strony nie powoduje utraty danych
 - **⚠️ Przypomnienie o zapisaniu** — pojawia się gdy wszystkie pola są wypełnione
+- **📊 Pasek postępu ćwiczeń** — pokazuje ile ćwiczeń zostało wypełnionych (np. 3/5)
 
 ### 📊 Analiza i statystyki
 - **Statystyki tygodniowe** — liczba treningów, powtórzeń, wartości średnie
@@ -34,9 +38,10 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **🔥 Najlepszy 1RM** — historyczny rekord siły dla każdego ćwiczenia
 - **Wykres progresji ciężaru** dla wybranego ćwiczenia
 - **🧠 AI Coach** — Claude analizuje historię treningów i wskazuje stagnację, postępy oraz sugestie zwiększenia obciążenia
+- **💪 Statystyki głów mięśniowych** — podział na klatka górna/środkowa/dolna, biceps długa/krótka głowa, plecy szerokie/środkowe, czworogłowy, hamstring i inne (ostatnie 30 dni)
 
 ### 📥 Import treningu
-- **Import z tekstu (AI)** — wklej opis treningu w dowolnym formacie, np. *„1. Wyciskanie 3×10 80 kg, 2. Pompki 3×15"*, a Claude rozpozna wszystkie dane
+- **Import z tekstu (AI)** — wklej opis treningu w dowolnym formacie, a Claude rozpozna wszystkie dane
 - **Import z pliku CSV** — wczytaj wcześniej wyeksportowany plik CSV bez użycia API (bezpłatnie)
 - **Podgląd przed zapisem** — sprawdź poprawność danych zanim trafią do historii
 - **Obsługa niestandardowej liczby serii** — np. 2×8 zamiast 3×8, gdy trening był przerwany
@@ -45,16 +50,34 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 ### 👥 Profile i dane
 - **Wiele profili** — osobne profile dla Ciebie, partnera lub znajomych
 - **Trwała historia** — dane przechowywane lokalnie w przeglądarce
+- **Czytelna data w historii** — format DD.MM.YYYY · HH:MM z oznaczeniem „dziś" i „wczoraj"
 - **Eksport do CSV i PDF** — kopia zapasowa z pełnymi danymi (1RM, czas treningu, ciężary)
 - **🛡️ Przypomnienie o kopii zapasowej** co 3 tygodnie
 
 ### 📱 Progresywna Aplikacja Webowa (PWA)
 - **Instalacja na telefonie** — działa jak natywna aplikacja
 - **Instalacja na komputerze** — Chrome i Edge
-- **Pełna obsługa trybu offline** (z wyjątkiem generowania planów i AI Coach)
+- **Pełna obsługa trybu offline** (z wyjątkiem generowania planów przez AI i AI Coach)
 - **Automatyczne wykrywanie aktualizacji** — aplikacja wyświetli powiadomienie o nowej wersji
+- **Ekran startowy** z logo i animacją przy uruchomieniu
 - **Ikona na ekranie głównym** i ciemny motyw (dark mode)
 - **Wskaźnik trybu offline** — widoczna informacja o braku połączenia z internetem
+
+---
+
+## 🎯 Cele treningowe
+
+Przed wygenerowaniem planu wybierasz cel — Claude dostosowuje plan do Twojego priorytetu:
+
+| Cel | Powtórzenia | Serie | Przerwy |
+|---|---|---|---|
+| **Redukcja** | 12–15 | 3 | 45–60 s |
+| **Rzeźba** | 12–15 | 3–4 | 45–60 s |
+| **Masa** | 8–12 | 3–4 | 60–90 s |
+| **Siła** | 3–5 | 4–5 | 3–5 min |
+| **Kondycja** | 15–20 | 3 | 30–45 s |
+
+Cel jest zapisany w profilu. Aplikacja przypomni o jego weryfikacji co 4 tygodnie.
 
 ---
 
@@ -65,10 +88,37 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 3. Wklej klucz API Anthropic (zaczyna się od `sk-ant-...`)
    - Utwórz klucz na [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys
    - Wymagane doładowanie konta (minimum 5 USD)
-4. Wybierz typ treningu (Push / Pull / Legs)
+4. Wybierz typ treningu (Push / Pull / Legs) i cel
 5. Kliknij **Generuj plan** — 5 ćwiczeń pojawi się w ciągu 2–3 sekund
 6. Ćwicz — wpisuj powtórzenia i ciężary, korzystaj z timera odpoczynku
-7. Kliknij **Zapisz trening** — dane trafią do historii wraz z czasem trwania sesji
+7. Kliknij **Zapisz trening** — dane trafią do historii wraz z datą i czasem trwania sesji
+
+---
+
+## 📅 Wpisywanie treningu z poprzedniego dnia
+
+Jeśli zapomniałeś uruchomić aplikację na siłowni:
+
+1. Wygeneruj plan normalnie (Push / Pull / Legs)
+2. Tuż nad przyciskiem **Zapisz trening** znajdziesz pole **Data treningu**
+3. Kliknij w datę i wybierz właściwy dzień
+4. Pojawi się badge **„zmieniono"** — aplikacja wie że wpisujesz trening wsteczny
+5. Wpisz wyniki i zapisz — trening trafi do historii z właściwą datą
+
+---
+
+## 📦 Plan offline
+
+Gdy nie masz dostępu do internetu lub nie chcesz korzystać z API:
+
+1. Wybierz typ treningu (Push / Pull / Legs)
+2. Kliknij przycisk **Plan offline** (obok „Generuj plan")
+3. Aplikacja wybiera plan z wbudowanej bazy — **inteligentnie**, tzn. preferuje ćwiczenia i partie mięśniowe których nie robiłeś w ostatnich 7 dniach
+4. Plan działa tak samo jak plan z AI — timer, zapis, statystyki
+
+Baza zawiera **24 gotowe plany** (8 × Push, 8 × Pull, 8 × Legs) obejmujące różne warianty: klasyczne, siłowe, na rzeźbę, bez sztangi, z superseriami i inne.
+
+> Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
 
 ---
 
@@ -83,18 +133,18 @@ Epley:    1RM = ciężar × (1 + powtórzenia / 30)
 
 **Przykład:** Wyciskanie 80 kg × 8 powtórzeń → szacowany 1RM ≈ 99 kg
 
-Kalkulator działa dla zakresu 2–12 powtórzeń — powyżej tej granicy wzory tracą dokładność. Wynik jest zaokrąglany do 0,5 kg.
+Kalkulator działa dla zakresu 2–12 powtórzeń. Wynik zaokrąglany do 0,5 kg.
 
 ---
 
 ## 📥 Import z pliku CSV
 
-Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wczytać do aplikacji:
+Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wczytać:
 
 1. Otwórz panel **Historia** → kliknij przycisk **Import**
 2. Wybierz zakładkę **Plik CSV**
-3. Kliknij strefę przeciągania lub przeciągnij plik CSV bezpośrednio na nią
-4. Aplikacja wyświetli podgląd — ile treningów zostanie dodanych, ile zostanie pominiętych jako duplikaty
+3. Kliknij strefę lub przeciągnij plik CSV bezpośrednio na nią
+4. Aplikacja wyświetli podgląd — ile treningów zostanie dodanych, ile pominiętych
 5. Kliknij **Importuj** — dane trafią do historii
 
 > Import z CSV nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
@@ -105,16 +155,15 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 
 ### Android (Chrome)
 - Po wejściu na stronę pojawi się baner **„Zainstaluj jako aplikację"**
-- Kliknij baner — ikona aplikacji pojawi się na ekranie głównym
+- Możesz też wejść w menu Chrome (trzy kropki) → „Zainstaluj aplikację"
 
 ### iPhone (Safari)
 - Otwórz stronę w Safari
 - Kliknij przycisk **Udostępnij** (kwadrat ze strzałką skierowaną w górę)
-- Przewiń listę w dół i wybierz **Dodaj do ekranu głównego**
+- Wybierz **Dodaj do ekranu głównego**
 
 ### Windows i macOS (Chrome / Edge)
-- W pasku adresu pojawi się ikona instalacji (monitor ze strzałką)
-- Kliknij ikonę — aplikacja zainstaluje się jako oddzielny program
+- W pasku adresu kliknij ikonę instalacji (monitor ze strzałką)
 
 ---
 
@@ -127,6 +176,7 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 | Generowanie planu (AI) | ~0,005–0,01 USD (2–4 grosze) |
 | AI Coach | ~0,01–0,02 USD (4–8 groszy) |
 | Import z tekstu (AI) | ~0,005 USD (2 grosze) |
+| Plan offline | Bezpłatny |
 | Import z pliku CSV | Bezpłatny |
 | Minimum doładowania API | 5 USD |
 
@@ -140,6 +190,7 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 - [Chart.js 4.4](https://www.chartjs.org/) — wykresy
 - [jsPDF 2.5](https://github.com/parallax/jsPDF) — eksport do PDF
 - [Tabler Icons](https://tabler-icons.io/) — ikony
+- [canvas-confetti](https://github.com/catdad/canvas-confetti) — animacja po zapisaniu treningu
 - [Claude API](https://www.anthropic.com/) — generowanie planów i analiza AI (model Sonnet 4.6)
 - **Web Audio API** — dźwięk dzwonka generowany przez syntezator
 - **Web Speech API** — komunikat głosowy po polsku (synteza mowy)
@@ -153,7 +204,8 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 
 ```
 trening/
-├── index.html              # Główny plik aplikacji (~123 KB)
+├── index.html              # Główny plik aplikacji (~150 KB)
+├── db.js                   # Baza planów offline + słownik głów mięśniowych
 ├── manifest.json           # Konfiguracja PWA
 ├── sw.js                   # Service Worker (offline i automatyczne aktualizacje)
 ├── icon-192.png            # Ikona aplikacji 192×192 px
@@ -169,17 +221,18 @@ trening/
 - 🔐 **Klucz API** przechowywany wyłącznie lokalnie w przeglądarce (localStorage)
 - 📦 **Historia treningów** zapisywana lokalnie — nie jest nigdzie przesyłana
 - 🚫 **Brak rejestracji, konta, śledzenia aktywności i reklam**
-- 📡 Połączenie z internetem służy **wyłącznie** do komunikacji z Claude API (generowanie planów, AI Coach, import z tekstu)
-- 🛡️ **Walidacja danych** — uszkodzone lub niekompletne wpisy w pamięci lokalnej są automatycznie filtrowane
+- 📡 Połączenie z internetem służy **wyłącznie** do komunikacji z Claude API
+- 🛡️ **Walidacja danych** — uszkodzone wpisy w pamięci lokalnej są automatycznie filtrowane
 - 🔍 **Ochrona przed XSS** — odpowiedzi z AI są bezpiecznie przetwarzane przed wyświetleniem
 
 ---
 
 ## ⚠️ Ważne informacje
 
-- Dane są przypisane do **konkretnej przeglądarki na konkretnym urządzeniu** — nie synchronizują się automatycznie
-- Wyczyszczenie danych przeglądarki spowoduje utratę historii — **rób regularne kopie zapasowe** (aplikacja przypomni co 3 tygodnie)
-- Limit historii: 200 ostatnich treningów na profil — starsze wpisy są usuwane automatycznie
+- Dane są przypisane do **konkretnej przeglądarki na konkretnym urządzeniu**
+- Wyczyszczenie danych przeglądarki spowoduje utratę historii — **rób regularne kopie zapasowe**
+- Zainstalowana PWA ma **oddzielny cache** od przeglądarki — wyczyszczenie cache Chrome nie usuwa danych aplikacji
+- Limit historii: 200 ostatnich treningów na profil
 - Limit tekstu przy imporcie przez AI: 4000 znaków
 - AI Coach analizuje maksymalnie 50 ostatnich treningów
 
@@ -188,27 +241,21 @@ trening/
 ## 🐛 Rozwiązywanie problemów
 
 ### Aplikacja nie aktualizuje się po wgraniu nowej wersji
-
-Service Worker przechowuje pliki w pamięci podręcznej. Wypróbuj kolejno:
-
 1. Poczekaj chwilę — aplikacja sama wykryje aktualizację i wyświetli powiadomienie
 2. Wymuś odświeżenie: **Ctrl+Shift+R** (komputer) lub wyczyść pamięć podręczną Chrome (telefon)
 3. Odinstaluj aplikację PWA i zainstaluj ją ponownie
 
 ### Baner „Zainstaluj" nie pojawia się na Androidzie
-
-- Upewnij się, że używasz Chrome (nie Firefoksa ani Opery)
+- Upewnij się że używasz Chrome
 - Sprawdź menu Chrome (trzy kropki) → „Zainstaluj aplikację"
 - Baner pojawia się dopiero podczas drugiej wizyty, minimum 5 minut po pierwszej
 
 ### Baner „Zainstaluj" nie pojawia się na iPhonie
-
 To zamierzone ograniczenie Apple — PWA na iOS instaluje się wyłącznie ręcznie:
 Safari → Udostępnij → **Dodaj do ekranu głównego**
 
 ### Komunikat głosowy nie działa
-
-- Sprawdź, czy telefon ma zainstalowany polski głos: Ustawienia → Dostępność → Synteza mowy
+- Sprawdź czy telefon ma zainstalowany polski głos: Ustawienia → Dostępność → Synteza mowy
 - Na iPhonie dźwięk wymaga wcześniejszego dotknięcia ekranu (ograniczenie systemu iOS)
 
 ---
