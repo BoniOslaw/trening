@@ -383,6 +383,55 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   color: var(--success);
 }
 
+/* ===== MUSCLE BALANCE ===== */
+.muscle-balance-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  margin-bottom: 10px; font-size: 12px; line-height: 1.5;
+  border: 1px solid;
+}
+.muscle-balance-alert.warning {
+  background: rgba(251,146,60,0.08); border-color: rgba(251,146,60,0.3); color: #fb923c;
+}
+.muscle-balance-alert.good {
+  background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.3); color: #4ade80;
+}
+.muscle-balance-alert i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.muscle-balance-alert strong { display: block; margin-bottom: 2px; }
+
+/* ===== DATE PICKER IN SAVE BAR ===== */
+.save-date-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px 0; flex-wrap: wrap;
+}
+.save-date-label {
+  font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.8px; font-weight: 600; white-space: nowrap;
+}
+.save-date-input {
+  background: var(--bg-elev2); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); color: var(--text); font-family: inherit;
+  font-size: 13px; padding: 5px 10px; outline: none; cursor: pointer;
+  transition: border-color 0.2s; flex: 1; min-width: 140px;
+}
+.save-date-input:focus { border-color: var(--accent); }
+.save-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.7); cursor: pointer;
+}
+.save-date-changed {
+  font-size: 10px; color: var(--accent); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+
+/* Lepsza data w historii */
+.history-date-full {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+}
+.history-date-time {
+  font-size: 11px; color: var(--text-muted); margin-left: 6px;
+}
+
 /* ===== INSTALL PROMPT ===== */
 .install-prompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--bg-elev); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 14px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 250; max-width: calc(100vw - 32px); }
 .install-prompt.show { transform: translateX(-50%) translateY(0); }
@@ -730,6 +779,11 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 
     <!-- SAVE -->
   <div class="save-bar">
+    <div class="save-date-row">
+      <span class="save-date-label"><i class="ti ti-calendar" style="vertical-align:-2px;margin-right:3px;"></i>Data treningu</span>
+      <input type="date" class="save-date-input" id="workoutDateInput" onchange="onWorkoutDateChange()" />
+      <span class="save-date-changed" id="workoutDateChangedBadge" style="display:none;">zmieniono</span>
+    </div>
     <button class="btn btn-primary" id="saveBtn" onclick="saveWorkout()" disabled>
       <i class="ti ti-device-floppy"></i>Zapisz trening
     </button>
@@ -765,7 +819,6 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   <div id="view-stats" class="view">
     <!-- STATS -->
     <div class="stats" id="statsBar"></div>
-    
     <div style="margin-top: 1rem; margin-bottom: 2rem;">
       <div class="panel">
       <div class="panel-title">
@@ -1018,6 +1071,49 @@ let pendingImport = null;
 let importMode = 'text';
 let csvParsedData = null;
 
+// Ustawia dzisiejszą datę w date pickert przy generowaniu / offline planu
+function initWorkoutDateInput() {
+  const input = document.getElementById('workoutDateInput');
+  if (!input) return;
+  const today = new Date();
+  // Format YYYY-MM-DD wymagany przez input[type=date]
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  input.value = `${yyyy}-${mm}-${dd}`;
+  input.max = `${yyyy}-${mm}-${dd}`; // Nie można wybrać przyszłości
+  const badge = document.getElementById('workoutDateChangedBadge');
+  if (badge) badge.style.display = 'none';
+}
+
+// Sprawdza czy data jest zmieniona i pokazuje badge
+function onWorkoutDateChange() {
+  const input = document.getElementById('workoutDateInput');
+  const badge = document.getElementById('workoutDateChangedBadge');
+  if (!input || !badge) return;
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+  badge.style.display = input.value !== todayStr ? 'inline' : 'none';
+}
+
+// Buduje timestamp i sformatowaną datę z wartości date input
+function getWorkoutDateFromInput() {
+  const input = document.getElementById('workoutDateInput');
+  if (!input || !input.value) return { timestamp: Date.now(), dateStr: new Date().toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) };
+  // Parsuj YYYY-MM-DD, zachowaj aktualną godzinę i minutę
+  const [yyyy, mm, dd] = input.value.split('-').map(Number);
+  const now = new Date();
+  const chosen = new Date(yyyy, mm - 1, dd, now.getHours(), now.getMinutes(), 0, 0);
+  // Jeśli data jest dzisiaj - użyj dokładnego czasu, jeśli historyczna - użyj 12:00
+  const isToday = input.value === `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const finalDate = isToday ? now : new Date(yyyy, mm - 1, dd, 12, 0, 0, 0);
+  const dateStr = finalDate.toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return { timestamp: finalDate.getTime(), dateStr };
+}
+
 const STORAGE_TIMER_PREFS = 'tp_timer_prefs_v1';
 
 // Workout duration timer
@@ -1239,7 +1335,8 @@ function generateOfflinePlan() {
     showToast('Baza planów niedostępna', 'error');
     return;
   }
-  const plan = window.TPDB.getRandomPlan(currentType);
+  // Smart wybór - plan uzupełniający brakujące partie
+  const plan = getSmartOfflinePlan(currentType);
   if (!plan || !plan.exercises) {
     showToast('Błąd pobierania planu', 'error');
     return;
@@ -1258,7 +1355,9 @@ function generateOfflinePlan() {
   document.getElementById('saveBtn').disabled = false;
   showRestTimerBar();
   startWorkoutTimer();
-  showToast('Plan offline załadowany', 'success');
+  initWorkoutDateInput();
+  const smartInfo = plan._smartInfo || '';
+  showToast('Plan offline załadowany' + (smartInfo ? ' · ' + smartInfo : ''), 'success');
 }
 
 function openGoalModal(isFromGenerate = false) {
@@ -1406,6 +1505,7 @@ Odpowiedz TYLKO w formacie JSON:
     showRestTimerBar();
     startWorkoutTimer();
     setRestPreset(goalData.rest);
+    initWorkoutDateInput();
     showToast('Plan gotowy!', 'success');
   } catch (e) {
     console.error(e);
@@ -1590,11 +1690,12 @@ function saveWorkout() {
   });
   const totalReps = exs.reduce((s, e) => s + e.total, 0);
   const duration = stopWorkoutTimer(); // sekundy
+  const { timestamp: workoutTimestamp, dateStr: workoutDateStr } = getWorkoutDateFromInput();
   const entry = {
-    id: 'w_' + Date.now(),
+    id: 'w_' + workoutTimestamp,
     type: currentType,
-    timestamp: Date.now(),
-    date: new Date().toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    timestamp: workoutTimestamp,
+    date: workoutDateStr,
     exercises: exs,
     totalReps,
     duration
@@ -1611,7 +1712,10 @@ function saveWorkout() {
   refreshExerciseSelect();
   const kgInfo = exs.some(e => e.kg > 0) ? '' : '';
   const durStr = entry.duration ? ` · ${formatDuration(entry.duration)}` : '';
+  // Informacja o dacie jeśli różna od dzisiaj
+  const savedDate = entry.date.split(',')[0] || entry.date.split(' ')[0];
   showToast(`Trening zapisany! ${totalReps} rep${durStr}`, 'success');
+  initWorkoutDateInput(); // Reset daty na dziś po zapisie
 
   // Konfetti - mała nagroda za ukończony trening
   if (typeof confetti === 'function') {
@@ -1662,7 +1766,7 @@ function refreshHistory() {
   list.innerHTML = p.history.slice(0, 30).map(e => `
     <div class="history-entry">
       <div class="history-meta">
-        <span class="history-date">${e.date}</span>
+        <span class="history-date-full">${formatHistoryDate(e.date, e.timestamp)}</span>
         <div>
           <span class="history-badge ${e.type}">${e.type}</span>
           <button class="history-del" onclick="deleteEntry('${e.id}')" aria-label="Usuń"><i class="ti ti-trash" style="font-size:14px"></i></button>
@@ -1977,6 +2081,7 @@ function restoreDraft() {
     document.getElementById('genBtnText').textContent = 'Nowy plan';
     showRestTimerBar();
     startWorkoutTimer();
+    initWorkoutDateInput();
     setTimeout(checkAllFilled, 500);
     return true;
   } catch(e) { return false; }
@@ -2537,6 +2642,31 @@ function stopWorkoutTimer() {
     badge.classList.remove('active');
   }
   return duration; // sekundy
+}
+
+function formatHistoryDate(dateStr, timestamp) {
+  // Parsuj datę z timestamp jeśli dostępny, inaczej z stringa
+  try {
+    const d = timestamp ? new Date(timestamp) : null;
+    if (d && !isNaN(d)) {
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      const hour = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      // Sprawdź czy to dziś, wczoraj, lub inny dzień
+      const today = new Date();
+      const isToday = d.toDateString() === today.toDateString();
+      const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+      const isYesterday = d.toDateString() === yesterday.toDateString();
+      let dayLabel = '';
+      if (isToday) dayLabel = ' (dziś)';
+      else if (isYesterday) dayLabel = ' (wczoraj)';
+      return `${day}.${month}.${year}${dayLabel} · ${hour}:${min}`;
+    }
+  } catch(e) {}
+  // Fallback - zwróć oryginalny string
+  return dateStr || '—';
 }
 
 function formatDuration(seconds) {
@@ -3362,6 +3492,61 @@ function saveImportedWorkout(parsed) {
   checkBackupReminder();
   showToast('Trening zaimportowany! ' + totalReps + ' rep', 'success');
   pendingImport = null;
+}
+
+// ============ SMART OFFLINE PLAN ============
+// Zamiast losowego planu - wybiera plan uzupełniający brakujące partie
+function getSmartOfflinePlan(type) {
+  if (!window.TPDB) return null;
+  const p = getCurrentProfile();
+  const sevenDaysAgo = Date.now() - (7 * 86400000);
+  const recent = p.history.filter(w => w.timestamp >= sevenDaysAgo && w.type === type);
+
+  if (!recent.length) return window.TPDB.getRandomPlan(type);
+
+  // Zbierz ćwiczenia z ostatnich 7 dni
+  const recentExercises = new Set(recent.flatMap(w => w.exercises.map(e => e.name.toLowerCase())));
+
+  // Zbierz mięśnie z ostatnich 7 dni
+  const recentMuscles = new Set(recent.flatMap(w =>
+    w.exercises.filter(e => e.muscle).map(e => e.muscle)
+  ));
+
+  const plans = window.TPDB.plans[type];
+  if (!plans || !plans.length) return null;
+
+  // Oceń każdy plan - preferuj te które mają INNE ćwiczenia i INNE mięśnie
+  const scored = plans.map(plan => {
+    let score = 0;
+    let novelExercises = 0;
+    let novelMuscles = new Set();
+
+    plan.exercises.forEach(ex => {
+      if (!recentExercises.has(ex.name.toLowerCase())) {
+        novelExercises++;
+        score += 2;
+      }
+      // Sprawdź jakie mięśnie ten plan angażuje (via słownik)
+      const muscle = window.TPDB.detectMuscle(ex.name);
+      if (muscle && !recentMuscles.has(muscle)) {
+        novelMuscles.add(muscle);
+        score += 3;
+      }
+    });
+
+    return { plan, score, novelExercises, novelMuscles: novelMuscles.size };
+  });
+
+  // Posortuj - najwyższy score wygrywa
+  scored.sort((a, b) => b.score - a.score);
+
+  // Dodaj info o wyborze do toastu
+  const winner = scored[0];
+  winner.plan._smartInfo = winner.novelExercises === 5
+    ? 'Wszystkie ćwiczenia są nowe!'
+    : `\${winner.novelExercises} nowych ćwiczeń vs ostatnie 7 dni`;
+
+  return winner.plan;
 }
 
 // ============ INIT ============
