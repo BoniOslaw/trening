@@ -983,7 +983,7 @@ Notatka: dobra forma"></textarea>
     
     <div class="form-row">
       <input type="text" class="input" id="newProfileName" placeholder="Nazwa nowego profilu" maxlength="20">
-      <button class="btn btn-primary" onclick="addProfile()"><i class="ti ti-plus"></i></button>
+      <button aria-label="Dodaj profil" class="btn btn-primary" onclick="addProfile()"><i class="ti ti-plus"></i></button>
     </div>
 
     <div class="api-section">
@@ -1057,7 +1057,7 @@ const GOALS_DATA = {
   sculpt: { name: 'Rzeźba', reps: '12-15', sets: '3-4', rest: 60, restText: '45-60s', desc: 'Skupienie na detalach i czuciu mięśniowym', icon: '🗿' },
   mass: { name: 'Masa', reps: '8-12', sets: '3-4', rest: 90, restText: '60-90s', desc: 'Hipertrofia, optymalny czas pod napięciem', icon: '💪' },
   strength: { name: 'Siła', reps: '3-5', sets: '4-5', rest: 180, restText: '3-5 min', desc: 'Niskie zakresy, długie przerwy', icon: '🏋️' },
-  endurance: { name: 'Kondycja', reps: '15-20', sets: '3', rest: 60, restText: '30-45s', desc: 'Bardzo krótkie przerwy, wytrzymałość', icon: '🏃' }
+  endurance: { name: 'Kondycja', reps: '15-20', sets: '3', rest: 45, restText: '30-45s', desc: 'Bardzo krótkie przerwy, wytrzymałość', icon: '🏃' }
 };
 let pendingGenerate = false;
 let chart = null;
@@ -1070,6 +1070,7 @@ let isImporting = false;
 let pendingImport = null;
 let importMode = 'text';
 let csvParsedData = null;
+let generateAbortController = null; // Pozwala przerwać generowanie planu
 
 // Ustawia dzisiejszą datę w date pickert przy generowaniu / offline planu
 function initWorkoutDateInput() {
@@ -1128,7 +1129,7 @@ let restPrefs = (function() {
     const raw = localStorage.getItem(STORAGE_TIMER_PREFS);
     if (raw) return JSON.parse(raw);
   } catch {}
-  return { voice: true, sound: true, vibrate: true, duration: 90 };
+  return { voice: true, sound: true, vibrate: (typeof navigator !== 'undefined' && 'vibrate' in navigator), duration: 90 };
 })();
 
 function saveTimerPrefs() {
@@ -1470,8 +1471,13 @@ Odpowiedz TYLKO w formacie JSON:
 {"exercises":[{"name":"Wyciskanie sztangi na ławce poziomej","reps":"6-8","sets":3,"tip":"łopatki ściągnięte"}, ...]}`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    // Przerwij poprzedni request jeśli trwa
+  if (generateAbortController) generateAbortController.abort();
+  generateAbortController = new AbortController();
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
+      signal: generateAbortController.signal,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -1508,6 +1514,8 @@ Odpowiedz TYLKO w formacie JSON:
     initWorkoutDateInput();
     showToast('Plan gotowy!', 'success');
   } catch (e) {
+    // Ignoruj AbortError - użytkownik sam anulował
+    if (e.name === 'AbortError') return;
     console.error(e);
     const list = document.getElementById('exerciseList');
     if (list) {
@@ -1686,7 +1694,8 @@ function saveWorkout() {
     const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
     const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
     const orm = calculate1RM(kg, reps);
-    return { name: ex.name, reps, total: reps * 3, sets: ex.sets, target: ex.reps, kg, orm, muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null };
+    const sets = parseInt(ex.sets) || 3;
+    return { name: ex.name, reps, total: reps * sets, sets, target: ex.reps, kg, orm, muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null };
   });
   const totalReps = exs.reduce((s, e) => s + e.total, 0);
   const duration = stopWorkoutTimer(); // sekundy
@@ -3252,6 +3261,8 @@ function openImportModal() {
   csvParsedData = null;
   // Reset trybu na tekstowy
   setImportMode('text');
+  // Jednorazowa inicjalizacja drag&drop
+  initCsvDragDrop();
   // Domyślnie ustaw typ ostatniego treningu
   const profile = getCurrentProfile();
   if (profile.history.length > 0) {
@@ -3269,10 +3280,13 @@ document.getElementById('importModal').addEventListener('click', (e) => {
   if (e.target.id === 'importModal') closeImportModal();
 });
 
-// Drag & drop dla CSV
-(function() {
+// Drag & drop dla CSV - inicjalizacja jednorazowa
+let _csvDragDropInitialized = false;
+function initCsvDragDrop() {
+  if (_csvDragDropInitialized) return;
   const dropZone = document.getElementById('csvDropZone');
   if (!dropZone) return;
+  _csvDragDropInitialized = true;
   ['dragenter', 'dragover'].forEach(ev => {
     dropZone.addEventListener(ev, (e) => {
       e.preventDefault();
@@ -3294,7 +3308,7 @@ document.getElementById('importModal').addEventListener('click', (e) => {
       handleCsvFile(fakeEvent);
     }
   });
-})();
+}
 
 function setImportType(type) {
   importType = type;
