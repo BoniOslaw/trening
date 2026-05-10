@@ -224,8 +224,122 @@
     'kickback':                                      'triceps_med',
     'wyprosty hantla w opadzie':                     'triceps_med',
 
+    // === KLATKA - GÓRNA (dodatkowe) ===
+    'wyciskanie sztangi wąskim chwytem na skosie':    'chest_upper',
+    'pompki z nogami uniesionymi':                    'chest_upper',
+    'cable crossover górny':                          'chest_upper',
+    'krzyżowanie linek górne':                        'chest_upper',
+    'wyciskanie hantli na ławce skośnej 45':          'chest_upper',
+
+    // === KLATKA - ŚRODKOWA (dodatkowe) ===
+    'cable crossover':                                'chest_middle',
+    'krzyżowanie linek poziome':                      'chest_middle',
+    'chest press na maszynie':                        'chest_middle',
+    'wyciskanie na suwnicy':                          'chest_middle',
+    'pompki z obciążeniem':                           'chest_middle',
+    'pompki z kółkami':                               'chest_middle',
+    'dips na maszynie':                               'chest_middle',
+
+    // === KLATKA - DOLNA (dodatkowe) ===
+    'krzyżowanie linek dolne':                        'chest_lower',
+    'cable crossover dolny':                          'chest_lower',
+    'wyciskanie na suwnicy skos ujemny':              'chest_lower',
+
+    // === BARKI - BOCZNE (dodatkowe) ===
+    'lateral raise na maszynie':                      'shoulder_side',
+    'wznosy bokiem na maszynie':                      'shoulder_side',
+    'wznosy hantli bokiem w opadzie':                 'shoulder_side',
+    'cable lateral raise':                            'shoulder_side',
+    'wznosy bokiem z liną':                           'shoulder_side',
+
+    // === BARKI - PRZEDNIE (dodatkowe) ===
+    'wyciskanie sztangi z klatki':                    'shoulder_front',
+    'upright row':                                    'shoulder_front',
+    'wiosłowanie sztangi pod brodę':                  'shoulder_front',
+    'wiosłowanie hantli pod brodę':                   'shoulder_front',
+
+    // === BARKI - TYLNE (dodatkowe) ===
+    'reverse pec deck':                               'shoulder_rear',
+    'odwrotne rozpiętki na maszynie':                 'shoulder_rear',
+    'wznosy w opadzie z liną':                        'shoulder_rear',
+    'cable face pull':                                'shoulder_rear',
+
+    // === PLECY - SZEROKIE (dodatkowe) ===
+    'podciąganie podchwytem wąskim':                  'back_lats',
+    'chin up':                                        'back_lats',
+    'chin-up':                                        'back_lats',
+    'ściąganie drążka podchwytem':                    'back_lats',
+    'wyciąg górny podchwytem':                        'back_lats',
+    'straight arm pulldown':                          'back_lats',
+    'wyprosty ramion na wyciągu':                     'back_lats',
+
+    // === PLECY - ŚRODKOWE (dodatkowe) ===
+    'seal row':                                       'back_middle',
+    'chest supported row':                            'back_middle',
+    'wiosłowanie z podparciem klatki':                'back_middle',
+    'wiosłowanie maszyna':                            'back_middle',
+    'wiosłowanie na maszynie':                        'back_middle',
+    'wiosłowanie izolowane':                          'back_middle',
+
+    // === BICEPS - KRÓTKA GŁOWA (dodatkowe) ===
+    'uginanie ramion ze sztangą stojąc':              'biceps_short',
+    'uginanie ze sztangą ez stojąc':                  'biceps_short',
+    'uginanie cable':                                 'biceps_short',
+    'uginanie z liną':                                'biceps_short',
+    'concentration curl':                             'biceps_long',
+    'uginanie koncentryczne':                         'biceps_long',
+    'spider curl':                                    'biceps_long',
+    'scott curl':                                     'biceps_long',
+
+    // === TRICEPS (dodatkowe) ===
+    'overhead cable triceps extension':               'triceps_long',
+    'wyprosty triceps nad głowę z liną':              'triceps_long',
+    'rolling extension':                              'triceps_long',
+    'JM press':                                       'triceps_long',
+    'cable triceps pushdown':                         'triceps_lat',
+    'single arm pushdown':                            'triceps_lat',
+    'wyprosty jednorącz na wyciągu':                  'triceps_lat',
+    'overhead triceps extension hantlem':             'triceps_long',
+
+    // === NOGI - CZWOROGŁOWY (dodatkowe) ===
+    'sumo squat':                                     'quads',
+    'przysiad sumo':                                  'quads',
+    'wall sit':                                       'quads',
+    'step up':                                        'quads',
+    'step-up':                                        'quads',
+    'wchodzenie na skrzynię':                         'quads',
+    'split squat':                                    'quads',
+    'przysiad z hantlem':                             'quads',
+    'przysiad ze sztangą high bar':                   'quads',
+    'przysiad ze sztangą low bar':                    'quads',
+
+    // === NOGI - HAMSTRING (dodatkowe) ===
+    'nordic curl':                                    'hamstrings',
+    'nordic hamstring':                               'hamstrings',
+    'nożyce':                                         'hamstrings',
+    'single leg rdl':                                 'hamstrings',
+    'martwy ciąg jednonóż':                           'hamstrings',
+    'uginanie nóg stojąc':                            'hamstrings',
+    'uginanie nogi stojąc':                           'hamstrings',
+
+    // === POŚLADKI (dodatkowe) ===
+    'hip abduction':                                  'glutes',
+    'odwodzenie nóg na maszynie':                     'glutes',
+    'odwodzenie nogi na wyciągu':                     'glutes',
+    'sumo deadlift':                                  'glutes',
+    'single leg hip thrust':                          'glutes',
+    'hip thrust jednonóż':                            'glutes',
+    'donkey kick':                                    'glutes',
+
+    // === ŁYDKI (dodatkowe) ===
+    'wspięcia na palce na suwnicy':                   'calves',
+    'wspięcia jednonóż':                              'calves',
+    'wspięcia na palce jednonóż':                     'calves',
+    'wspięcia na palce ze sztangą':                   'calves',
+    'tibia raise':                                    'calves',
+
     // === PRZEDRAMIĘ ===
-    'uginanie nadgarstków':                          'forearms',
+    'uginanie nadgarstków':                           'forearms',
     'wrist curl':                                    'forearms',
     'farmer carry':                                  'forearms',
     'wieszanie na drążku':                           'forearms',
@@ -398,6 +512,26 @@
           { name: 'Wznosy hantli bokiem', sets: 3, reps: '12-15', tip: 'Łokcie lekko ugięte' },
           { name: 'Pushdown z liną', sets: 3, reps: '12-15', tip: 'Triceps wykończenie' }
         ]
+      },
+      {
+        name: 'Push - cable i maszyny (pełna izolacja)',
+        exercises: [
+          { name: 'Cable crossover', sets: 3, reps: '12-15', tip: 'Ścisk klatki na końcu, skrzyżuj dłonie' },
+          { name: 'Chest press na maszynie', sets: 3, reps: '10-12', tip: 'Stabilna pozycja, kontrolowany ruch' },
+          { name: 'Lateral raise na maszynie', sets: 4, reps: '12-15', tip: 'Barki boczne — izolacja bez kompensacji' },
+          { name: 'Cable face pull', sets: 3, reps: '15-20', tip: 'Ciągnij do twarzy, łokcie wysoko' },
+          { name: 'Cable triceps pushdown', sets: 3, reps: '12-15', tip: 'Łokcie przy tułowiu, pełen wyprost' }
+        ]
+      },
+      {
+        name: 'Push - pełna klatka górna i dolna',
+        exercises: [
+          { name: 'Wyciskanie sztangi na ławce skośnej', sets: 3, reps: '8-10', tip: 'Klatka górna — skos 30-45°' },
+          { name: 'Wyciskanie na suwnicy', sets: 3, reps: '10-12', tip: 'Stabilna trajektoria, ścisk klatki' },
+          { name: 'Pompki na poręczach', sets: 3, reps: '10-15', tip: 'Pochyl tułów — klatka dolna' },
+          { name: 'Wznosy hantli bokiem', sets: 3, reps: '12-15', tip: 'Barki boczne do poziomu' },
+          { name: 'Overhead triceps extension hantlem', sets: 3, reps: '10-12', tip: 'Oburącz za głowę, łokcie nieruchome' }
+        ]
       }
     ],
 
@@ -481,6 +615,26 @@
           { name: 'Uginanie hantli', sets: 3, reps: '10-12', tip: 'Bez przerwy po wiosłowaniu' },
           { name: 'Face pull', sets: 3, reps: '15-20', tip: 'Wykończenie, plecy tylne barki' }
         ]
+      },
+      {
+        name: 'Pull - z naciskiem na izolację bicepsa',
+        exercises: [
+          { name: 'Podciąganie szerokim chwytem', sets: 3, reps: '6-10', tip: 'Plecy — rozgrzewka główna' },
+          { name: 'Wiosłowanie na maszynie', sets: 3, reps: '10-12', tip: 'Stabilna pozycja, ścisk pleców' },
+          { name: 'Uginanie ramion ze sztangą stojąc', sets: 3, reps: '8-10', tip: 'Klasyczne, bez bujania' },
+          { name: 'Concentration curl', sets: 3, reps: '10-12', tip: 'Łokieć na udzie — pełna izolacja bicepsa' },
+          { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis — pełna objętość ramion' }
+        ]
+      },
+      {
+        name: 'Pull - cable i wyciągi (bez wolnych ciężarów)',
+        exercises: [
+          { name: 'Ściąganie drążka wyciągu górnego', sets: 3, reps: '10-12', tip: 'Szerokim chwytem do klatki' },
+          { name: 'Wyciąg górny podchwytem', sets: 3, reps: '10-12', tip: 'Podchwyt — więcej bicepsa' },
+          { name: 'Wiosłowanie na wyciągu siedząc', sets: 3, reps: '10-12', tip: 'Tułów prosty, ciągnij do brzucha' },
+          { name: 'Straight arm pulldown', sets: 3, reps: '12-15', tip: 'Proste ramiona, angażuje najszersze' },
+          { name: 'Cable face pull', sets: 3, reps: '15-20', tip: 'Zdrowe barki — nie pomijaj' }
+        ]
       }
     ],
 
@@ -563,6 +717,26 @@
           { name: 'Leg press', sets: 3, reps: '15-20', tip: 'Średni ciężar, tempo' },
           { name: 'Uginanie nóg leżąc', sets: 3, reps: '15-20', tip: 'Wykończenie hamstring' },
           { name: 'Wspięcia na palce stojąc', sets: 3, reps: '20-30', tip: 'Łydki - kondycja' }
+        ]
+      },
+      {
+        name: 'Legs - sumo i przywodziciele',
+        exercises: [
+          { name: 'Przysiad sumo', sets: 4, reps: '8-10', tip: 'Stopy szeroko i na zewnątrz, kolana śledzą stopy' },
+          { name: 'Hip abduction', sets: 3, reps: '12-15', tip: 'Maszyna lub wyciąg — przywodziciele i pośladki' },
+          { name: 'Martwy ciąg rumuński', sets: 3, reps: '10-12', tip: 'Hamstring i pośladki' },
+          { name: 'Uginanie nóg leżąc', sets: 3, reps: '12-15', tip: 'Izolacja hamstring' },
+          { name: 'Wspięcia na palce stojąc', sets: 3, reps: '15-20', tip: 'Wykończenie' }
+        ]
+      },
+      {
+        name: 'Legs - jednonóż (balans i stabilizacja)',
+        exercises: [
+          { name: 'Bulgarian split squat', sets: 4, reps: '8-10 na nogę', tip: 'Tylna noga na ławce — pełen zakres' },
+          { name: 'Single leg rdl', sets: 3, reps: '10-12 na nogę', tip: 'Balans na jednej nodze, plecy proste' },
+          { name: 'Step-up', sets: 3, reps: '10-12 na nogę', tip: 'Wchodź na ławkę, pchaj piętą' },
+          { name: 'Single leg hip thrust', sets: 3, reps: '10-12 na nogę', tip: 'Ścisk pośladka na górze' },
+          { name: 'Wspięcia jednonóż', sets: 3, reps: '12-15 na nogę', tip: 'Pełen zakres — palce i pięta' }
         ]
       }
     ]
