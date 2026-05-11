@@ -1575,7 +1575,9 @@ Odpowiedz TYLKO w formacie JSON:
     const text = data.content.map(c => c.text || '').join('');
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
-    
+    if (!parsed.exercises || !Array.isArray(parsed.exercises) || !parsed.exercises.length) {
+      throw new Error('Nieprawidłowy format odpowiedzi — spróbuj ponownie');
+    }
     currentExercises = parsed.exercises;
     renderExercises(currentExercises);
     saveDraft();
@@ -1587,6 +1589,13 @@ Odpowiedz TYLKO w formacie JSON:
     startWorkoutTimer();
     setRestPreset(goalData.rest);
     initWorkoutDateInput();
+    // Pokaż przycisk "Zakończ bez zapisywania" i pole notatki
+    const _dBtnGen = document.getElementById('discardBtn');
+    if (_dBtnGen) _dBtnGen.style.display = 'flex';
+    const _noteSec = document.getElementById('workoutNoteSection');
+    if (_noteSec) _noteSec.classList.add('visible');
+    const _noteInp = document.getElementById('workoutNoteInput');
+    if (_noteInp) _noteInp.value = '';
     showToast('Plan gotowy!', 'success');
   } catch (e) {
     // Ignoruj AbortError - użytkownik sam anulował
@@ -1779,9 +1788,9 @@ function discardWorkout() {
   if (_discardBtn) _discardBtn.style.display = 'none';
   const _noteSection = document.getElementById('workoutNoteSection');
   if (_noteSection) _noteSection.classList.remove('visible');
-  const discardBtn = document.getElementById('discardBtn');
-  if (discardBtn) discardBtn.style.display = 'none';
   document.getElementById('genBtnText').textContent = 'Generuj plan';
+  const _noteInpD = document.getElementById('workoutNoteInput');
+  if (_noteInpD) _noteInpD.value = '';
   showToast('Trening zakończony bez zapisywania', '');
 }
 
@@ -3116,7 +3125,8 @@ function setImportMode(mode) {
   });
   document.getElementById('importTextArea').classList.toggle('hidden', mode !== 'text');
   document.getElementById('importCsvArea').classList.toggle('active', mode === 'csv');
-  document.getElementById('importTypeSelect').style.display = mode === 'text' ? 'flex' : 'none';
+  const _its = document.getElementById('importTypeSelect');
+  if (_its) _its.style.display = mode === 'text' ? 'flex' : 'none';
   document.getElementById('importResult').innerHTML = '';
 
   const btn = document.getElementById('importParseBtn');
