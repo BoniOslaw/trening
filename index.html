@@ -432,6 +432,50 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   font-size: 11px; color: var(--text-muted); margin-left: 6px;
 }
 
+/* ===== NOTATKA DO TRENINGU ===== */
+.workout-note-section {
+  margin-top: 14px;
+  display: none;
+}
+.workout-note-section.visible {
+  display: block;
+}
+.workout-note-label {
+  font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.8px; font-weight: 600; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.workout-note-label i { font-size: 13px; }
+.workout-note-textarea {
+  width: 100%; padding: 10px 12px;
+  background: var(--bg-elev2); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: inherit; font-size: 13px; line-height: 1.5;
+  outline: none; resize: none; height: 80px;
+  transition: border-color 0.2s;
+}
+.workout-note-textarea:focus { border-color: var(--accent); }
+.workout-note-hint {
+  font-size: 11px; color: var(--text-muted); margin-top: 5px; line-height: 1.4;
+}
+
+/* ===== PRZYCISK ZAKOŃCZ BEZ ZAPISU ===== */
+.btn-danger {
+  background: var(--danger, #ef4444) !important;
+  color: #fff !important;
+  border-color: var(--danger, #ef4444) !important;
+}
+.btn-danger:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+.btn-danger:disabled {
+  background: rgba(239,68,68,0.35) !important;
+  border-color: transparent !important;
+  color: rgba(255,255,255,0.5) !important;
+  cursor: not-allowed;
+}
+
 /* ===== INSTALL PROMPT ===== */
 .install-prompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(150%); background: var(--bg-elev); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 14px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 250; max-width: calc(100vw - 32px); }
 .install-prompt.show { transform: translateX(-50%) translateY(0); }
@@ -778,12 +822,27 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
 
     <!-- SAVE -->
+  <!-- NOTATKA DO TRENINGU -->
+  <div class="workout-note-section" id="workoutNoteSection">
+    <div class="workout-note-label">
+      <i class="ti ti-notes"></i>Notatka do treningu (opcjonalnie)
+    </div>
+    <textarea class="workout-note-textarea" id="workoutNoteInput"
+      placeholder="Np. za dużo ćwiczeń, za mało cardio, bolało kolano, świetna forma..."></textarea>
+    <div class="workout-note-hint">
+      💡 Jeśli napiszesz że było za dużo lub za mało ćwiczeń — Claude dostosuje kolejny plan.
+    </div>
+  </div>
+
   <div class="save-bar">
     <div class="save-date-row">
       <span class="save-date-label"><i class="ti ti-calendar" style="vertical-align:-2px;margin-right:3px;"></i>Data treningu</span>
       <input type="date" class="save-date-input" id="workoutDateInput" onchange="onWorkoutDateChange()" />
       <span class="save-date-changed" id="workoutDateChangedBadge" style="display:none;">zmieniono</span>
     </div>
+    <button class="btn btn-danger" id="discardBtn" onclick="discardWorkout()" disabled style="display:none;">
+      <i class="ti ti-x"></i>Zakończ bez zapisywania
+    </button>
     <button class="btn btn-primary" id="saveBtn" onclick="saveWorkout()" disabled>
       <i class="ti ti-device-floppy"></i>Zapisz trening
     </button>
@@ -1327,6 +1386,10 @@ function switchTab(type) {
   const prog = document.getElementById('exercisesProgress');
   if (prog) prog.classList.remove('visible');
   document.getElementById('saveBtn').disabled = true;
+  const _discardBtn = document.getElementById('discardBtn');
+  if (_discardBtn) _discardBtn.style.display = 'none';
+  const _noteSection = document.getElementById('workoutNoteSection');
+  if (_noteSection) _noteSection.classList.remove('visible');
   document.getElementById('genBtnText').textContent = 'Generuj plan';
 }
 
@@ -1357,6 +1420,12 @@ function generateOfflinePlan() {
   showRestTimerBar();
   startWorkoutTimer();
   initWorkoutDateInput();
+  const _dBtn2 = document.getElementById('discardBtn');
+  if (_dBtn2) _dBtn2.style.display = 'flex';
+  const _ns2 = document.getElementById('workoutNoteSection');
+  if (_ns2) { _ns2.classList.add('visible'); }
+  const _ni2 = document.getElementById('workoutNoteInput');
+  if (_ni2) _ni2.value = '';
   const smartInfo = plan._smartInfo || '';
   showToast('Plan offline załadowany' + (smartInfo ? ' · ' + smartInfo : ''), 'success');
 }
@@ -1448,6 +1517,9 @@ async function executeGeneratePlan() {
   const recentNames = recent.length 
     ? recent.map(h => h.exercises.map(e => e.name).join(', ')).join(' | ')
     : 'brak historii';
+  // Ostatnia notatka dla tego typu treningu
+  const lastNoteEntry = profile.history.filter(h => h.type === currentType && h.note).shift();
+  const lastNote = lastNoteEntry?.note || '';
 
   const profileForGoal = getCurrentProfile();
   const goalData = GOALS_DATA[profileForGoal.goal || 'reduction'];
@@ -1461,8 +1533,11 @@ Dostosuj plan do celu:
 - Preferencje ćwiczeń: ${goalData.desc}
 
 ZASADY:
-- Dokładnie 5 ćwiczeń
+- Liczba ćwiczeń: ${currentType === 'legs' ? '8-9' : '7-8'} ćwiczeń
+- Dla Push i Pull: 7-8 ćwiczeń pokrywających wszystkie główne partie (np. Push: klatka górna/środkowa, barki przednie/boczne, triceps; Pull: plecy szerokie/środkowe, biceps, tylne barki)
+- Dla Legs: 8-9 ćwiczeń pokrywających czworogłowy, hamstring, pośladki, łydki i opcjonalnie core
 - Plan MUSI być zróżnicowany i INNY niż poprzednie z tej kategorii: ${recentNames}
+${lastNote ? `- WAŻNE: Użytkownik po ostatnim treningu napisał: "${lastNote}". Uwzględnij to przy planowaniu (np. jeśli napisał "za dużo ćwiczeń" — daj mniej, jeśli "za mało" — daj więcej, jeśli "bolało kolano" — unikaj ćwiczeń obciążających kolana).` : ''}
 - Rotuj między ćwiczeniami sztangowymi, hantlowymi, na maszynach i na wyciągach
 - Podaj zalecaną liczbę powtórzeń zgodnie z celem
 - Krótka wskazówka techniczna do każdego ćwiczenia (max 6 słów)
@@ -1688,6 +1763,28 @@ function dismissReminder() {
 }
 
 // ============ SAVE ============
+function discardWorkout() {
+  if (!currentExercises.length) return;
+  // Wyczyść plan bez zapisu
+  stopWorkoutTimer();
+  stopRestTimer();
+  hideRestTimerBar();
+  clearDraft();
+  currentExercises = [];
+  renderExercises([]);
+  const prog = document.getElementById('exercisesProgress');
+  if (prog) prog.classList.remove('visible');
+  document.getElementById('saveBtn').disabled = true;
+  const _discardBtn = document.getElementById('discardBtn');
+  if (_discardBtn) _discardBtn.style.display = 'none';
+  const _noteSection = document.getElementById('workoutNoteSection');
+  if (_noteSection) _noteSection.classList.remove('visible');
+  const discardBtn = document.getElementById('discardBtn');
+  if (discardBtn) discardBtn.style.display = 'none';
+  document.getElementById('genBtnText').textContent = 'Generuj plan';
+  showToast('Trening zakończony bez zapisywania', '');
+}
+
 function saveWorkout() {
   if (!currentExercises.length) return;
   const exs = currentExercises.map((ex, i) => {
@@ -1700,11 +1797,13 @@ function saveWorkout() {
   const totalReps = exs.reduce((s, e) => s + e.total, 0);
   const duration = stopWorkoutTimer(); // sekundy
   const { timestamp: workoutTimestamp, dateStr: workoutDateStr } = getWorkoutDateFromInput();
+  const workoutNote = document.getElementById('workoutNoteInput')?.value?.trim() || '';
   const entry = {
     id: 'w_' + workoutTimestamp,
     type: currentType,
     timestamp: workoutTimestamp,
     date: workoutDateStr,
+    note: workoutNote,
     exercises: exs,
     totalReps,
     duration
@@ -1786,6 +1885,7 @@ function refreshHistory() {
         <span><strong>${e.exercises.length}</strong> ćwiczeń</span>
         ${e.duration ? `<span><strong>${formatDuration(e.duration)}</strong></span>` : ''}
       </div>
+      ${e.note ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px;padding:6px 10px;background:var(--bg-elev2);border-radius:6px;border-left:2px solid var(--accent);">📝 ${escapeHtml(e.note)}</div>` : ''}
       <div class="history-exs">${e.exercises.map(x => x.reps > 0 ? `${escapeHtml(x.name)} <span style="color:var(--accent)">(${x.total} rep${x.kg > 0 ? ' · ' + x.kg + ' kg' : ''})</span>` : `<span style="opacity:0.5">${escapeHtml(x.name)}</span>`).join(' · ')}</div>
     </div>
   `).join('');
@@ -2091,6 +2191,10 @@ function restoreDraft() {
     showRestTimerBar();
     startWorkoutTimer();
     initWorkoutDateInput();
+    const _dBtnR = document.getElementById('discardBtn');
+    if (_dBtnR) _dBtnR.style.display = 'flex';
+    const _nsR = document.getElementById('workoutNoteSection');
+    if (_nsR) _nsR.classList.add('visible');
     setTimeout(checkAllFilled, 500);
     return true;
   } catch(e) { return false; }
@@ -3579,10 +3683,16 @@ refreshProfileUI();
 refreshStats();
 refreshHistory();
 refreshChart();
-  refreshMuscleStats();
+refreshMuscleStats();
 refreshExerciseSelect();
 checkBackupReminder();
-const restored = restoreDraft();
+// Przywróć draft PO załadowaniu UI — opóźnienie zapewnia że DOM jest gotowy
+setTimeout(() => {
+  const restored = restoreDraft();
+  if (restored) {
+    showToast('Przywrócono poprzedni trening', 'success');
+  }
+}, 100);
 setTimeout(() => {
   const profile = getCurrentProfile();
   const goalMs = profile.goalSetAt || 0;
