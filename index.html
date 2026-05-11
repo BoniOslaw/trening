@@ -399,6 +399,67 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .muscle-balance-alert i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .muscle-balance-alert strong { display: block; margin-bottom: 2px; }
 
+/* ===== NAWIGACJA PARTII MIĘŚNIOWYCH ===== */
+.muscle-group-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05));
+  border: 1px solid rgba(99,102,241,0.3); border-radius: var(--radius-sm);
+}
+.muscle-group-title {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 16px; color: var(--text);
+}
+.muscle-group-title i { color: var(--accent); font-size: 20px; }
+.muscle-group-counter {
+  font-size: 11px; color: var(--text-muted);
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 4px 10px; background: var(--bg-elev2); border-radius: 100px;
+}
+.muscle-nav-bar {
+  display: flex; gap: 8px; margin-top: 14px;
+  padding: 12px 0; border-top: 1px solid var(--border);
+}
+.muscle-nav-bar .btn { flex: 1; }
+.btn-next-group {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.btn-next-group:hover { background: #4f46e5; border-color: #4f46e5; }
+.btn-prev-group {
+  background: transparent; color: var(--text-muted); border-color: var(--border-strong);
+}
+
+/* ===== KOMPAKTOWA DATA TRENINGU (mobile-friendly) ===== */
+.workout-date-compact {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; margin-bottom: 12px;
+  background: var(--bg-elev2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); flex-wrap: wrap;
+}
+.workout-date-compact i { color: var(--text-muted); font-size: 16px; }
+.wdc-label {
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600;
+}
+.wdc-input {
+  flex: 1; min-width: 130px; max-width: 200px;
+  padding: 4px 8px; background: var(--bg); border: 1px solid var(--border-strong);
+  border-radius: 6px; color: var(--text); font-family: inherit;
+  font-size: 13px; outline: none; cursor: pointer;
+}
+.wdc-input:focus { border-color: var(--accent); }
+.wdc-input::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
+.wdc-changed {
+  font-size: 10px; color: var(--accent); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 2px 8px; background: rgba(99,102,241,0.12); border-radius: 100px;
+}
+@media (max-width: 380px) {
+  .wdc-input { font-size: 12px; min-width: 110px; }
+  .wdc-label { font-size: 10px; }
+}
+
 /* ===== DATE PICKER IN SAVE BAR ===== */
 .save-date-row {
   display: flex; align-items: center; gap: 8px;
@@ -813,6 +874,14 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <span class="exercises-progress-count" id="exercisesProgressCount">0/0</span>
   </div>
 
+    <!-- DATA TRENINGU (kompaktowa, nad listą ćwiczeń) -->
+    <div class="workout-date-compact" id="workoutDateCompact" style="display:none;">
+      <i class="ti ti-calendar"></i>
+      <span class="wdc-label">Data:</span>
+      <input type="date" class="wdc-input" id="workoutDateInput" onchange="onWorkoutDateChange()" />
+      <span class="wdc-changed" id="workoutDateChangedBadge" style="display:none;">zmieniono</span>
+    </div>
+
     <!-- EXERCISES -->
     <div class="exercise-list" id="exerciseList">
       <div class="empty">
@@ -835,12 +904,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   </div>
 
   <div class="save-bar">
-    <div class="save-date-row">
-      <span class="save-date-label"><i class="ti ti-calendar" style="vertical-align:-2px;margin-right:3px;"></i>Data treningu</span>
-      <input type="date" class="save-date-input" id="workoutDateInput" onchange="onWorkoutDateChange()" />
-      <span class="save-date-changed" id="workoutDateChangedBadge" style="display:none;">zmieniono</span>
-    </div>
-    <button class="btn btn-danger" id="discardBtn" onclick="discardWorkout()" disabled style="display:none;">
+    <button class="btn btn-danger" id="discardBtn" onclick="discardWorkout()" style="display:none;">
       <i class="ti ti-x"></i>Zakończ bez zapisywania
     </button>
     <button class="btn btn-primary" id="saveBtn" onclick="saveWorkout()" disabled>
@@ -1129,12 +1193,98 @@ let isImporting = false;
 let pendingImport = null;
 let importMode = 'text';
 let csvParsedData = null;
-let generateAbortController = null; // Pozwala przerwać generowanie planu
+let generateAbortController = null;
+let currentMuscleGroupIndex = 0; // Aktualny indeks partii mięśniowej (0 = pierwsza)
+let exerciseGroups = []; // Pogrupowane ćwiczenia [{groupName, exercises: [...], firstIdx}, ...]
+
+// Mapowanie głów mięśniowych na partie + kolejność wyświetlania
+const MUSCLE_TO_GROUP = {
+  // Push
+  'chest_upper': 'klatka', 'chest_middle': 'klatka', 'chest_lower': 'klatka',
+  'shoulder_front': 'barki', 'shoulder_side': 'barki', 'shoulder_rear': 'barki',
+  'triceps_long': 'triceps', 'triceps_lat': 'triceps', 'triceps_med': 'triceps',
+  // Pull
+  'back_lats': 'plecy', 'back_middle': 'plecy', 'back_upper': 'plecy', 'back_lower': 'plecy',
+  'biceps_long': 'biceps', 'biceps_short': 'biceps', 'biceps_brach': 'biceps',
+  'forearms': 'biceps',
+  // Legs
+  'quads': 'czworogłowy',
+  'hamstrings': 'hamstring',
+  'glutes': 'pośladki', 'adductors': 'pośladki',
+  'calves': 'łydki',
+  // Core
+  'abs': 'core', 'obliques': 'core', 'core': 'core'
+};
+
+const GROUP_ORDER = {
+  push: ['klatka', 'barki', 'triceps', 'core'],
+  pull: ['plecy', 'biceps', 'barki', 'core'],
+  legs: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core']
+};
+
+const GROUP_LABELS = {
+  'klatka': { name: 'Klatka piersiowa', icon: 'ti-shirt' },
+  'barki':  { name: 'Barki', icon: 'ti-user' },
+  'triceps':{ name: 'Triceps', icon: 'ti-hand-three-fingers' },
+  'plecy':  { name: 'Plecy', icon: 'ti-stretching' },
+  'biceps': { name: 'Biceps', icon: 'ti-barbell' },
+  'czworogłowy': { name: 'Czworogłowy', icon: 'ti-run' },
+  'hamstring':   { name: 'Hamstring', icon: 'ti-stretching-2' },
+  'pośladki':    { name: 'Pośladki', icon: 'ti-disc' },
+  'łydki':       { name: 'Łydki', icon: 'ti-walk' },
+  'core':        { name: 'Core / Brzuch', icon: 'ti-target' },
+  'inne':        { name: 'Pozostałe', icon: 'ti-circle-dot' }
+};
+
+// Helper: zwraca wartość reps/kg dla ćwiczenia o indeksie i
+// Najpierw sprawdza DOM (jeśli widoczne), potem _userReps/_userKg z grupy
+function getExerciseInputValue(i, field) {
+  // field = 'reps' lub 'kg'
+  const el = document.getElementById(`${field}_${i}`);
+  if (el && el.value !== '') return el.value;
+  // Element ukryty — szukaj w grupach
+  for (const g of exerciseGroups) {
+    const found = g.exercises.find(e => e._origIdx === i);
+    if (found) {
+      const v = field === 'reps' ? found._userReps : found._userKg;
+      return v !== undefined ? v : '';
+    }
+  }
+  return '';
+}
+
+// Grupuje ćwiczenia wg partii w kolejności typowej dla danego typu treningu
+function groupExercisesByMuscle(exercises, type) {
+  const order = GROUP_ORDER[type] || ['inne'];
+  const groupMap = {};
+  exercises.forEach((ex, idx) => {
+    const muscle = ex.muscle || (window.TPDB ? window.TPDB.detectMuscle(ex.name) : null);
+    const group = MUSCLE_TO_GROUP[muscle] || 'inne';
+    if (!groupMap[group]) groupMap[group] = [];
+    groupMap[group].push({ ...ex, _origIdx: idx });
+  });
+  // Zwróć grupy w kolejności GROUP_ORDER
+  const result = [];
+  order.forEach(g => {
+    if (groupMap[g] && groupMap[g].length) {
+      result.push({ groupName: g, exercises: groupMap[g] });
+      delete groupMap[g];
+    }
+  });
+  // Dodaj pozostałe grupy (np. 'inne') na końcu
+  Object.keys(groupMap).forEach(g => {
+    result.push({ groupName: g, exercises: groupMap[g] });
+  });
+  return result;
+}
 
 // Ustawia dzisiejszą datę w date pickert przy generowaniu / offline planu
 function initWorkoutDateInput() {
   const input = document.getElementById('workoutDateInput');
   if (!input) return;
+  // Pokaż kompaktową sekcję z datą
+  const wdc = document.getElementById('workoutDateCompact');
+  if (wdc) wdc.style.display = 'flex';
   const today = new Date();
   // Format YYYY-MM-DD wymagany przez input[type=date]
   const yyyy = today.getFullYear();
@@ -1390,6 +1540,8 @@ function switchTab(type) {
   if (_discardBtn) _discardBtn.style.display = 'none';
   const _noteSection = document.getElementById('workoutNoteSection');
   if (_noteSection) _noteSection.classList.remove('visible');
+  const _wdc = document.getElementById('workoutDateCompact');
+  if (_wdc) _wdc.style.display = 'none';
   document.getElementById('genBtnText').textContent = 'Generuj plan';
 }
 
@@ -1533,9 +1685,11 @@ Dostosuj plan do celu:
 - Preferencje ćwiczeń: ${goalData.desc}
 
 ZASADY:
-- Liczba ćwiczeń: ${currentType === 'legs' ? '8-9' : '7-8'} ćwiczeń
-- Dla Push i Pull: 7-8 ćwiczeń pokrywających wszystkie główne partie (np. Push: klatka górna/środkowa, barki przednie/boczne, triceps; Pull: plecy szerokie/środkowe, biceps, tylne barki)
-- Dla Legs: 8-9 ćwiczeń pokrywających czworogłowy, hamstring, pośladki, łydki i opcjonalnie core
+- DOKŁADNIE 7 ćwiczeń (nie więcej, nie mniej)
+- Ćwiczenia ułóż W KOLEJNOŚCI WG PARTII MIĘŚNIOWYCH (klasterowo, nie pomieszane):
+  * Push: najpierw 3-4 ćwiczenia na klatkę → potem 2 na barki → na końcu 1-2 na triceps
+  * Pull: najpierw 3-4 ćwiczenia na plecy → potem 2-3 na biceps → opcjonalnie 1 na tylne barki
+  * Legs: 2-3 na czworogłowy → 1-2 na hamstring → 1-2 na pośladki → 1 na łydki
 - Plan MUSI być zróżnicowany i INNY niż poprzednie z tej kategorii: ${recentNames}
 ${lastNote ? `- WAŻNE: Użytkownik po ostatnim treningu napisał: "${lastNote}". Uwzględnij to przy planowaniu (np. jeśli napisał "za dużo ćwiczeń" — daj mniej, jeśli "za mało" — daj więcej, jeśli "bolało kolano" — unikaj ćwiczeń obciążających kolana).` : ''}
 - Rotuj między ćwiczeniami sztangowymi, hantlowymi, na maszynach i na wyciągach
@@ -1634,8 +1788,151 @@ function renderExercises(exs) {
   }
   if (!exs.length) {
     list.innerHTML = '<div class="empty"><i class="ti ti-barbell"></i><p>Wygeneruj plan treningowy klikając "Generuj plan"</p></div>';
+    exerciseGroups = [];
+    currentMuscleGroupIndex = 0;
     return;
   }
+  // Pogrupuj ćwiczenia wg partii
+  exerciseGroups = groupExercisesByMuscle(exs, currentType);
+  currentMuscleGroupIndex = 0;
+  renderCurrentMuscleGroup();
+}
+
+// Renderuje TYLKO aktualną partię mięśniową
+function renderCurrentMuscleGroup() {
+  const list = document.getElementById('exerciseList');
+  if (!list || !exerciseGroups.length) return;
+  const groupIdx = currentMuscleGroupIndex;
+  const group = exerciseGroups[groupIdx];
+  if (!group) return;
+  const groupLabel = GROUP_LABELS[group.groupName] || GROUP_LABELS['inne'];
+  const isLast = groupIdx === exerciseGroups.length - 1;
+  const isFirst = groupIdx === 0;
+
+  // Nagłówek partii
+  let html = `
+    <div class="muscle-group-header">
+      <div class="muscle-group-title">
+        <i class="ti ${groupLabel.icon}"></i>
+        <span>${groupLabel.name}</span>
+      </div>
+      <span class="muscle-group-counter">Partia ${groupIdx + 1} z ${exerciseGroups.length}</span>
+    </div>
+  `;
+
+  // Ćwiczenia w tej partii
+  html += group.exercises.map(ex => {
+    const i = ex._origIdx; // Używamy oryginalnego indeksu z currentExercises
+    const ytQuery = encodeURIComponent(ex.name + ' technika ćwiczenia');
+    const ytUrl = `https://www.youtube.com/results?search_query=${ytQuery}`;
+    return `
+    <div class="exercise-card">
+      <div class="ex-num">${i + 1}</div>
+      <div class="ex-info">
+        <div class="ex-name">
+          ${escapeHtml(ex.name)}
+          <a href="${ytUrl}" target="_blank" rel="noopener" class="yt-btn" title="Zobacz technikę na YouTube" onclick="event.stopPropagation();">
+            <i class="ti ti-brand-youtube"></i>Pokaż
+          </a>
+        </div>
+        <div class="ex-detail">${ex.sets} serie × <span class="reps-target">${escapeHtml(ex.reps)}</span>${ex.tip ? ' · <i style="opacity:0.7">' + escapeHtml(ex.tip) + '</i>' : ''}</div>
+      </div>
+      <div class="inputs-group">
+        <div class="input-block">
+          <span class="input-label">Powtórzenia</span>
+          <div class="reps-input-wrap">
+            <input type="number" class="reps-input" id="reps_${i}" min="0" max="999"
+              oninput="updateTotal(${i})" placeholder="0" aria-label="Powtórzenia">
+            <div class="reps-stepper">
+              <button class="reps-step" onclick="stepReps(${i}, 1)" aria-label="Zwiększ"><i class="ti ti-chevron-up" style="font-size:11px"></i></button>
+              <button class="reps-step" onclick="stepReps(${i}, -1)" aria-label="Zmniejsz"><i class="ti ti-chevron-down" style="font-size:11px"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="input-block">
+          <span class="input-label">Ciężar</span>
+          <div class="kg-input-wrap">
+            <input type="number" class="kg-input" id="kg_${i}" min="0" max="999" step="0.5"
+              oninput="updateTotal(${i})" placeholder="0" aria-label="Kilogramy">
+            <span class="kg-unit">kg</span>
+          </div>
+        </div>
+      </div>
+      <div class="total-display" id="total_${i}">— rep</div>
+    </div>
+  `;
+  }).join('');
+
+  // Pasek nawigacji partii
+  html += `
+    <div class="muscle-nav-bar">
+      ${!isFirst ? `<button class="btn btn-prev-group" onclick="prevMuscleGroup()"><i class="ti ti-arrow-left"></i>Poprzednia</button>` : ''}
+      ${!isLast
+        ? `<button class="btn btn-next-group" onclick="nextMuscleGroup()">Dalej<i class="ti ti-arrow-right"></i></button>`
+        : `<button class="btn btn-next-group" onclick="finishMuscleGroups()" style="background:var(--success,#22c55e);border-color:var(--success,#22c55e)"><i class="ti ti-check"></i>Zakończ trening</button>`
+      }
+    </div>
+  `;
+
+  list.innerHTML = html;
+
+  // Przywróć wartości z currentExercises do inputów (jeśli były wpisane)
+  group.exercises.forEach(ex => {
+    const i = ex._origIdx;
+    const repsEl = document.getElementById(`reps_${i}`);
+    const kgEl = document.getElementById(`kg_${i}`);
+    if (repsEl && ex._userReps !== undefined) repsEl.value = ex._userReps;
+    if (kgEl && ex._userKg !== undefined) kgEl.value = ex._userKg;
+    if (ex._userReps !== undefined || ex._userKg !== undefined) updateTotal(i);
+  });
+
+  // Scroll do góry
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Zapisuje wartości z aktualnej partii przed przejściem do następnej
+function saveCurrentGroupInputs() {
+  const group = exerciseGroups[currentMuscleGroupIndex];
+  if (!group) return;
+  group.exercises.forEach(ex => {
+    const i = ex._origIdx;
+    const repsEl = document.getElementById(`reps_${i}`);
+    const kgEl = document.getElementById(`kg_${i}`);
+    if (repsEl) ex._userReps = repsEl.value;
+    if (kgEl) ex._userKg = kgEl.value;
+  });
+}
+
+// Przejście do następnej partii
+function nextMuscleGroup() {
+  saveCurrentGroupInputs();
+  if (currentMuscleGroupIndex < exerciseGroups.length - 1) {
+    currentMuscleGroupIndex++;
+    renderCurrentMuscleGroup();
+    saveDraft();
+  }
+}
+
+// Powrót do poprzedniej partii
+function prevMuscleGroup() {
+  saveCurrentGroupInputs();
+  if (currentMuscleGroupIndex > 0) {
+    currentMuscleGroupIndex--;
+    renderCurrentMuscleGroup();
+    saveDraft();
+  }
+}
+
+// Kończy trening — wywołuje saveWorkout (po ostatniej partii)
+function finishMuscleGroups() {
+  saveCurrentGroupInputs();
+  // Sprawdź czy są wpisane jakiekolwiek wartości
+  saveWorkout();
+}
+
+// Stara funkcja renderowania — zachowana dla kompatybilności, ale niewywoływana
+function _renderExercisesFlat(exs) {
+  const list = document.getElementById('exerciseList');
   list.innerHTML = exs.map((ex, i) => {
     const ytQuery = encodeURIComponent(ex.name + ' technika ćwiczenia');
     const ytUrl = `https://www.youtube.com/results?search_query=${ytQuery}`;
@@ -1711,8 +2008,8 @@ function recountFilledExercises() {
   if (!currentExercises || !currentExercises.length) return;
   let filled = 0;
   currentExercises.forEach((_, i) => {
-    const repsEl = document.getElementById('reps_' + i);
-    if (repsEl && parseInt(repsEl.value) > 0) filled++;
+    const reps = parseInt(getExerciseInputValue(i, 'reps')) || 0;
+    if (reps > 0) filled++;
   });
   updateExercisesProgress(filled, currentExercises.length);
 }
@@ -1731,7 +2028,8 @@ function updateTotal(i) {
       const orm = calculate1RM(kg, v);
       if (orm > 0) ormText = ` · 1RM ~${orm}kg`;
     }
-    el.textContent = `${v * 3} rep${kgText}${ormText}`;
+    const exSets = parseInt(currentExercises[i]?.sets) || 3;
+    el.textContent = `${v * exSets} rep${kgText}${ormText}`;
     el.classList.add('has-val');
   } else {
     el.textContent = '— rep';
@@ -1745,8 +2043,8 @@ function updateTotal(i) {
 function checkAllFilled() {
   if (!currentExercises.length || reminderDismissed) return;
   const allFilled = currentExercises.every((_, i) => {
-    const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
-    const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
+    const reps = parseInt(getExerciseInputValue(i, 'reps')) || 0;
+    const kg = parseFloat(getExerciseInputValue(i, 'kg')) || 0;
     return reps > 0 && kg > 0;
   });
   const reminder = document.getElementById('saveReminder');
@@ -1788,6 +2086,8 @@ function discardWorkout() {
   if (_discardBtn) _discardBtn.style.display = 'none';
   const _noteSection = document.getElementById('workoutNoteSection');
   if (_noteSection) _noteSection.classList.remove('visible');
+  const _wdc = document.getElementById('workoutDateCompact');
+  if (_wdc) _wdc.style.display = 'none';
   document.getElementById('genBtnText').textContent = 'Generuj plan';
   const _noteInpD = document.getElementById('workoutNoteInput');
   if (_noteInpD) _noteInpD.value = '';
@@ -1796,9 +2096,28 @@ function discardWorkout() {
 
 function saveWorkout() {
   if (!currentExercises.length) return;
+  // Zapisz wartości z aktualnej widocznej partii (jeśli używamy nawigacji)
+  if (exerciseGroups.length) saveCurrentGroupInputs();
+  // Zbierz wartości — najpierw z DOM, potem z _userReps/_userKg dla ukrytych partii
   const exs = currentExercises.map((ex, i) => {
-    const reps = parseInt(document.getElementById(`reps_${i}`)?.value) || 0;
-    const kg = parseFloat(document.getElementById(`kg_${i}`)?.value) || 0;
+    const repsEl = document.getElementById(`reps_${i}`);
+    const kgEl = document.getElementById(`kg_${i}`);
+    // Znajdź ten sam ćw. w exerciseGroups żeby pobrać zapisane wartości
+    let userReps = repsEl?.value;
+    let userKg = kgEl?.value;
+    if (!repsEl || !kgEl) {
+      // Element ukryty — szukaj w grupach
+      for (const g of exerciseGroups) {
+        const found = g.exercises.find(e => e._origIdx === i);
+        if (found) {
+          if (userReps === undefined || userReps === '') userReps = found._userReps;
+          if (userKg === undefined || userKg === '') userKg = found._userKg;
+          break;
+        }
+      }
+    }
+    const reps = parseInt(userReps) || 0;
+    const kg = parseFloat(userKg) || 0;
     const orm = calculate1RM(kg, reps);
     const sets = parseInt(ex.sets) || 3;
     return { name: ex.name, reps, total: reps * sets, sets, target: ex.reps, kg, orm, muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null };
@@ -2154,15 +2473,18 @@ function showToast(msg, type = '') {
 // ============ DRAFT (autosave aktywnego planu) ============
 function saveDraft() {
   if (!currentExercises.length) return;
+  // Najpierw zapisz aktualną widoczną partię do _userReps
+  if (exerciseGroups.length) saveCurrentGroupInputs();
   const inputs = currentExercises.map((ex, i) => ({
-    reps: document.getElementById(`reps_${i}`)?.value || '',
-    kg: document.getElementById(`kg_${i}`)?.value || ''
+    reps: getExerciseInputValue(i, 'reps'),
+    kg: getExerciseInputValue(i, 'kg')
   }));
   try {
     localStorage.setItem(STORAGE_DRAFT, JSON.stringify({
       type: currentType,
       exercises: currentExercises,
       inputs,
+      muscleGroupIndex: currentMuscleGroupIndex,
       ts: Date.now()
     }));
   } catch(e) {}
@@ -2186,15 +2508,34 @@ function restoreDraft() {
       t.classList.toggle('active', t.dataset.type === currentType);
     });
     updateTabColors();
-    // Wyrenderuj ćwiczenia
+    // Wyrenderuj ćwiczenia (grupuje w partie)
     renderExercises(currentExercises);
-    // Przywróć wpisane wartości
+    // Wpisz wartości do _userReps/_userKg we wszystkich grupach
+    if (draft.inputs && exerciseGroups.length) {
+      exerciseGroups.forEach(g => {
+        g.exercises.forEach(ex => {
+          const i = ex._origIdx;
+          if (draft.inputs[i]) {
+            ex._userReps = draft.inputs[i].reps || '';
+            ex._userKg = draft.inputs[i].kg || '';
+          }
+        });
+      });
+    }
+    // Skocz do zapisanej partii
+    if (draft.muscleGroupIndex !== undefined && exerciseGroups.length) {
+      currentMuscleGroupIndex = Math.min(draft.muscleGroupIndex, exerciseGroups.length - 1);
+      renderCurrentMuscleGroup();
+    }
+    // Wpisz wartości do widocznych inputów
     draft.inputs.forEach((inp, i) => {
       const repsEl = document.getElementById(`reps_${i}`);
       const kgEl = document.getElementById(`kg_${i}`);
       if (repsEl && inp.reps) { repsEl.value = inp.reps; updateTotal(i); }
       if (kgEl && inp.kg) { kgEl.value = inp.kg; updateTotal(i); }
     });
+    // Przelicz pasek postępu na podstawie WSZYSTKICH ćwiczeń
+    recountFilledExercises();
     document.getElementById('saveBtn').disabled = false;
     document.getElementById('genBtnText').textContent = 'Nowy plan';
     showRestTimerBar();
@@ -3711,10 +4052,6 @@ setTimeout(() => {
     showToast(`💡 Twój cel to <b>${goalData.name}</b>. <button class="btn btn-primary" onclick="openGoalModal()" style="padding: 2px 8px; font-size: 11px; margin-left: 8px;">Zmień</button>`);
   }
 }, 2000);
-
-if (restored) {
-  setTimeout(() => showToast('Odtworzono poprzedni plan 💪', 'success'), 300);
-}
 </script>
 
 </body>
