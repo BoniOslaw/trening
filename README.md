@@ -10,13 +10,13 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 
 ### 🎯 Plany treningowe
 - **3 typy treningu:** Push (klatka, barki, triceps) / Pull (plecy, biceps) / Legs (nogi, dolny odcinek pleców)
-- **Generowanie planu przez Claude AI** — 5 ćwiczeń dobranych zgodnie z wiedzą naukową o treningu siłowym, z opisem techniki wykonania
+- **Generowanie planu przez Claude AI** — 7-8 ćwiczeń (Push/Pull) lub 8-9 ćwiczeń (Legs), dobrane zgodnie z wiedzą naukową, z opisem techniki wykonania
 - **Spersonalizowane plany** — Claude analizuje Twoją historię treningów i dobiera ćwiczenia pod Twój poziom zaawansowania
 - **Zróżnicowanie ćwiczeń** — aplikacja nie powtarza tych samych ćwiczeń przy kolejnych sesjach tego samego typu
 - **Wskazówki techniczne** przy każdym ćwiczeniu
 - **🎬 Linki do YouTube** — przycisk „Pokaż" przy każdym ćwiczeniu otwiera wyszukiwanie techniki na YouTube
 - **🎯 Wybór celu treningowego** — Redukcja / Masa / Siła / Rzeźba / Kondycja (wpływa na liczbę serii, powtórzeń i czas przerw)
-- **📦 Plan offline** — gotowe plany bez internetu i bez kosztów API (inteligentny wybór uzupełniający brakujące partie)
+- **📦 Plan offline** — 30 gotowych planów (10 × Push, 10 × Pull, 10 × Legs) bez internetu i bez kosztów API, inteligentny wybór uzupełniający brakujące partie
 
 ### 📝 Rejestrowanie treningu
 - **Powtórzenia × serie** — wpisujesz liczbę powtórzeń, aplikacja liczy łączną sumę automatycznie
@@ -27,9 +27,11 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **⏰ Timer odpoczynku** z ustawieniami 60 s / 90 s / 2 min / 3 min (domyślny preset dostosowany do wybranego celu)
 - **🎤 Komunikat głosowy po polsku** — informuje o końcu przerwy (Web Speech API)
 - **🔔 Dźwięk dzwonka i wibracja** — konfigurowalne niezależnie
-- **💾 Automatyczny zapis roboczy** — odświeżenie strony nie powoduje utraty danych
+- **💾 Automatyczny zapis roboczy** — odświeżenie strony przywraca poprzedni trening automatycznie
 - **⚠️ Przypomnienie o zapisaniu** — pojawia się gdy wszystkie pola są wypełnione
-- **📊 Pasek postępu ćwiczeń** — pokazuje ile ćwiczeń zostało wypełnionych (np. 3/5)
+- **📊 Pasek postępu ćwiczeń** — pokazuje ile ćwiczeń zostało wypełnionych (np. 3/8)
+- **🚫 Zakończ bez zapisywania** — czerwony przycisk obok „Zapisz trening", czyści plan bez wpisu do historii
+- **📝 Notatka do treningu** — pole tekstowe po sesji z feedbackiem (np. „za dużo ćwiczeń", „bolało kolano"); Claude uwzględnia ją przy kolejnym planie tego samego typu
 
 ### 📊 Analiza i statystyki
 - **Statystyki tygodniowe** — liczba treningów, powtórzeń, wartości średnie
@@ -107,6 +109,19 @@ Jeśli zapomniałeś uruchomić aplikację na siłowni:
 
 ---
 
+## 📝 Notatka do treningu
+
+Po wygenerowaniu planu nad przyciskiem „Zapisz trening" pojawia się pole notatki. Możesz wpisać dowolny komentarz po sesji — np.:
+
+- *„za dużo ćwiczeń, byłem wykończony"* → Claude wygeneruje mniej ćwiczeń przy kolejnym planie
+- *„za mało, miałem dużo energii"* → Claude doda więcej ćwiczeń
+- *„bolało kolano przy martwym ciągu"* → Claude uniknie ćwiczeń obciążających kolana
+- *„świetna sesja, dobry ciężar"* → Claude utrzyma podobną intensywność
+
+Notatka jest zapisywana razem z treningiem i widoczna w historii. Claude czyta **ostatnią notatkę dla danego typu** (Push/Pull/Legs) przy każdym kolejnym generowaniu planu.
+
+---
+
 ## 📦 Plan offline
 
 Gdy nie masz dostępu do internetu lub nie chcesz korzystać z API:
@@ -116,9 +131,9 @@ Gdy nie masz dostępu do internetu lub nie chcesz korzystać z API:
 3. Aplikacja wybiera plan z wbudowanej bazy — **inteligentnie**, tzn. preferuje ćwiczenia i partie mięśniowe których nie robiłeś w ostatnich 7 dniach
 4. Plan działa tak samo jak plan z AI — timer, zapis, statystyki
 
-Baza zawiera 30 gotowych planów (10 × Push, 10 × Pull, 10 × Legs) oraz 279 ćwiczeń zmapowanych na 25 głów mięśniowych. Warianty planów obejmują: klasyczne, siłowe, na rzeźbę, bez sztangi, cable i maszyny, z superseriami, jednonóż, sumo, izolację bicepsa i inne.
+Baza zawiera **30 gotowych planów** (10 × Push, 10 × Pull, 10 × Legs) z **7-8 ćwiczeniami dla Push/Pull** i **8-9 ćwiczeniami dla Legs**, oraz **276 ćwiczeń** zmapowanych na 25 głów mięśniowych. Warianty planów obejmują: klasyczne, siłowe, na rzeźbę, bez sztangi, cable i maszyny, z superseriami, jednonóż, sumo, izolację bicepsa i inne.
 
-Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
+> Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
 
 ---
 
