@@ -133,6 +133,26 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .kg-input-wrap { display: flex; align-items: center; padding: 4px 4px 4px 10px; background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); transition: all 0.2s; }
 .kg-input-wrap:focus-within { border-color: var(--pull); box-shadow: 0 0 0 3px rgba(74,142,255,0.12); }
 .kg-unit { font-size: 11px; color: var(--text-dim); padding: 0 8px 0 2px; font-weight: 500; }
+
+/* ===== OSTATNI CIĘŻAR + TOGGLE SZTANGA/HANTLE ===== */
+.last-weight-hint {
+  font-size: 10px; color: var(--accent); font-weight: 600;
+  text-align: center; margin-top: 2px; letter-spacing: 0.2px;
+}
+.eq-toggle {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border-strong); border-radius: 100px;
+  overflow: hidden; margin-top: 4px;
+}
+.eq-toggle-btn {
+  padding: 3px 8px; font-size: 10px; font-weight: 600;
+  background: transparent; color: var(--text-muted); border: none;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+  white-space: nowrap;
+}
+.eq-toggle-btn.active {
+  background: var(--accent); color: #fff;
+}
 .reps-input { width: 50px; padding: 6px 0; border: none; background: transparent; color: var(--text); font-family: inherit; font-size: 14px; font-weight: 500; text-align: center; outline: none; }
 .reps-input::-webkit-outer-spin-button, .reps-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .reps-input[type=number] { -moz-appearance: textfield; }
@@ -586,43 +606,43 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .ex-stat-orm-value .unit { font-size: 11px; color: var(--text-muted); margin-left: 2px; font-weight: 400; }
 .ex-stat-orm-formula { font-size: 10px; color: var(--text-dim); }
 
-/* ===== REST TIMER ===== */
-.rest-timer-bar { background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev2) 100%); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; transition: all 0.3s ease; }
-.rest-timer-bar.active { border-color: var(--pull); background: linear-gradient(135deg, rgba(74,142,255,0.10) 0%, rgba(74,142,255,0.04) 100%); }
-.rest-timer-bar.finishing { border-color: var(--accent); background: linear-gradient(135deg, rgba(212,255,58,0.14) 0%, rgba(212,255,58,0.06) 100%); animation: timerPulse 0.6s ease infinite; }
-@keyframes timerPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.005); } }
-.rest-timer-row { display: flex; align-items: center; gap: 12px; }
-.rest-timer-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-elev2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; font-size: 18px; color: var(--text-muted); }
-.rest-timer-bar.active .rest-timer-icon { background: rgba(74,142,255,0.15); color: var(--pull); }
-.rest-timer-bar.finishing .rest-timer-icon { background: var(--accent-soft); color: var(--accent); }
-.rest-timer-info { flex: 1; min-width: 0; }
-.rest-timer-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
-.rest-timer-display { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 600; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
-.rest-timer-bar.finishing .rest-timer-display { color: var(--accent); }
-.rest-timer-presets { display: flex; gap: 4px; flex-shrink: 0; }
-.rest-preset-btn { padding: 7px 12px; border-radius: 100px; border: 1px solid var(--border-strong); background: var(--bg-elev2); color: var(--text-muted); font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; min-width: 42px; }
-.rest-preset-btn:hover { color: var(--text); border-color: var(--text-muted); }
-.rest-preset-btn.active { background: var(--pull); color: white; border-color: var(--pull); }
-.rest-timer-controls { display: flex; gap: 4px; flex-shrink: 0; }
-.rest-control-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-elev2); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
-.rest-control-btn:hover { background: var(--bg-hover); border-color: var(--text-muted); }
-.rest-control-btn.primary { background: var(--pull); color: white; border-color: var(--pull); }
-.rest-control-btn.primary:hover { opacity: 0.85; }
-.rest-control-btn.danger:hover { background: rgba(239,68,68,0.15); border-color: var(--danger); color: var(--danger); }
-.rest-progress-bar { height: 3px; background: rgba(255,255,255,0.05); border-radius: 100px; margin-top: 12px; overflow: hidden; }
-.rest-progress-fill { height: 100%; background: var(--pull); border-radius: 100px; transition: width 1s linear, background-color 0.3s; width: 0%; }
-.rest-timer-bar.finishing .rest-progress-fill { background: var(--accent); }
-.rest-settings-row { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); flex-wrap: wrap; }
-.rest-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg-elev2); border: 1px solid var(--border-strong); border-radius: 100px; font-size: 11px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; }
-.rest-toggle:hover { color: var(--text); border-color: var(--text-muted); }
-.rest-toggle.on { background: rgba(74,142,255,0.15); border-color: var(--pull); color: var(--pull); }
-.rest-toggle i { font-size: 13px; }
-@media (max-width: 600px) {
-  .rest-timer-row { flex-wrap: wrap; }
-  .rest-timer-info { flex: 1 0 calc(100% - 50px); }
-  .rest-timer-presets { flex: 1 0 100%; justify-content: space-between; margin-top: 10px; }
-  .rest-preset-btn { flex: 1; }
-  .rest-timer-controls { flex: 1 0 100%; justify-content: center; margin-top: 10px; }
+/* ===== FLOATING REST TIMER FAB ===== */
+#restTimerFab {
+  position: fixed; bottom: 88px; right: 16px; z-index: 1000;
+  display: none; flex-direction: column; align-items: center; gap: 10px;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.4));
+}
+.fab-ring-wrap {
+  position: relative; width: 80px; height: 80px; cursor: pointer;
+}
+.fab-ring-wrap svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.fab-bg-circle { fill: var(--bg-elev2); stroke: var(--border-strong); stroke-width: 3; }
+.fab-ring {
+  fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.3s;
+}
+.fab-ring.finishing { stroke: #ef4444; animation: fabPulse 0.6s ease infinite; }
+@keyframes fabPulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+.fab-inner {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+}
+.fab-countdown {
+  font-family: 'Space Grotesk', sans-serif; font-size: 19px;
+  font-weight: 700; color: var(--text); line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.fab-play-icon { font-size: 13px; color: var(--text-muted); }
+.fab-presets { display: flex; gap: 5px; }
+.fab-preset-btn {
+  padding: 5px 10px; font-size: 11px; font-weight: 700;
+  border-radius: 100px; border: 1px solid var(--border-strong);
+  background: var(--bg-elev2); color: var(--text-muted); cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif; transition: all 0.15s;
+  backdrop-filter: blur(8px);
+}
+.fab-preset-btn:hover, .fab-preset-btn.active {
+  background: var(--accent); color: #fff; border-color: var(--accent);
 }
 
 /* ===== EXERCISE PROGRESS PANEL ===== */
@@ -828,40 +848,23 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
   </div>
 
-    <!-- REST TIMER -->
-  <div class="rest-timer-bar" id="restTimer" style="display:none;">
-    <div class="rest-timer-row">
-      <div class="rest-timer-icon" id="restTimerIcon"><i class="ti ti-clock"></i></div>
-      <div class="rest-timer-info">
-        <div class="rest-timer-label" id="restTimerLabel">Przerwa między seriami</div>
-        <div class="rest-timer-display" id="restTimerDisplay">1:30</div>
-      </div>
-      <div class="rest-timer-presets">
-        <button class="rest-preset-btn" data-sec="60" onclick="setRestPreset(60)">60s</button>
-        <button class="rest-preset-btn active" data-sec="90" onclick="setRestPreset(90)">90s</button>
-        <button class="rest-preset-btn" data-sec="120" onclick="setRestPreset(120)">2min</button>
-        <button class="rest-preset-btn" data-sec="180" onclick="setRestPreset(180)">3min</button>
-      </div>
-      <div class="rest-timer-controls">
-        <button class="rest-control-btn primary" id="restStartBtn" onclick="toggleRestTimer()" aria-label="Start/Pauza">
-          <i class="ti ti-player-play" id="restStartIcon"></i>
-        </button>
-        <button class="rest-control-btn danger" onclick="stopRestTimer()" aria-label="Zatrzymaj">
-          <i class="ti ti-x"></i>
-        </button>
+  <!-- FLOATING REST TIMER FAB -->
+  <div id="restTimerFab" style="display:none;">
+    <div class="fab-ring-wrap" onclick="toggleRestTimer()" title="Start/Pauza">
+      <svg viewBox="0 0 80 80" width="80" height="80">
+        <circle class="fab-bg-circle" cx="40" cy="40" r="36"/>
+        <circle class="fab-ring" id="fabRing" cx="40" cy="40" r="36"
+          stroke-dasharray="226" stroke-dashoffset="0"/>
+      </svg>
+      <div class="fab-inner">
+        <div class="fab-countdown" id="fabCountdown">1:30</div>
+        <div class="fab-play-icon"><i class="ti ti-player-play" id="fabPlayIcon"></i></div>
       </div>
     </div>
-    <div class="rest-progress-bar"><div class="rest-progress-fill" id="restProgressFill"></div></div>
-    <div class="rest-settings-row">
-      <button class="rest-toggle on" id="restToggleVoice" onclick="toggleRestSetting('voice')">
-        <i class="ti ti-microphone"></i><span>Głos</span>
-      </button>
-      <button class="rest-toggle on" id="restToggleSound" onclick="toggleRestSetting('sound')">
-        <i class="ti ti-bell"></i><span>Dźwięk</span>
-      </button>
-      <button class="rest-toggle on" id="restToggleVibrate" onclick="toggleRestSetting('vibrate')">
-        <i class="ti ti-device-mobile"></i><span>Wibracja</span>
-      </button>
+    <div class="fab-presets">
+      <button class="fab-preset-btn" data-sec="60" onclick="setRestPreset(60);event.stopPropagation()">60s</button>
+      <button class="fab-preset-btn active" data-sec="90" onclick="setRestPreset(90);event.stopPropagation()">90s</button>
+      <button class="fab-preset-btn" data-sec="120" onclick="setRestPreset(120);event.stopPropagation()">120s</button>
     </div>
   </div>
 
@@ -1687,9 +1690,9 @@ Dostosuj plan do celu:
 ZASADY:
 - DOKŁADNIE 7 ćwiczeń (nie więcej, nie mniej)
 - Ćwiczenia ułóż W KOLEJNOŚCI WG PARTII MIĘŚNIOWYCH (klasterowo, nie pomieszane):
-  * Push: najpierw 3-4 ćwiczenia na klatkę → potem 2 na barki → na końcu 1-2 na triceps
-  * Pull: najpierw 3-4 ćwiczenia na plecy → potem 2-3 na biceps → opcjonalnie 1 na tylne barki
-  * Legs: 2-3 na czworogłowy → 1-2 na hamstring → 1-2 na pośladki → 1 na łydki
+  * Push: 3 ćwiczenia na klatkę → 2 na barki (przednie/boczne) → 2 na triceps
+  * Pull: 3 ćwiczenia na plecy → 2 na TYLNE BARKI (face pull, odwrotne rozpiętki) → 2 na biceps
+  * Legs: 5-6 ćwiczeń: 2 quad dominant (przysiad/hack/leg press, łącznie 6-8 serii) + 1-2 hamstring/pośladki (RDL/leg curl/hip thrust, 6-8 serii) + 1 jednostronne (wykroki/bulgarian, 2-4 serie) + łydki (3-4 serie)
 - Plan MUSI być zróżnicowany i INNY niż poprzednie z tej kategorii: ${recentNames}
 ${lastNote ? `- WAŻNE: Użytkownik po ostatnim treningu napisał: "${lastNote}". Uwzględnij to przy planowaniu (np. jeśli napisał "za dużo ćwiczeń" — daj mniej, jeśli "za mało" — daj więcej, jeśli "bolało kolano" — unikaj ćwiczeń obciążających kolana).` : ''}
 - Rotuj między ćwiczeniami sztangowymi, hantlowymi, na maszynach i na wyciągach
@@ -1790,6 +1793,8 @@ function renderExercises(exs) {
     list.innerHTML = '<div class="empty"><i class="ti ti-barbell"></i><p>Wygeneruj plan treningowy klikając "Generuj plan"</p></div>';
     exerciseGroups = [];
     currentMuscleGroupIndex = 0;
+    const _saveBtnE = document.getElementById('saveBtn');
+    if (_saveBtnE) _saveBtnE.style.display = '';
     return;
   }
   // Pogrupuj ćwiczenia wg partii
@@ -1799,6 +1804,55 @@ function renderExercises(exs) {
 }
 
 // Renderuje TYLKO aktualną partię mięśniową
+// ============ LAST WEIGHT + EQUIPMENT TOGGLE ============
+// Klucz: 'eq_{nazwaĆwiczenia}' → 'bar' lub 'db' (barbell/dumbbell)
+function getEquipmentPref(exerciseName) {
+  try {
+    const k = 'eq_' + exerciseName.toLowerCase().replace(/\s+/g, '_').slice(0, 40);
+    return localStorage.getItem(k) || 'bar';
+  } catch { return 'bar'; }
+}
+
+function setEquipmentPref(exerciseName, type) {
+  try {
+    const k = 'eq_' + exerciseName.toLowerCase().replace(/\s+/g, '_').slice(0, 40);
+    localStorage.setItem(k, type);
+  } catch {}
+}
+
+// Pobierz ostatni ciężar dla ćwiczenia z historii aktualnego profilu
+function getLastWeight(exerciseName) {
+  const p = getCurrentProfile();
+  if (!p || !p.history) return null;
+  for (const w of p.history) {
+    const ex = w.exercises && w.exercises.find(e =>
+      e.name && e.name.toLowerCase() === exerciseName.toLowerCase()
+    );
+    if (ex && ex.kg > 0) return ex.kg;
+  }
+  return null;
+}
+
+// Toggle sprzętu wywoływany z onclick na karcie
+function toggleEquipment(i, exerciseName) {
+  const curr = getEquipmentPref(exerciseName);
+  const next = curr === 'bar' ? 'db' : 'bar';
+  setEquipmentPref(exerciseName, next);
+  // Aktualizuj UI
+  const btnBar = document.getElementById('eqBar_' + i);
+  const btnDb = document.getElementById('eqDb_' + i);
+  if (btnBar) btnBar.classList.toggle('active', next === 'bar');
+  if (btnDb) btnDb.classList.toggle('active', next === 'db');
+  // Odśwież hint z ciężarem
+  const hint = document.getElementById('lastHint_' + i);
+  if (hint) {
+    const lastKg = getLastWeight(exerciseName);
+    hint.textContent = lastKg !== null
+      ? 'ostatnio: ' + lastKg + ' kg (' + (next === 'bar' ? 'sztanga' : 'hantle') + ')'
+      : '';
+  }
+}
+
 function renderCurrentMuscleGroup() {
   const list = document.getElementById('exerciseList');
   if (!list || !exerciseGroups.length) return;
@@ -1856,6 +1910,17 @@ function renderCurrentMuscleGroup() {
               oninput="updateTotal(${i})" placeholder="0" aria-label="Kilogramy">
             <span class="kg-unit">kg</span>
           </div>
+          ${(() => {
+            const lastKg = getLastWeight(ex.name);
+            const eq = getEquipmentPref(ex.name);
+            return `<div class="eq-toggle">
+            <button class="eq-toggle-btn ${eq === 'bar' ? 'active' : ''}" id="eqBar_${i}"
+              onclick="toggleEquipment(${i}, '${ex.name.replace(/'/g, "\'")}')">SZT</button>
+            <button class="eq-toggle-btn ${eq === 'db' ? 'active' : ''}" id="eqDb_${i}"
+              onclick="toggleEquipment(${i}, '${ex.name.replace(/'/g, "\'")}')">HAN</button>
+          </div>
+          <div class="last-weight-hint" id="lastHint_${i}">${lastKg !== null ? 'ostatnio: ' + lastKg + ' kg' : ''}</div>`;
+          })()}
         </div>
       </div>
       <div class="total-display" id="total_${i}">— rep</div>
@@ -1875,6 +1940,10 @@ function renderCurrentMuscleGroup() {
   `;
 
   list.innerHTML = html;
+
+  // Ukryj "Zapisz trening" — zastąpiony przez "Zakończ trening"
+  const _saveBtnP = document.getElementById('saveBtn');
+  if (_saveBtnP) _saveBtnP.style.display = 'none';
 
   // Przywróć wartości z currentExercises do inputów (jeśli były wpisane)
   group.exercises.forEach(ex => {
@@ -2152,6 +2221,22 @@ function saveWorkout() {
   const savedDate = entry.date.split(',')[0] || entry.date.split(' ')[0];
   showToast(`Trening zapisany! ${totalReps} rep${durStr}`, 'success');
   initWorkoutDateInput(); // Reset daty na dziś po zapisie
+  // Wyczyść ekran po zapisaniu
+  currentExercises = [];
+  exerciseGroups = [];
+  currentMuscleGroupIndex = 0;
+  renderExercises([]);
+  const _progAfter = document.getElementById('exercisesProgress');
+  if (_progAfter) _progAfter.classList.remove('visible');
+  document.getElementById('saveBtn').disabled = true;
+  document.getElementById('saveBtn').style.display = '';
+  const _discAfter = document.getElementById('discardBtn');
+  if (_discAfter) _discAfter.style.display = 'none';
+  const _noteAfter = document.getElementById('workoutNoteSection');
+  if (_noteAfter) _noteAfter.classList.remove('visible');
+  const _dateAfter = document.getElementById('workoutDateCompact');
+  if (_dateAfter) _dateAfter.style.display = 'none';
+  document.getElementById('genBtnText').textContent = 'Generuj plan';
 
   // Konfetti - mała nagroda za ukończony trening
   if (typeof confetti === 'function') {
@@ -3143,43 +3228,39 @@ function formatDuration(seconds) {
 
 // ============ REST TIMER ============
 function showRestTimerBar() {
-  const bar = document.getElementById('restTimer');
-  bar.style.display = 'block';
+  const fab = document.getElementById('restTimerFab');
+  if (!fab) return;
+  fab.style.display = 'flex';
   if (restPrefs.duration) {
     restDuration = restPrefs.duration;
     restRemaining = restPrefs.duration;
-    document.querySelectorAll('.rest-preset-btn').forEach(b => {
+    document.querySelectorAll('.fab-preset-btn').forEach(b => {
       b.classList.toggle('active', parseInt(b.dataset.sec) === restPrefs.duration);
     });
   }
-  ['voice', 'sound', 'vibrate'].forEach(k => {
-    const el = document.getElementById('restToggle' + k.charAt(0).toUpperCase() + k.slice(1));
-    if (el) el.classList.toggle('on', restPrefs[k]);
-  });
   updateRestDisplay();
 }
 
 function hideRestTimerBar() {
-  const bar = document.getElementById('restTimer');
-  if (bar) bar.style.display = 'none';
+  const fab = document.getElementById('restTimerFab');
+  if (fab) fab.style.display = 'none';
+  stopRestTimer();
 }
 
 function setRestPreset(sec) {
-  document.querySelectorAll('.rest-preset-btn').forEach(b => {
+  document.querySelectorAll('.fab-preset-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.sec) === sec);
   });
   restDuration = sec;
   restRemaining = sec;
   restPrefs.duration = sec;
   saveTimerPrefs();
-  if (restInterval) {
-    clearInterval(restInterval);
-    restInterval = null;
-    restPaused = true;
-    setRestStartIcon('play');
-  }
+  if (restInterval) { clearInterval(restInterval); restInterval = null; }
+  restPaused = true;
+  setRestStartIcon('play');
   updateRestDisplay();
-  document.getElementById('restTimer').classList.remove('active', 'finishing');
+  const ring = document.getElementById('fabRing');
+  if (ring) ring.classList.remove('finishing');
 }
 
 function toggleRestTimer() {
@@ -3190,16 +3271,14 @@ function startRestTimer() {
   if (restRemaining <= 0) restRemaining = restDuration;
   restPaused = false;
   setRestStartIcon('pause');
-  document.getElementById('restTimer').classList.add('active');
-  document.getElementById('restTimer').classList.remove('finishing');
-  document.getElementById('restTimerLabel').textContent = 'Przerwa - trwa odliczanie';
   getAudioCtx();
   if (restInterval) clearInterval(restInterval);
   restInterval = setInterval(() => {
     restRemaining--;
     updateRestDisplay();
     if (restRemaining <= 5 && restRemaining > 0) {
-      document.getElementById('restTimer').classList.add('finishing');
+      const ring = document.getElementById('fabRing');
+      if (ring) ring.classList.add('finishing');
     }
     if (restRemaining <= 0) finishRestTimer();
   }, 1000);
@@ -3209,7 +3288,6 @@ function pauseRestTimer() {
   restPaused = true;
   if (restInterval) { clearInterval(restInterval); restInterval = null; }
   setRestStartIcon('play');
-  document.getElementById('restTimerLabel').textContent = 'Przerwa - wstrzymana';
 }
 
 function stopRestTimer() {
@@ -3217,12 +3295,8 @@ function stopRestTimer() {
   restPaused = true;
   restRemaining = restDuration;
   setRestStartIcon('play');
-  const bar = document.getElementById('restTimer');
-  if (bar) {
-    bar.classList.remove('active', 'finishing');
-    const label = document.getElementById('restTimerLabel');
-    if (label) label.textContent = 'Przerwa między seriami';
-  }
+  const ring = document.getElementById('fabRing');
+  if (ring) ring.classList.remove('finishing');
   updateRestDisplay();
 }
 
@@ -3232,45 +3306,36 @@ function finishRestTimer() {
   restPaused = true;
   restRemaining = restDuration;
   setRestStartIcon('play');
-  const bar = document.getElementById('restTimer');
-  bar.classList.remove('active');
-  bar.classList.remove('finishing');
-  document.getElementById('restTimerLabel').textContent = 'Koniec przerwy - wracaj do treningu!';
+  const ring = document.getElementById('fabRing');
+  if (ring) ring.classList.remove('finishing');
   updateRestDisplay();
   if (restPrefs.sound) playRestEndSound();
-  if (restPrefs.vibrate && navigator.vibrate) {
-    navigator.vibrate([200, 100, 200, 100, 200]);
-  }
+  if (restPrefs.vibrate && navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
   if (restPrefs.voice) speakRestEnd();
-  setTimeout(() => {
-    const label = document.getElementById('restTimerLabel');
-    if (label && !restInterval) label.textContent = 'Przerwa między seriami';
-  }, 5000);
 }
 
 function updateRestDisplay() {
   const min = Math.floor(restRemaining / 60);
   const sec = restRemaining % 60;
   const display = min + ':' + sec.toString().padStart(2, '0');
-  const el = document.getElementById('restTimerDisplay');
+  const el = document.getElementById('fabCountdown');
   if (el) el.textContent = display;
-  const fill = document.getElementById('restProgressFill');
-  if (fill) {
-    const pct = ((restDuration - restRemaining) / restDuration) * 100;
-    fill.style.width = pct + '%';
+  // SVG pierścień — stroke-dashoffset: 0 = pełny, 226 = pusty
+  const ring = document.getElementById('fabRing');
+  if (ring && restDuration > 0) {
+    const pct = restRemaining / restDuration;
+    ring.style.strokeDashoffset = (226 * (1 - pct)).toString();
   }
 }
 
 function setRestStartIcon(type) {
-  const icon = document.getElementById('restStartIcon');
+  const icon = document.getElementById('fabPlayIcon');
   if (!icon) return;
   icon.className = type === 'pause' ? 'ti ti-player-pause' : 'ti ti-player-play';
 }
 
 function toggleRestSetting(key) {
   restPrefs[key] = !restPrefs[key];
-  const el = document.getElementById('restToggle' + key.charAt(0).toUpperCase() + key.slice(1));
-  if (el) el.classList.toggle('on', restPrefs[key]);
   saveTimerPrefs();
   if (restPrefs[key]) {
     if (key === 'sound') playTestPing();
