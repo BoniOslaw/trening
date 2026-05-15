@@ -10,7 +10,8 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 
 ### 🎯 Plany treningowe
 - **3 typy treningu:** Push (klatka, barki, triceps) / Pull (plecy, biceps) / Legs (nogi, dolny odcinek pleców)
-- **Generowanie planu przez Claude AI** — 7-8 ćwiczeń (Push/Pull) lub 8-9 ćwiczeń (Legs), dobrane zgodnie z wiedzą naukową, z opisem techniki wykonania
+- **Generowanie planu przez Claude AI** — 7 ćwiczeń, pogrupowanych klasterowo wg partii mięśniowych, z opisem techniki wykonania
+- **Nawigacja po partiach mięśniowych** — ćwiczenia podzielone na grupy (np. klatka → barki → triceps), przechodź przez nie kolejno przyciskami
 - **Spersonalizowane plany** — Claude analizuje Twoją historię treningów i dobiera ćwiczenia pod Twój poziom zaawansowania
 - **Zróżnicowanie ćwiczeń** — aplikacja nie powtarza tych samych ćwiczeń przy kolejnych sesjach tego samego typu
 - **Wskazówki techniczne** przy każdym ćwiczeniu
@@ -21,26 +22,28 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 ### 📝 Rejestrowanie treningu
 - **Powtórzenia × serie** — wpisujesz liczbę powtórzeń, aplikacja liczy łączną sumę automatycznie
 - **Ciężar w kg** — śledzenie postępu obciążeń
+- **🏷️ Hint ostatniego ciężaru** — pod polem ciężaru wyświetla się szary tekst z ostatnio używanym obciążeniem (np. `🏋️ ostatnio: 80 kg`), a przy pierwszym użyciu ćwiczenia — sugerowany ciężar startowy. Typ sprzętu (sztanga / hantle / maszyna / drążek) wykrywany automatycznie z nazwy ćwiczenia
 - **💪 Kalkulator 1RM** — szacowany maksymalny ciężar jednopowtórzeniowy (wzory Brzycki i Epley)
 - **⏱️ Stoper czasu treningu** — mierzy czas całej sesji od wygenerowania planu do zapisu
 - **📅 Wybór daty treningu** — możliwość wpisania treningu z poprzedniego dnia gdy zapomnisz uruchomić aplikację na siłowni
-- **⏰ Timer odpoczynku** z ustawieniami 60 s / 90 s / 2 min / 3 min (domyślny preset dostosowany do wybranego celu)
+- **⏰ Timer odpoczynku (FAB)** z presetami 60 s / 90 s / 120 s (domyślny preset dostosowany do wybranego celu), SVG pierścień wizualizujący upływający czas
+- **🖐️ Przeciągany timer** — timer można swobodnie przesuwać palcem po ekranie, pozycja zapamiętywana między sesjami
 - **🎤 Komunikat głosowy po polsku** — informuje o końcu przerwy (Web Speech API)
 - **🔔 Dźwięk dzwonka i wibracja** — konfigurowalne niezależnie
 - **💾 Automatyczny zapis roboczy** — odświeżenie strony przywraca poprzedni trening automatycznie
 - **⚠️ Przypomnienie o zapisaniu** — pojawia się gdy wszystkie pola są wypełnione
-- **📊 Pasek postępu ćwiczeń** — pokazuje ile ćwiczeń zostało wypełnionych (np. 3/8)
+- **📊 Pasek postępu ćwiczeń** — pokazuje ile ćwiczeń zostało wypełnionych (np. 3/7)
 - **🚫 Zakończ bez zapisywania** — czerwony przycisk obok „Zapisz trening", czyści plan bez wpisu do historii
 - **📝 Notatka do treningu** — pole tekstowe po sesji z feedbackiem (np. „za dużo ćwiczeń", „bolało kolano"); Claude uwzględnia ją przy kolejnym planie tego samego typu
 
 ### 📊 Analiza i statystyki
 - **Statystyki tygodniowe** — liczba treningów, powtórzeń, wartości średnie
-- **Wykres ostatnich 14 dni** — podział na Push / Pull / Legs
+- **Wykres ostatnich 45 dni** — podział na Push / Pull / Legs
 - **Analiza wybranego ćwiczenia** — rekord, średnia, trend ciężaru
 - **🔥 Najlepszy 1RM** — historyczny rekord siły dla każdego ćwiczenia
 - **Wykres progresji ciężaru** dla wybranego ćwiczenia
 - **🧠 AI Coach** — Claude analizuje historię treningów i wskazuje stagnację, postępy oraz sugestie zwiększenia obciążenia
-- **💪 Statystyki głów mięśniowych** — podział na klatka górna/środkowa/dolna, biceps długa/krótka głowa, plecy szerokie/środkowe, czworogłowy, hamstring i inne (ostatnie 30 dni)
+- **💪 Statystyki partii mięśniowych** — podział na klatka górna/środkowa/dolna, biceps długa/krótka głowa, plecy szerokie/środkowe, czworogłowy, hamstring i inne (ostatnie 45 dni)
 
 ### 📥 Import treningu
 - **Import z tekstu (AI)** — wklej opis treningu w dowolnym formacie, a Claude rozpozna wszystkie dane
@@ -91,9 +94,30 @@ Cel jest zapisany w profilu. Aplikacja przypomni o jego weryfikacji co 4 tygodni
    - Utwórz klucz na [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys
    - Wymagane doładowanie konta (minimum 5 USD)
 4. Wybierz typ treningu (Push / Pull / Legs) i cel
-5. Kliknij **Generuj plan** — 5 ćwiczeń pojawi się w ciągu 2–3 sekund
-6. Ćwicz — wpisuj powtórzenia i ciężary, korzystaj z timera odpoczynku
-7. Kliknij **Zapisz trening** — dane trafią do historii wraz z datą i czasem trwania sesji
+5. Kliknij **Generuj plan** — plan pojawi się w ciągu 2–3 sekund
+6. Ćwicz — przechodź przez partie mięśniowe, wpisuj powtórzenia i ciężary, korzystaj z timera odpoczynku
+7. Po ostatniej partii kliknij **Zakończ trening** — dane trafią do historii wraz z datą i czasem trwania sesji
+
+---
+
+## 🏋️ Nawigacja po partiach mięśniowych
+
+Po wygenerowaniu planu ćwiczenia są pogrupowane wg partii (np. klatka → barki → triceps dla Push). Aplikacja pokazuje je po jednej grupie na raz:
+
+- Przycisk **Dalej** → przejdź do kolejnej partii (wartości wpisane w poprzedniej są zapamiętane)
+- Przycisk **Poprzednia** → wróć i popraw
+- Na ostatniej partii pojawia się przycisk **Zakończ trening** — zapisuje wyniki wszystkich partii
+
+---
+
+## ⏰ Timer odpoczynku
+
+Timer wyświetla się jako pływający element (FAB) z wizualnym pierścieniem SVG. Możesz go **przesunąć palcem** w dowolne miejsce ekranu — pozycja jest zapamiętywana.
+
+- **60 s / 90 s / 120 s** — szybkie presety
+- **Start / Pauza** — kliknięcie pierścienia
+- **Głos, dźwięk, wibracja** — konfigurowalne niezależnie
+- Domyślny preset dobierany automatycznie wg wybranego celu treningowego
 
 ---
 
@@ -102,7 +126,7 @@ Cel jest zapisany w profilu. Aplikacja przypomni o jego weryfikacji co 4 tygodni
 Jeśli zapomniałeś uruchomić aplikację na siłowni:
 
 1. Wygeneruj plan normalnie (Push / Pull / Legs)
-2. Tuż nad przyciskiem **Zapisz trening** znajdziesz pole **Data treningu**
+2. Tuż nad listą ćwiczeń znajdziesz pole **Data treningu**
 3. Kliknij w datę i wybierz właściwy dzień
 4. Pojawi się badge **„zmieniono"** — aplikacja wie że wpisujesz trening wsteczny
 5. Wpisz wyniki i zapisz — trening trafi do historii z właściwą datą
@@ -111,7 +135,7 @@ Jeśli zapomniałeś uruchomić aplikację na siłowni:
 
 ## 📝 Notatka do treningu
 
-Po wygenerowaniu planu nad przyciskiem „Zapisz trening" pojawia się pole notatki. Możesz wpisać dowolny komentarz po sesji — np.:
+Po wygenerowaniu planu nad przyciskiem „Zakończ trening" pojawia się pole notatki. Możesz wpisać dowolny komentarz po sesji — np.:
 
 - *„za dużo ćwiczeń, byłem wykończony"* → Claude wygeneruje mniej ćwiczeń przy kolejnym planie
 - *„za mało, miałem dużo energii"* → Claude doda więcej ćwiczeń
@@ -131,7 +155,7 @@ Gdy nie masz dostępu do internetu lub nie chcesz korzystać z API:
 3. Aplikacja wybiera plan z wbudowanej bazy — **inteligentnie**, tzn. preferuje ćwiczenia i partie mięśniowe których nie robiłeś w ostatnich 7 dniach
 4. Plan działa tak samo jak plan z AI — timer, zapis, statystyki
 
-Baza zawiera **30 gotowych planów** (10 × Push, 10 × Pull, 10 × Legs) z **7-8 ćwiczeniami dla Push/Pull** i **8-9 ćwiczeniami dla Legs**, oraz **276 ćwiczeń** zmapowanych na 25 głów mięśniowych. Warianty planów obejmują: klasyczne, siłowe, na rzeźbę, bez sztangi, cable i maszyny, z superseriami, jednonóż, sumo, izolację bicepsa i inne.
+Baza zawiera **30 gotowych planów** (10 × Push, 10 × Pull, 10 × Legs) oraz **276 ćwiczeń** zmapowanych na 25 głów mięśniowych.
 
 > Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
 
@@ -219,7 +243,7 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 
 ```
 trening/
-├── index.html              # Główny plik aplikacji (~150 KB)
+├── index.html              # Główny plik aplikacji (~175 KB)
 ├── db.js                   # Baza planów offline + słownik głów mięśniowych
 ├── manifest.json           # Konfiguracja PWA
 ├── sw.js                   # Service Worker (offline i automatyczne aktualizacje)
