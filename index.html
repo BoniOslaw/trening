@@ -134,24 +134,11 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .kg-input-wrap:focus-within { border-color: var(--pull); box-shadow: 0 0 0 3px rgba(74,142,255,0.12); }
 .kg-unit { font-size: 11px; color: var(--text-dim); padding: 0 8px 0 2px; font-weight: 500; }
 
-/* ===== OSTATNI CIĘŻAR + TOGGLE SZTANGA/HANTLE ===== */
+/* ===== OSTATNI CIĘŻAR HINT ===== */
 .last-weight-hint {
-  font-size: 10px; color: var(--accent); font-weight: 600;
-  text-align: center; margin-top: 2px; letter-spacing: 0.2px;
-}
-.eq-toggle {
-  display: flex; align-items: center; gap: 0;
-  border: 1px solid var(--border-strong); border-radius: 100px;
-  overflow: hidden; margin-top: 4px;
-}
-.eq-toggle-btn {
-  padding: 3px 8px; font-size: 10px; font-weight: 600;
-  background: transparent; color: var(--text-muted); border: none;
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
-  white-space: nowrap;
-}
-.eq-toggle-btn.active {
-  background: var(--accent); color: #fff;
+  font-size: 10px; color: var(--text-muted); font-weight: 500;
+  text-align: center; margin-top: 3px; letter-spacing: 0.1px;
+  min-height: 14px;
 }
 .reps-input { width: 50px; padding: 6px 0; border: none; background: transparent; color: var(--text); font-family: inherit; font-size: 14px; font-weight: 500; text-align: center; outline: none; }
 .reps-input::-webkit-outer-spin-button, .reps-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -948,7 +935,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <div style="margin-top: 1rem; margin-bottom: 2rem;">
       <div class="panel">
       <div class="panel-title">
-        <i class="ti ti-chart-line"></i>Postępy (ostatnie 14 dni)
+        <i class="ti ti-chart-line"></i>Postępy (ostatnie 45 dni)
       </div>
       <div class="chart-wrap">
         <canvas id="progressChart"></canvas>
@@ -959,7 +946,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 
     <!-- PARTIE MIĘŚNIOWE -->
   <div class="section-divider">
-    <div class="section-divider-title">Partie mięśniowe (ostatnie 30 dni)</div>
+    <div class="section-divider-title">Partie mięśniowe (ostatnie 45 dni)</div>
   </div>
   <div id="muscleStatsContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem;"></div>
   </div>
@@ -1820,6 +1807,18 @@ function setEquipmentPref(exerciseName, type) {
   } catch {}
 }
 
+// Wykryj typ sprzętu z nazwy ćwiczenia
+function detectEquipmentFromName(name) {
+  const n = name.toLowerCase();
+  if (/sztang[ai]|barbell|olimp/.test(n)) return '🏋️';
+  if (/hantle[lk]?|dumbbell|jednoręcz/.test(n)) return '⚙️';
+  if (/maszyn[ay]|cable|wyciąg|linki|pulli?ey/.test(n)) return '🔧';
+  if (/drążek|podciąg|pull.?up|chin.?up/.test(n)) return '💪';
+  if (/gryf|ez.?bar|curl.?bar/.test(n)) return '🏋️';
+  if (/kettlebell|kettle/.test(n)) return '🔔';
+  return '';
+}
+
 // Pobierz ostatni ciężar dla ćwiczenia z historii aktualnego profilu
 function getLastWeight(exerciseName) {
   const p = getCurrentProfile();
@@ -1831,6 +1830,26 @@ function getLastWeight(exerciseName) {
     if (ex && ex.kg > 0) return ex.kg;
   }
   return null;
+}
+
+// Zwraca hint z ostatnim ciężarem (do wyświetlenia pod polem kg)
+function getLastWeightHint(exerciseName) {
+  const lastKg = getLastWeight(exerciseName);
+  if (lastKg === null) {
+    // Sugestia startowa na podstawie nazwy
+    const n = exerciseName.toLowerCase();
+    let suggestion = null;
+    if (/wyciskanie sztangi na ławce/.test(n)) suggestion = 60;
+    else if (/wyciskanie sztangi/.test(n)) suggestion = 50;
+    else if (/przysi[aą]d|squat/.test(n)) suggestion = 60;
+    else if (/martwy ci[ąa]g|deadlift/.test(n)) suggestion = 70;
+    else if (/wyciskani[ae]/.test(n)) suggestion = 40;
+    else if (/hantle/.test(n)) suggestion = 12;
+    if (suggestion) return 'sugestia: ~' + suggestion + ' kg';
+    return '';
+  }
+  const eq = detectEquipmentFromName(exerciseName);
+  return (eq ? eq + ' ' : '') + 'ostatnio: ' + lastKg + ' kg';
 }
 
 // Toggle sprzętu wywoływany z onclick na karcie
@@ -1910,17 +1929,7 @@ function renderCurrentMuscleGroup() {
               oninput="updateTotal(${i})" placeholder="0" aria-label="Kilogramy">
             <span class="kg-unit">kg</span>
           </div>
-          ${(() => {
-            const lastKg = getLastWeight(ex.name);
-            const eq = getEquipmentPref(ex.name);
-            return `<div class="eq-toggle">
-            <button class="eq-toggle-btn ${eq === 'bar' ? 'active' : ''}" id="eqBar_${i}"
-              onclick="toggleEquipment(${i}, '${ex.name.replace(/'/g, "\'")}')">SZT</button>
-            <button class="eq-toggle-btn ${eq === 'db' ? 'active' : ''}" id="eqDb_${i}"
-              onclick="toggleEquipment(${i}, '${ex.name.replace(/'/g, "\'")}')">HAN</button>
-          </div>
-          <div class="last-weight-hint" id="lastHint_${i}">${lastKg !== null ? 'ostatnio: ' + lastKg + ' kg' : ''}</div>`;
-          })()}
+          <div class="last-weight-hint" id="lastHint_${i}">${getLastWeightHint(ex.name)}</div>
         </div>
       </div>
       <div class="total-display" id="total_${i}">— rep</div>
@@ -2309,7 +2318,7 @@ function refreshMuscleStats() {
   const container = document.getElementById('muscleStatsContent');
   if (!container) return;
   const p = getCurrentProfile();
-  const thirtyDaysAgo = Date.now() - (30 * 86400000);
+  const thirtyDaysAgo = Date.now() - (45 * 86400000);
   const recentWorkouts = p.history.filter(w => w.timestamp >= thirtyDaysAgo);
   const muscleData = {};
   recentWorkouts.forEach(w => {
@@ -2325,7 +2334,7 @@ function refreshMuscleStats() {
     .map(([key, data]) => ({ key, total: data.total, sessions: data.sessions.size }))
     .sort((a, b) => b.total - a.total);
   if (!entries.length) {
-    container.innerHTML = '<div class="empty" style="grid-column: 1/-1;">Brak danych z ostatnich 30 dni</div>';
+    container.innerHTML = '<div class="empty" style="grid-column: 1/-1;">Brak danych z ostatnich 45 dni</div>';
     return;
   }
   const maxTotal = entries[0].total;
@@ -2399,10 +2408,10 @@ function refreshChart() {
   chartEmpty.style.display = 'none';
   canvas.style.display = 'block';
   
-  // Build last 14 days dataset
+  // Build last 45 days dataset
   const days = [];
   const dayMap = {};
-  for (let i = 13; i >= 0; i--) {
+  for (let i = 44; i >= 0; i--) {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - i);
@@ -2592,7 +2601,7 @@ function restoreDraft() {
     document.querySelectorAll('.tab').forEach(t => {
       t.classList.toggle('active', t.dataset.type === currentType);
     });
-    updateTabColors();
+    if (typeof updateTabColors === 'function') updateTabColors();
     // Wyrenderuj ćwiczenia (grupuje w partie)
     renderExercises(currentExercises);
     // Wpisz wartości do _userReps/_userKg we wszystkich grupach
@@ -3231,6 +3240,10 @@ function showRestTimerBar() {
   const fab = document.getElementById('restTimerFab');
   if (!fab) return;
   fab.style.display = 'flex';
+  // Ustaw position:fixed jeśli jeszcze nie ustawione przez drag
+  if (!fab.style.position || fab.style.position !== 'fixed') {
+    fab.style.position = 'fixed';
+  }
   if (restPrefs.duration) {
     restDuration = restPrefs.duration;
     restRemaining = restPrefs.duration;
@@ -3431,6 +3444,119 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {};
   window.speechSynthesis.getVoices();
 }
+
+// ============ DRAGGABLE REST TIMER FAB ============
+(function initDraggableFab() {
+  const STORAGE_FAB_POS = 'tp_fab_pos_v1';
+
+  function saveFabPos(x, y) {
+    try { localStorage.setItem(STORAGE_FAB_POS, JSON.stringify({x, y})); } catch {}
+  }
+
+  function loadFabPos() {
+    try {
+      const raw = localStorage.getItem(STORAGE_FAB_POS);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return null;
+  }
+
+  function applyFabPos(fab, x, y) {
+    // Ogranicz do granic okna
+    const maxX = window.innerWidth - fab.offsetWidth;
+    const maxY = window.innerHeight - fab.offsetHeight;
+    const cx = Math.max(0, Math.min(x, maxX));
+    const cy = Math.max(0, Math.min(y, maxY));
+    fab.style.left = cx + 'px';
+    fab.style.top = cy + 'px';
+    fab.style.right = 'auto';
+    fab.style.bottom = 'auto';
+  }
+
+  function setupDrag() {
+    const fab = document.getElementById('restTimerFab');
+    if (!fab || fab._dragInit) return;
+    fab._dragInit = true;
+
+    // Przywróć pozycję
+    const saved = loadFabPos();
+    if (saved) {
+      fab.style.position = 'fixed';
+      applyFabPos(fab, saved.x, saved.y);
+    }
+
+    let startX, startY, origX, origY, isDragging = false;
+    let dragMoved = false;
+
+    function onStart(clientX, clientY) {
+      const rect = fab.getBoundingClientRect();
+      startX = clientX;
+      startY = clientY;
+      origX = rect.left;
+      origY = rect.top;
+      isDragging = true;
+      dragMoved = false;
+      fab.style.transition = 'none';
+      fab.style.cursor = 'grabbing';
+    }
+
+    function onMove(clientX, clientY) {
+      if (!isDragging) return;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved = true;
+      applyFabPos(fab, origX + dx, origY + dy);
+    }
+
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      fab.style.cursor = 'grab';
+      fab.style.transition = '';
+      const rect = fab.getBoundingClientRect();
+      saveFabPos(rect.left, rect.top);
+    }
+
+    // Touch events
+    fab.addEventListener('touchstart', (e) => {
+      // Nie blokuj clicków na przyciskach wewnętrznych
+      if (e.target.classList.contains('fab-preset-btn')) return;
+      const t = e.touches[0];
+      onStart(t.clientX, t.clientY);
+    }, { passive: true });
+
+    fab.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const t = e.touches[0];
+      onMove(t.clientX, t.clientY);
+      if (dragMoved) e.preventDefault();
+    }, { passive: false });
+
+    fab.addEventListener('touchend', onEnd);
+    fab.addEventListener('touchcancel', onEnd);
+
+    // Mouse events (desktop)
+    fab.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('fab-preset-btn')) return;
+      if (e.target.closest('.fab-preset-btn')) return;
+      onStart(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => { if (isDragging) onMove(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', onEnd);
+
+    fab.style.cursor = 'grab';
+  }
+
+  // Obserwuj pojawienie się FAB
+  const observer = new MutationObserver(() => {
+    const fab = document.getElementById('restTimerFab');
+    if (fab && fab.style.display !== 'none' && !fab._dragInit) setupDrag();
+  });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+
+  // Też próbuj od razu
+  setTimeout(setupDrag, 200);
+})();
 
 // ============ PWA INSTALL & OFFLINE ============
 let deferredInstallPrompt = null;
