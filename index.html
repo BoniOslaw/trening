@@ -1180,6 +1180,7 @@ let reminderDismissed = false;
 let isAnalyzing = false;
 let importType = 'push';
 let isImporting = false;
+let importAbortController = null;
 let pendingImport = null;
 let importMode = 'text';
 let csvParsedData = null;
@@ -2213,8 +2214,8 @@ function saveWorkout() {
         }
       }
     }
-    const reps = parseInt(userReps) || 0;
-    const kg = parseFloat(userKg) || 0;
+    const reps = Math.min(Math.max(parseInt(userReps) || 0, 0), 9999);
+    const kg = Math.min(Math.max(parseFloat(userKg) || 0, 0), 9999);
     const orm = calculate1RM(kg, reps);
     const sets = parseInt(ex.sets) || 3;
     return { name: ex.name, reps, total: reps * sets, sets, target: ex.reps, kg, orm, muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null };
@@ -2862,6 +2863,8 @@ function renderExerciseStats() {
 }
 
 // ============ AI COACH ============
+let analyzeAbortController = null;
+
 async function analyzeWithAI() {
   if (isAnalyzing) return;
 
@@ -2879,6 +2882,8 @@ async function analyzeWithAI() {
   }
 
   isAnalyzing = true;
+  if (analyzeAbortController) analyzeAbortController.abort();
+  analyzeAbortController = new AbortController();
   const btn = document.getElementById('coachBtn');
   const content = document.getElementById('coachContent');
   btn.disabled = true;
@@ -2957,6 +2962,7 @@ Typy:
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
+      signal: analyzeAbortController.signal,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -2983,6 +2989,7 @@ Typy:
     renderCoachAnalysis(analysis);
     showToast('Analiza gotowa', 'success');
   } catch (e) {
+    if (e.name === 'AbortError') return;
     console.error(e);
     content.innerHTML = `
       <div class="coach-empty">
@@ -3305,15 +3312,17 @@ function startRestTimer() {
   setRestStartIcon('pause');
   getAudioCtx();
   if (restInterval) clearInterval(restInterval);
+  // Używamy absolutnego czasu końca — odporny na throttling przeglądarki w tle
+  const endTime = Date.now() + restRemaining * 1000;
   restInterval = setInterval(() => {
-    restRemaining--;
+    restRemaining = Math.max(0, Math.round((endTime - Date.now()) / 1000));
     updateRestDisplay();
     if (restRemaining <= 5 && restRemaining > 0) {
       const ring = document.getElementById('fabRing');
       if (ring) ring.classList.add('finishing');
     }
     if (restRemaining <= 0) finishRestTimer();
-  }, 1000);
+  }, 500); // tick co 500ms — dokładniejsze przy throttlingu
 }
 
 function pauseRestTimer() {
@@ -3938,6 +3947,7 @@ function openImportModal() {
 
 function closeImportModal() {
   document.getElementById('importModal').classList.remove('active');
+  if (importAbortController) { importAbortController.abort(); importAbortController = null; }
   pendingImport = null;
 }
 
@@ -4020,6 +4030,8 @@ async function parseImport() {
   }
 
   isImporting = true;
+  if (importAbortController) importAbortController.abort();
+  importAbortController = new AbortController();
   const btn = document.getElementById('importParseBtn');
   const result = document.getElementById('importResult');
   btn.disabled = true;
@@ -4058,6 +4070,7 @@ target = sugerowany zakres powtórzeń, np. "8-10" - zgadnij na podstawie wykona
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
+      signal: importAbortController.signal,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -4111,6 +4124,7 @@ target = sugerowany zakres powtórzeń, np. "8-10" - zgadnij na podstawie wykona
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-check"></i>Zapisz trening';
   } catch(e) {
+    if (e.name === 'AbortError') { isImporting = false; return; }
     console.error(e);
     result.innerHTML = '<div class="import-result error">❌ Błąd: ' + escapeHtml(e.message) + '</div>';
     btn.disabled = false;
