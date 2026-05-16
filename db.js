@@ -1,8 +1,8 @@
 // ============================================================================
 // TRENING PRO - Baza danych: plany offline + słownik głów mięśniowych
-// Push: 3 klatka / 2 barki / 2 triceps
-// Pull: 3 plecy / 2 tylne barki / 2 biceps
-// Legs: 5-6 ćwiczeń ~15-22 serii (quad dominant + hamstring/pośladki + jednostronne + łydki)
+// Push:  3 klatka / 2 barki / 2 triceps        = 7 ćwiczeń
+// Pull:  3 plecy / 2 tylne barki / 2 biceps / 1 przedramię = 8 ćwiczeń
+// Legs:  2 czworogłowy / 2 hamstring+pośladki / 1 jednostronne / 1 łydki / 1 core = 7 ćwiczeń
 // ============================================================================
 
 (function() {
@@ -183,6 +183,8 @@
     'uginanie z liną':                               'biceps_short',
     // RAMIENNY
     'uginanie hantli młotkowo':                      'biceps_brach',
+    'uginanie zottmana':                              'forearms',
+    'zottman curl':                                   'forearms',
     'uginanie młotkowe':                             'biceps_brach',
     'hammer curl':                                   'biceps_brach',
     'uginanie zottmana':                             'biceps_brach',
@@ -474,6 +476,9 @@
           // BICEPS (2)
           { name: 'Uginanie ramion ze sztangą EZ', sets: 3, reps: '10-12', tip: 'Bez bujania, kontroluj' },
           { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis — objętość ramion' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis i przedramię' }
+        
         ]
       },
       {
@@ -489,6 +494,9 @@
           // BICEPS (2)
           { name: 'Uginanie hantli', sets: 3, reps: '10-12', tip: 'Naprzemiennie, supinacja' },
           { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie zottmana', sets: 3, reps: '10-12', tip: 'Supinacja i pronacja — pełne przedramię' }
+        
         ]
       },
       {
@@ -504,6 +512,9 @@
           // BICEPS (2)
           { name: 'Uginanie ramion ze sztangą', sets: 3, reps: '8-10', tip: 'Cięższe ciężary' },
           { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie hantli młotkowo', sets: 3, reps: '12-15', tip: 'Neutralny chwyt — brachialis' }
+        
         ]
       },
       {
@@ -519,6 +530,9 @@
           // BICEPS (2)
           { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis' },
           { name: 'Uginanie ze sztangą ez stojąc', sets: 3, reps: '10-12', tip: 'Klasyczne' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie zottmana', sets: 3, reps: '10-12', tip: 'Rotacja nadgarstka na górze' }
+        
         ]
       },
       {
@@ -534,6 +548,9 @@
           // BICEPS (2)
           { name: 'Uginanie ramion ze sztangą stojąc', sets: 4, reps: '8-10', tip: 'Klasyczne, bez bujania' },
           { name: 'Uginanie hantli na modlitewniku', sets: 3, reps: '10-12', tip: 'Izolacja bicepsa' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Przedramię i brachialis' }
+        
         ]
       },
       {
@@ -549,6 +566,9 @@
           // BICEPS (2)
           { name: 'Uginanie ramion ze sztangą', sets: 3, reps: '6-8', tip: 'Cięższe ciężary' },
           { name: 'Uginanie hantli młotkowo', sets: 3, reps: '8-10', tip: 'Siłowo' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie zottmana', sets: 3, reps: '10-12', tip: 'Pełna rotacja przedramienia' }
+        
         ]
       },
       {
@@ -564,6 +584,9 @@
           // BICEPS (2)
           { name: 'Uginanie z liną', sets: 3, reps: '12-15', tip: 'Biceps przez wyciąg' },
           { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Wykończenie brachialis' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie hantli młotkowo', sets: 3, reps: '12-15', tip: 'Neutralny chwyt, stojąc' }
+        
         ]
       },
       {
@@ -579,6 +602,9 @@
           // BICEPS (2)
           { name: 'Uginanie ramion ze sztangą EZ', sets: 3, reps: '10-12', tip: 'Superseria z hantlami' },
           { name: 'Uginanie hantli', sets: 3, reps: '10-12', tip: 'Bez przerwy' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie zottmana', sets: 3, reps: '12-15', tip: 'Powolna rotacja — kontroluj' }
+        
         ]
       },
       {
@@ -594,6 +620,9 @@
           // BICEPS (2)
           { name: 'Concentration curl', sets: 3, reps: '10-12', tip: 'Łokieć na udzie' },
           { name: 'Uginanie hantli na modlitewniku', sets: 3, reps: '10-12', tip: 'Długa głowa bicepsa' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie hantli młotkowo', sets: 3, reps: '10-12', tip: 'Brachialis — objętość ramion' }
+        
         ]
       },
       {
@@ -609,6 +638,9 @@
           // BICEPS (2)
           { name: 'Uginanie ze sztangą ez stojąc', sets: 3, reps: '8-10', tip: 'Biceps — główne' },
           { name: 'Uginanie hantli', sets: 3, reps: '10-12', tip: 'Naprzemiennie, supinacja' }
+          // PRZEDRAMIĘ (1)
+          { name: 'Uginanie zottmana', sets: 3, reps: '10-12', tip: 'Pronacja i supinacja naprzemiennie' }
+        
         ]
       }
     ],
@@ -632,6 +664,9 @@
           { name: 'Bulgarian split squat', sets: 3, reps: '8-10 na nogę', tip: 'Tylna noga na ławce' },
           // ŁYDKI (4 serie)
           { name: 'Wspięcia na palce stojąc', sets: 4, reps: '12-15', tip: 'Pełna amplituda, zatrzymaj na górze' }
+          // CORE (1)
+          { name: 'Plank', sets: 3, reps: '30-45 sek', tip: 'Ciało w linii prostej, oddychaj' }
+        
         ]
       },
       {
@@ -647,6 +682,9 @@
           { name: 'Wykroki ze sztangą', sets: 3, reps: '10-12 na nogę', tip: 'Kolano nie wystaje za stopę' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia na palce stojąc', sets: 3, reps: '15-20', tip: 'Łydki' }
+          // CORE (1)
+          { name: 'Hanging leg raise', sets: 3, reps: '10-15', tip: 'Nogi proste, kontroluj opuszczanie' }
+        
         ]
       },
       {
@@ -662,6 +700,9 @@
           { name: 'Single leg hip thrust', sets: 2, reps: '10-12 na nogę', tip: 'Jednonóż — silniejsza izolacja' },
           // ŁYDKI (4 serie)
           { name: 'Wspięcia na palce siedząc', sets: 4, reps: '15-20', tip: 'Płaszczkowaty' }
+          // CORE (1)
+          { name: 'Plank', sets: 3, reps: '45-60 sek', tip: 'Aktywny core przez cały czas' }
+        
         ]
       },
       {
@@ -677,6 +718,9 @@
           { name: 'Bulgarian split squat', sets: 3, reps: '6-8 na nogę', tip: 'Z ciężarem' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia na palce ze sztangą', sets: 3, reps: '8-10', tip: 'Łydki siłowo' }
+          // CORE (1)
+          { name: 'Ab wheel', sets: 3, reps: '8-12', tip: 'Rollout — napięty brzuch przez cały ruch' }
+        
         ]
       },
       {
@@ -692,6 +736,9 @@
           { name: 'Wykroki z hantlami', sets: 3, reps: '12-15', tip: 'Naprzemiennie w ruchu' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia na palce stojąc', sets: 3, reps: '12-15', tip: 'Łydki' }
+          // CORE (1)
+          { name: 'Hanging leg raise', sets: 3, reps: '12-15', tip: 'Bez bujania, powoli w dół' }
+        
         ]
       },
       {
@@ -707,6 +754,9 @@
           { name: 'Wykroki', sets: 3, reps: '15-20 na nogę', tip: 'Z hantlami w rękach' },
           // ŁYDKI (4 serie)
           { name: 'Wspięcia na palce stojąc', sets: 4, reps: '20-25', tip: 'Łydki — wysokie powt.' }
+          // CORE (1)
+          { name: 'Plank', sets: 3, reps: '30-60 sek', tip: 'Biodra nie za wysoko, nie za nisko' }
+        
         ]
       },
       {
@@ -722,6 +772,9 @@
           { name: 'Bulgarian split squat', sets: 3, reps: '10-12 na nogę', tip: 'Pochyl — więcej pośladków' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia na palce stojąc', sets: 3, reps: '15-20', tip: 'Łydki' }
+          // CORE (1)
+          { name: 'Ab wheel', sets: 3, reps: '10-12', tip: 'Kolana lub stopy — wybierz poziom' }
+        
         ]
       },
       {
@@ -737,6 +790,9 @@
           { name: 'Wykroki', sets: 3, reps: '15-20 na nogę', tip: 'Naprzemiennie, bez przerwy' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia na palce stojąc', sets: 3, reps: '20-30', tip: 'Łydki — kondycja' }
+          // CORE (1)
+          { name: 'Hanging leg raise', sets: 3, reps: '10-12', tip: 'Na drążku, proste nogi do poziomu' }
+        
         ]
       },
       {
@@ -752,6 +808,9 @@
           { name: 'Bulgarian split squat', sets: 3, reps: '8-10 na nogę', tip: 'Tylna noga na ławce' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia na palce stojąc', sets: 3, reps: '15-20', tip: 'Łydki' }
+          // CORE (1)
+          { name: 'Plank', sets: 4, reps: '30-45 sek', tip: 'Seria po łydkach — dobry finisz' }
+        
         ]
       },
       {
@@ -767,6 +826,9 @@
           { name: 'Wykroki z hantlami', sets: 3, reps: '12-15', tip: 'Naprzemiennie w ruchu' },
           // ŁYDKI (3 serie)
           { name: 'Wspięcia jednonóż', sets: 3, reps: '12-15 na nogę', tip: 'Pełen zakres łydki' }
+          // CORE (1)
+          { name: 'Ab wheel', sets: 3, reps: '8-10', tip: 'Pełny rollout — core i biodra' }
+        
         ]
       }
     ]
