@@ -1196,7 +1196,7 @@ const MUSCLE_TO_GROUP = {
   // Pull
   'back_lats': 'plecy', 'back_middle': 'plecy', 'back_upper': 'plecy', 'back_lower': 'plecy',
   'biceps_long': 'biceps', 'biceps_short': 'biceps', 'biceps_brach': 'biceps',
-  'forearms': 'biceps',
+  'forearms': 'przedramię',
   // Legs
   'quads': 'czworogłowy',
   'hamstrings': 'hamstring',
@@ -1207,17 +1207,18 @@ const MUSCLE_TO_GROUP = {
 };
 
 const GROUP_ORDER = {
-  push: ['klatka', 'barki', 'triceps', 'core'],
-  pull: ['plecy', 'biceps', 'barki', 'core'],
+  push: ['klatka', 'barki', 'triceps'],
+  pull: ['plecy', 'barki', 'biceps', 'przedramię'],
   legs: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core']
 };
 
 const GROUP_LABELS = {
-  'klatka': { name: 'Klatka piersiowa', icon: 'ti-shirt' },
-  'barki':  { name: 'Barki', icon: 'ti-user' },
-  'triceps':{ name: 'Triceps', icon: 'ti-hand-three-fingers' },
-  'plecy':  { name: 'Plecy', icon: 'ti-stretching' },
-  'biceps': { name: 'Biceps', icon: 'ti-barbell' },
+  'klatka':    { name: 'Klatka piersiowa', icon: 'ti-shirt' },
+  'barki':     { name: 'Barki', icon: 'ti-user' },
+  'triceps':   { name: 'Triceps', icon: 'ti-hand-three-fingers' },
+  'plecy':     { name: 'Plecy', icon: 'ti-stretching' },
+  'biceps':    { name: 'Biceps', icon: 'ti-barbell' },
+  'przedramię':{ name: 'Przedramię', icon: 'ti-hand-finger' },
   'czworogłowy': { name: 'Czworogłowy', icon: 'ti-run' },
   'hamstring':   { name: 'Hamstring', icon: 'ti-stretching-2' },
   'pośladki':    { name: 'Pośladki', icon: 'ti-disc' },
@@ -1649,9 +1650,9 @@ async function executeGeneratePlan() {
   document.getElementById('exerciseList').innerHTML = '<div class="loader"><span></span><span></span><span></span></div>';
 
   const typeLabels = { 
-    push: 'Push (klatka, barki przednie, triceps - wyciskanie i pchanie)',
-    pull: 'Pull (plecy, barki tylne, biceps - ciąganie)',
-    legs: 'Legs (nogi - przysiady, martwy rumuński, wykroki, łydki, dolny odcinek pleców)'
+    push: 'Push',
+    pull: 'Pull',
+    legs: 'Legs'
   };
   
   const profile = getCurrentProfile();
@@ -1665,7 +1666,26 @@ async function executeGeneratePlan() {
 
   const profileForGoal = getCurrentProfile();
   const goalData = GOALS_DATA[profileForGoal.goal || 'reduction'];
-  const prompt = `Jesteś trenerem personalnym. Wygeneruj plan treningowy "${typeLabels[currentType]}" dla osoby trenującej na siłowni z pełnym wyposażeniem.
+
+  const schemaByType = {
+    push: `SCHEMAT PUSH — DOKŁADNIE 7 ćwiczeń, w tej kolejności:
+1. KLATKA ×3 — wyciskania i rozpiętki (ławka płaska/skośna, maszyna, kable). ZAKAZ dawania tu OHP/żołnierskiego/wznosów — to są barki!
+2. BARKI ×2 — wyciskanie nad głowę (OHP, żołnierskie, arnolda, hantlowe) + wznosy bokiem LUB przodem. Barki = deltoid, NIE klatka.
+3. TRICEPS ×2 — wyprosty, pushdown, français, wąski chwyt.`,
+    pull: `SCHEMAT PULL — DOKŁADNIE 8 ćwiczeń, w tej kolejności:
+1. PLECY ×3 — podciągania, wiosłowania, ściągania (lat pulldown, seated row itp.).
+2. TYLNE BARKI ×2 — WYŁĄCZNIE: face pull, odwrotne rozpiętki, reverse fly, cable face pull. ZAKAZ dawania tu bicepsa lub pleców.
+3. BICEPS ×2 — uginania sztangą, hantlami, wyciągiem (curl variants).
+4. PRZEDRAMIĘ ×1 — uginanie młotkowe (hammer curl) lub Zottman curl.`,
+    legs: `SCHEMAT LEGS — DOKŁADNIE 7 ćwiczeń, w tej kolejności:
+1. CZWOROGŁOWY ×2 — przysiad, leg press, hack squat, goblet squat.
+2. HAMSTRING/POŚLADKI ×2 — RDL, hip thrust, leg curl, martwy ciąg na prostych nogach.
+3. JEDNOSTRONNE ×1 — wykroki, Bulgarian split squat, step-up (jednonóż).
+4. ŁYDKI ×1 — wspięcia na palce (stojąc lub siedząc).
+5. CORE ×1 — plank, hanging leg raise, ab wheel, rollout.`
+  };
+
+  const prompt = `Jesteś trenerem personalnym. Wygeneruj plan treningowy ${typeLabels[currentType]} dla osoby trenującej na siłowni z pełnym wyposażeniem.
 
 CEL TRENINGOWY UŻYTKOWNIKA: ${goalData.name}
 Dostosuj plan do celu:
@@ -1674,12 +1694,10 @@ Dostosuj plan do celu:
 - Rekomendowany czas przerwy: ${goalData.restText}
 - Preferencje ćwiczeń: ${goalData.desc}
 
-ZASADY:
-- DOKŁADNIE 7 ćwiczeń (nie więcej, nie mniej)
-- Ćwiczenia ułóż W KOLEJNOŚCI WG PARTII MIĘŚNIOWYCH (klasterowo, nie pomieszane):
-  * Push: 3 ćwiczenia na klatkę → 2 na barki (przednie/boczne) → 2 na triceps
-  * Pull: 3 ćwiczenia na plecy → 2 na TYLNE BARKI (face pull, odwrotne rozpiętki) → 2 na biceps
-  * Legs: 5-6 ćwiczeń: 2 quad dominant (przysiad/hack/leg press, łącznie 6-8 serii) + 1-2 hamstring/pośladki (RDL/leg curl/hip thrust, 6-8 serii) + 1 jednostronne (wykroki/bulgarian, 2-4 serie) + łydki (3-4 serie)
+${schemaByType[currentType]}
+
+ZASADY OGÓLNE:
+- BEZWZGLĘDNIE trzymaj się schematu — nie mieszaj partii mięśniowych
 - Plan MUSI być zróżnicowany i INNY niż poprzednie z tej kategorii: ${recentNames}
 ${lastNote ? `- WAŻNE: Użytkownik po ostatnim treningu napisał: "${lastNote}". Uwzględnij to przy planowaniu (np. jeśli napisał "za dużo ćwiczeń" — daj mniej, jeśli "za mało" — daj więcej, jeśli "bolało kolano" — unikaj ćwiczeń obciążających kolana).` : ''}
 - Rotuj między ćwiczeniami sztangowymi, hantlowymi, na maszynach i na wyciągach
@@ -2150,6 +2168,7 @@ function dismissReminder() {
 // ============ SAVE ============
 function discardWorkout() {
   if (!currentExercises.length) return;
+  if (!confirm('Zakończyć trening bez zapisywania?\nWpisane wartości zostaną utracone.')) return;
   // Wyczyść plan bez zapisu
   stopWorkoutTimer();
   stopRestTimer();
