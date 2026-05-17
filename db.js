@@ -92,6 +92,10 @@
     'wiosłowanie hantli pod brodę':                  'shoulder_front',
     // BARKI - BOCZNE
     'wznosy hantli bokiem':                          'shoulder_side',
+    'wznosy bokiem z hantlami':                      'shoulder_side',
+    'wznosy bokiem':                                 'shoulder_side',
+    'unoszenie ramion bokiem':                       'shoulder_side',
+    'unoszenie hantli bokiem':                       'shoulder_side',
     'wznosy bokiem':                                 'shoulder_side',
     'lateral raise':                                 'shoulder_side',
     'wznosy hantli bokiem siedząc':                  'shoulder_side',
@@ -191,6 +195,7 @@
     // TRICEPS - DŁUGA GŁOWA
     'francuskie wyciskanie sztangi':                 'triceps_long',
     'francuskie wyciskanie':                         'triceps_long',
+    'wyciskanie francuskie':                         'triceps_long',
     'french press':                                  'triceps_long',
     'overhead triceps extension':                    'triceps_long',
     'wyprosty triceps nad głowę':                    'triceps_long',
@@ -202,6 +207,10 @@
     'francuskie wyciskanie hantla':                  'triceps_long',
     // TRICEPS - BOCZNA GŁOWA
     'wyprosty triceps na wyciągu':                   'triceps_lat',
+    'prostowanie ramion na wyciągu':                 'triceps_lat',
+    'prostowanie ramion':                            'triceps_lat',
+    'wyprost ramion':                                'triceps_lat',
+    'wyprosty ramion':                               'triceps_lat',
     'pushdown':                                      'triceps_lat',
     'pushdown z liną':                               'triceps_lat',
     'triceps z liną':                                'triceps_lat',
@@ -260,7 +269,11 @@
     'donkey kick':                                   'glutes',
     // JEDNONÓŻ (mapowane na quads żeby wchodziły do grupy czworogłowy)
     'bulgarian split squat':                         'quads',
+    'bułgarski przysiad':                            'quads',
     'wykroki':                                       'quads',
+    'wykroki naprzemienne':                          'quads',
+    'wykroki chodzące':                              'quads',
+    'reverse lunge':                                 'quads',
     'wykroki ze sztangą':                            'quads',
     'wykroki z hantlami':                            'quads',
     'step up':                                       'quads',
@@ -270,6 +283,10 @@
     // ŁYDKI
     'wspięcia na palce stojąc':                      'calves',
     'wspięcia na palce':                             'calves',
+    'wspięcia na łydki':                             'calves',
+    'wspięcia na łydkach':                           'calves',
+    'unoszenie na palce':                            'calves',
+    'unoszenie piętami':                             'calves',
     'standing calf raise':                           'calves',
     'wspięcia na palce siedząc':                     'calves',
     'seated calf raise':                             'calves',
