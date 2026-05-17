@@ -1741,7 +1741,10 @@ Odpowiedz TYLKO w formacie JSON:
     if (!parsed.exercises || !Array.isArray(parsed.exercises) || !parsed.exercises.length) {
       throw new Error('Nieprawidłowy format odpowiedzi — spróbuj ponownie');
     }
-    currentExercises = parsed.exercises;
+    currentExercises = parsed.exercises.map(ex => ({
+      ...ex,
+      muscle: (window.TPDB ? window.TPDB.detectMuscle(ex.name) : null) || ex.muscle || null
+    }));
     renderExercises(currentExercises);
     saveDraft();
     reminderShown = false;
