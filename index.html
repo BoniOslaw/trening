@@ -1164,6 +1164,7 @@ const BACKUP_DISMISS_DAYS = 7;   // jeśli odłożone — przypomnij za tydzień
 
 let currentType = 'push';
 let currentExercises = [];
+let currentSource = null; // 'ai' lub null (offline)
 let isLoading = false;
 const GOALS_DATA = {
   reduction: { name: 'Redukcja', reps: '12-15', sets: '3', rest: 60, restText: '45-60s', desc: 'Wyższa intensywność, krótsze przerwy', icon: '🔥' },
@@ -1213,6 +1214,29 @@ const GROUP_ORDER = {
   legs: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core']
 };
 
+// Grupowanie po indeksie dla planów AI (deterministyczne, niezależne od nazw)
+// Klucz: typ → tablica { group, count } w kolejności
+const INDEX_GROUPS = {
+  push: [
+    { group: 'klatka',  count: 3 },
+    { group: 'barki',   count: 2 },
+    { group: 'triceps', count: 2 }
+  ],
+  pull: [
+    { group: 'plecy',      count: 3 },
+    { group: 'barki',      count: 2 },
+    { group: 'biceps',     count: 2 },
+    { group: 'przedramię', count: 1 }
+  ],
+  legs: [
+    { group: 'czworogłowy', count: 2 },
+    { group: 'hamstring',   count: 2 },
+    { group: 'pośladki',    count: 1 },
+    { group: 'łydki',       count: 1 },
+    { group: 'core',        count: 1 }
+  ]
+};
+
 const GROUP_LABELS = {
   'klatka':    { name: 'Klatka piersiowa', icon: 'ti-shirt' },
   'barki':     { name: 'Barki', icon: 'ti-user' },
@@ -1246,7 +1270,37 @@ function getExerciseInputValue(i, field) {
 }
 
 // Grupuje ćwiczenia wg partii w kolejności typowej dla danego typu treningu
-function groupExercisesByMuscle(exercises, type) {
+// source='ai' → grupowanie po indeksie (deterministyczne, niezależne od nazw ćwiczeń)
+// source=inne → grupowanie po muscle (plany offline z db.js)
+function groupExercisesByMuscle(exercises, type, source) {
+  // === TRYB AI: grupowanie po indeksie ===
+  if (source === 'ai' && INDEX_GROUPS[type]) {
+    const schema = INDEX_GROUPS[type];
+    const result = [];
+    let cursor = 0;
+    schema.forEach(({ group, count }) => {
+      const slice = exercises.slice(cursor, cursor + count);
+      if (slice.length) {
+        result.push({
+          groupName: group,
+          exercises: slice.map((ex, i) => ({ ...ex, _origIdx: cursor + i }))
+        });
+      }
+      cursor += count;
+    });
+    // Jeśli AI zwróciło więcej ćwiczeń niż schemat przewiduje — dorzuć do ostatniej grupy
+    if (cursor < exercises.length) {
+      const last = result[result.length - 1];
+      if (last) {
+        exercises.slice(cursor).forEach((ex, i) => {
+          last.exercises.push({ ...ex, _origIdx: cursor + i });
+        });
+      }
+    }
+    return result;
+  }
+
+  // === TRYB OFFLINE: grupowanie po muscle (słownik) ===
   const order = GROUP_ORDER[type] || ['inne'];
   const groupMap = {};
   exercises.forEach((ex, idx) => {
@@ -1255,7 +1309,6 @@ function groupExercisesByMuscle(exercises, type) {
     if (!groupMap[group]) groupMap[group] = [];
     groupMap[group].push({ ...ex, _origIdx: idx });
   });
-  // Zwróć grupy w kolejności GROUP_ORDER
   const result = [];
   order.forEach(g => {
     if (groupMap[g] && groupMap[g].length) {
@@ -1263,7 +1316,6 @@ function groupExercisesByMuscle(exercises, type) {
       delete groupMap[g];
     }
   });
-  // Dodaj pozostałe grupy (np. 'inne') na końcu
   Object.keys(groupMap).forEach(g => {
     result.push({ groupName: g, exercises: groupMap[g] });
   });
@@ -1555,6 +1607,7 @@ function generateOfflinePlan() {
     reps: ex.reps,
     tip: ex.tip
   }));
+  currentSource = null;
   renderExercises(currentExercises);
   saveDraft();
   reminderShown = false;
@@ -1739,11 +1792,9 @@ Odpowiedz TYLKO w formacie JSON:
     if (!parsed.exercises || !Array.isArray(parsed.exercises) || !parsed.exercises.length) {
       throw new Error('Nieprawidłowy format odpowiedzi — spróbuj ponownie');
     }
-    currentExercises = parsed.exercises.map(ex => ({
-      ...ex,
-      muscle: (window.TPDB ? window.TPDB.detectMuscle(ex.name) : null) || ex.muscle || null
-    }));
-    renderExercises(currentExercises);
+    currentSource = 'ai';
+    currentExercises = parsed.exercises.map(ex => ({ ...ex }));
+    renderExercises(currentExercises, 'ai');
     saveDraft();
     reminderShown = false;
     reminderDismissed = false;
@@ -1784,7 +1835,7 @@ Odpowiedz TYLKO w formacie JSON:
   isLoading = false;
 }
 
-function renderExercises(exs) {
+function renderExercises(exs, source) {
   const list = document.getElementById('exerciseList');
   // Aktualizacja paska postępu
   const progress = document.getElementById('exercisesProgress');
@@ -1805,7 +1856,7 @@ function renderExercises(exs) {
     return;
   }
   // Pogrupuj ćwiczenia wg partii
-  exerciseGroups = groupExercisesByMuscle(exs, currentType);
+  exerciseGroups = groupExercisesByMuscle(exs, currentType, source);
   currentMuscleGroupIndex = 0;
   renderCurrentMuscleGroup();
 }
@@ -2598,6 +2649,7 @@ function saveDraft() {
     localStorage.setItem(STORAGE_DRAFT, JSON.stringify({
       type: currentType,
       exercises: currentExercises,
+      source: currentSource,
       inputs,
       muscleGroupIndex: currentMuscleGroupIndex,
       ts: Date.now()
@@ -2618,13 +2670,14 @@ function restoreDraft() {
     if (Date.now() - draft.ts > 86400000) { clearDraft(); return false; }
     currentType = draft.type;
     currentExercises = draft.exercises;
+    currentSource = draft.source || null;
     // Przełącz zakładkę
     document.querySelectorAll('.tab').forEach(t => {
       t.classList.toggle('active', t.dataset.type === currentType);
     });
     if (typeof updateTabColors === 'function') updateTabColors();
     // Wyrenderuj ćwiczenia (grupuje w partie)
-    renderExercises(currentExercises);
+    renderExercises(currentExercises, currentSource);
     // Wpisz wartości do _userReps/_userKg we wszystkich grupach
     if (draft.inputs && exerciseGroups.length) {
       exerciseGroups.forEach(g => {
