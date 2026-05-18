@@ -1792,8 +1792,22 @@ Odpowiedz TYLKO w formacie JSON:
     if (!parsed.exercises || !Array.isArray(parsed.exercises) || !parsed.exercises.length) {
       throw new Error('Nieprawidłowy format odpowiedzi — spróbuj ponownie');
     }
+    // Walidacja schematu — twarda dla name/count, fallback dla reszty
+    const rawExs = parsed.exercises;
+    if (rawExs.length < 5) throw new Error(`AI zwróciło za mało ćwiczeń (${rawExs.length}) — spróbuj ponownie`);
+    const validatedExs = rawExs.map((ex, i) => {
+      if (!ex.name || typeof ex.name !== 'string' || !ex.name.trim()) {
+        throw new Error(`Ćwiczenie #${i + 1} nie ma nazwy — spróbuj ponownie`);
+      }
+      return {
+        name: ex.name.trim(),
+        reps: (typeof ex.reps === 'string' && ex.reps.trim()) ? ex.reps.trim() : '8-12',
+        sets: Math.min(Math.max(parseInt(ex.sets) || 3, 1), 10),
+        tip:  typeof ex.tip === 'string' ? ex.tip.trim() : '',
+      };
+    });
     currentSource = 'ai';
-    currentExercises = parsed.exercises.map(ex => ({ ...ex }));
+    currentExercises = validatedExs;
     renderExercises(currentExercises, 'ai');
     saveDraft();
     reminderShown = false;
@@ -3590,14 +3604,7 @@ if ('speechSynthesis' in window) {
       applyFabPos(fab, origX + dx, origY + dy);
     }
 
-    function onEnd() {
-      if (!isDragging) return;
-      isDragging = false;
-      fab.style.cursor = 'grab';
-      fab.style.transition = '';
-      const rect = fab.getBoundingClientRect();
-      saveFabPos(rect.left, rect.top);
-    }
+
 
     // Touch events
     fab.addEventListener('touchstart', (e) => {
@@ -3617,14 +3624,29 @@ if ('speechSynthesis' in window) {
     fab.addEventListener('touchend', onEnd);
     fab.addEventListener('touchcancel', onEnd);
 
-    // Mouse events (desktop)
+    // Mouse events (desktop) — named handlers dla możliwości cleanup
+    const onMouseMove = (e) => { if (isDragging) onMove(e.clientX, e.clientY); };
+    const onMouseUp   = () => onEnd();
+
     fab.addEventListener('mousedown', (e) => {
       if (e.target.classList.contains('fab-preset-btn')) return;
       if (e.target.closest('.fab-preset-btn')) return;
       onStart(e.clientX, e.clientY);
+      // Dodaj listenery tylko gdy drag aktywny
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
     });
-    window.addEventListener('mousemove', (e) => { if (isDragging) onMove(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', onEnd);
+
+    // onEnd usuwa listenery z window po zakończeniu dragu
+    function onEnd() {
+      isDragging = false;
+      fab.style.cursor = 'grab';
+      fab.style.transition = '';
+      const rect = fab.getBoundingClientRect();
+      saveFabPos(rect.left, rect.top);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    }
 
     fab.style.cursor = 'grab';
   }
@@ -4191,22 +4213,22 @@ target = sugerowany zakres powtórzeń, np. "8-10" - zgadnij na podstawie wykona
 
 function saveImportedWorkout(parsed) {
   // Buduj entry zgodne ze schematem aplikacji
-  const exercises = parsed.exercises.map(ex => {
-    const reps = parseInt(ex.reps) || 0;
-    const sets = parseInt(ex.sets) || 3;
-    const kg = parseFloat(ex.kg) || 0;
-    return {
-      name: ex.name,
-      target: ex.target || '',
-      tip: '',
-      reps: reps,
-      kg: kg,
-      sets: sets,
-      total: reps * sets,
-      orm: calculate1RM(kg, reps),
-      muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null
-    };
-  });
+  const exercises = parsed.exercises
+    .filter(ex => ex.name && typeof ex.name === 'string' && ex.name.trim())
+    .map(ex => {
+      const reps = Math.min(Math.max(parseInt(ex.reps) || 0, 0), 9999);
+      const sets = Math.min(Math.max(parseInt(ex.sets) || 3, 1), 10);
+      const kg   = Math.min(Math.max(parseFloat(ex.kg) || 0, 0), 9999);
+      return {
+        name: ex.name.trim(),
+        target: typeof ex.target === 'string' ? ex.target : '',
+        tip: '',
+        reps, kg, sets,
+        total: reps * sets,
+        orm: calculate1RM(kg, reps),
+        muscle: window.TPDB ? window.TPDB.detectMuscle(ex.name) : null
+      };
+    });
 
   const totalReps = exercises.reduce((s, e) => s + e.total, 0);
   const duration = parsed.duration_seconds || 0;
