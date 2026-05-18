@@ -1,6 +1,6 @@
 # 💪 Trening Pro
 
-Osobista aplikacja treningowa z generowaniem planów przez AI (Claude), historią treningów, wykresami postępu i analizą siły. Obsługuje trzy systemy treningowe: **Push/Pull/Legs**, **Upper/Lower** i **Full Body**. Działa offline jako PWA — możesz zainstalować ją na telefonie i komputerze.
+Osobista aplikacja treningowa z generowaniem planów przez AI (Claude), historią treningów, wykresami postępu i analizą partii mięśniowych. Obsługuje trzy systemy treningowe: **Push/Pull/Legs**, **Upper/Lower** i **Full Body**. Działa offline jako PWA — możesz zainstalować ją na telefonie i komputerze.
 
 Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej literaturze naukowej z dziedziny fizjologii sportu, treningu siłowego i periodyzacji. Dobór ćwiczeń, liczba powtórzeń, serie i kolejność ruchów są zgodne z aktualną wiedzą naukową. Claude uwzględnia Twoją indywidualną historię — nie powtarza tych samych ćwiczeń i dostosowuje plan do Twojego poziomu zaawansowania.
 
@@ -10,10 +10,11 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 
 ### 🎯 Plany treningowe
 
-- **3 systemy treningowe** do wyboru (przełącznik na górze ekranu):
+- **3 systemy treningowe** do wyboru (dropdown na górze ekranu):
   - **PPL** — Push (klatka, barki, triceps) / Pull (plecy, biceps, przedramię) / Legs (nogi, core)
-  - **Upper / Lower** — Upper A, Upper B, Lower A, Lower B (split 4-dniowy, zawsze cel masa+siła)
-  - **Full Body** — FBW A, FBW B, FBW C (3 razy w tygodniu, całe ciało)
+  - **Upper / Lower** — Siłowy · Objętościowy · Quad · Hinge (split 4-dniowy, zawsze cel masa+siła)
+  - **Full Body** — Przysiad · Martwy · Hip Thrust (3 razy w tygodniu, całe ciało)
+- **Sugestia następnego treningu** — aplikacja zapamiętuje ostatni typ i podpowiada co zrobić następnie; sugerowany tab lekko pulsuje
 - **Generowanie planu przez Claude AI** — ćwiczenia pogrupowane klasterowo wg partii mięśniowych, z opisem techniki wykonania
 - **Nawigacja po partiach mięśniowych** — ćwiczenia podzielone na grupy (np. klatka → barki → triceps), przechodź przez nie kolejno przyciskami
 - **Spersonalizowane plany** — Claude analizuje Twoją historię treningów, unika powtarzania tych samych ćwiczeń
@@ -22,8 +23,8 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **🎯 Cel treningowy** — klikalny badge przy tabach (Redukcja / Masa / Siła / Rzeźba / Kondycja); Upper/Lower zawsze masa+siła (zablokowane)
 - **📦 Plan offline** — 67 gotowych planów bez internetu i bez kosztów API:
   - 10 × Push, 10 × Pull, 10 × Legs
-  - 3 × Upper A, 3 × Upper B, 3 × Lower A, 3 × Lower B
-  - 2 × FBW A, 2 × FBW B, 2 × FBW C
+  - 3 × Siłowy, 3 × Objętościowy, 3 × Quad, 3 × Hinge
+  - 2 × Przysiad, 2 × Martwy, 2 × Hip Thrust
   - Inteligentny wybór uzupełniający brakujące partie
 
 ### 📝 Rejestrowanie treningu
@@ -41,7 +42,7 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **💾 Automatyczny zapis roboczy** — odświeżenie strony przywraca poprzedni trening
 - **⚠️ Przypomnienie o zapisaniu** — pojawia się gdy wszystkie pola są wypełnione
 - **📊 Kołowy progress ring** — pokazuje procentowy postęp wypełnienia ćwiczeń w sesji
-- **✅ Wizualne oznaczenie ukończonych ćwiczeń** — karta zielenieje po wpisaniu powtórzeń
+- **✅ Wizualne oznaczenie ukończonych ćwiczeń** — karta zielenieje i przekreśla nazwę po wpisaniu powtórzeń
 - **🚫 Zakończ bez zapisywania** — czyści plan bez wpisu do historii
 - **📝 Notatka do treningu** — pole tekstowe z feedbackiem po sesji; Claude uwzględnia ją przy kolejnym planie tego samego typu
 
@@ -49,9 +50,8 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 
 - **Statystyki tygodniowe** — liczba treningów, powtórzeń, wartości średnie
 - **Wykres ostatnich 45 dni** — podział na Push / Pull / Legs
-- **Analiza wybranego ćwiczenia** — rekord, średnia, trend ciężaru
-- **🔥 Najlepszy 1RM** — historyczny rekord siły dla każdego ćwiczenia
-- **Wykres progresji ciężaru** dla wybranego ćwiczenia
+- **🔬 Analiza partii mięśniowych** — wybierz partię główną (np. Biceps), a następnie pod-filtr głowy mięśnia (np. Głowa długa / Głowa krótka / Wszystkie); wykres pokazuje osobną linię dla każdego ćwiczenia należącego do wybranej partii
+- **🔥 Najlepszy 1RM** — historyczny rekord siły dla każdego ćwiczenia w danej partii
 - **🧠 AI Coach** — Claude analizuje historię treningów i wskazuje stagnację, postępy oraz sugestie
 - **💪 Statystyki partii mięśniowych** — podział na klatka górna/środkowa/dolna, biceps, plecy, czworogłowy, hamstring i inne (ostatnie 45 dni)
 
@@ -77,7 +77,7 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **Instalacja na komputerze** — Chrome i Edge
 - **Pełna obsługa trybu offline** (z wyjątkiem generowania planów przez AI i AI Coach)
 - **Automatyczne wykrywanie aktualizacji** — aplikacja wyświetli powiadomienie o nowej wersji
-- **Nawigacja dolna / górna** — na mobile dostępny pasek nawigacji z ikonami sekcji
+- **Nawigacja górna na mobile** — pasek nawigacji z ikonami sekcji (Plan / Historia / Stats / Analiza / Coach)
 - **Ekran startowy** z logo i animacją przy uruchomieniu
 - **Ikona na ekranie głównym** i ciemny motyw (dark mode)
 - **Wskaźnik trybu offline** — widoczna informacja o braku połączenia
@@ -98,30 +98,30 @@ Klasyczny split 3-dniowy. Cel dobierany przez użytkownika (Redukcja / Masa / Si
 
 ### Upper / Lower — split 4-dniowy
 
-Cel zawsze: **masa + siła** (zablokowane — nie można zmienić). Warianty A i B różnią się ćwiczeniami, żeby unikać stagnacji.
+Cel zawsze: **masa + siła** (zablokowane — nie można zmienić). Warianty Siłowy i Objętościowy różnią się ćwiczeniami, żeby unikać stagnacji.
 
 | Tab | Skupienie | Ćwiczenia |
 |---|---|---|
-| Upper A | Klatka + plecy (bazowe sztangowe), barki, biceps, triceps | 7 |
-| Upper B | Klatka + plecy (hantlowe/maszyny), barki, biceps, triceps | 7 |
-| Lower A | Czworogłowy priorytet (przysiad), hamstring, jednostronne, łydki, core | 6 |
-| Lower B | Hip hinge priorytet (martwy ciąg), czworogłowy, pośladki, łydki, core | 6 |
+| Siłowy | Klatka + plecy (bazowe sztangowe), barki, biceps, triceps | 7 |
+| Objętościowy | Klatka + plecy (hantlowe/maszyny), barki, biceps, triceps | 7 |
+| Quad | Czworogłowy priorytet (przysiad), hamstring, jednostronne, łydki, core | 6 |
+| Hinge | Hip hinge priorytet (martwy ciąg), czworogłowy, pośladki, łydki, core | 6 |
 
-**Układ tygodnia:** Pon — Upper A · Wt — Lower A · Czw — Upper B · Pt — Lower B
+**Układ tygodnia:** Pon — Siłowy · Wt — Quad · Czw — Objętościowy · Pt — Hinge
 
 **Progresja:** górna część +2,5 kg · dolna część +5 kg gdy osiągniesz górny zakres powtórzeń
 
 ### Full Body — 3 razy w tygodniu
 
-Każdy trening angażuje całe ciało. Warianty A, B, C rotują ćwiczeniami.
+Każdy trening angażuje całe ciało. Warianty rotują ćwiczeniami.
 
 | Tab | Główne ruchy | Ćwiczenia |
 |---|---|---|
-| FBW A | Przysiad + bench + wiosłowanie + OHP + hamstring + biceps + core | 7 |
-| FBW B | Martwy ciąg + skos + podciąganie + split squat + wznosy + triceps + core | 7 |
-| FBW C | Front squat + bench hantle + wiosłowanie + hip thrust + face pull + biceps/tri + łydki | 7 |
+| Przysiad | Przysiad + bench + wiosłowanie + OHP + hamstring + biceps + core | 7 |
+| Martwy | Martwy ciąg + skos + podciąganie + split squat + wznosy + triceps + core | 7 |
+| Hip Thrust | Front squat + bench hantle + wiosłowanie + hip thrust + face pull + biceps/tri + łydki | 7 |
 
-**Układ tygodnia:** Pon — FBW A · Śr — FBW B · Pt — FBW C
+**Układ tygodnia:** Pon — Przysiad · Śr — Martwy · Pt — Hip Thrust
 
 ---
 
@@ -135,21 +135,23 @@ Każdy trening angażuje całe ciało. Warianty A, B, C rotują ćwiczeniami.
 | **Siła** | 3–5 | 4–5 | 3–5 min |
 | **Kondycja** | 15–20 | 3 | 30–45 s |
 
-Cel zapisany jest w profilu. Zmieniasz go klikając badge przy tabbach — bez żadnych wyskakujących okienek.
+Cel zapisany jest w profilu. Zmieniasz go klikając badge przy tabach — bez żadnych wyskakujących okienek. Upper/Lower zawsze trenuje pod masę+siłę (badge z kłódką, niezmienialny).
 
 ---
 
 ## 🚀 Pierwsze uruchomienie
 
-1. Otwórz `https://bonioslaw.github.io/trening/`
-2. Kliknij ikonę profilu (litera w kółku, prawy górny róg)
-3. Wklej klucz API Anthropic (zaczyna się od `sk-ant-...`)
+1. Otwórz `https://LukaszBonio.github.io/trening/`
+2. Przy pierwszym uruchomieniu pojawi się karta **„Jak zacząć?"** z 3 krokami — znika po zapisaniu pierwszego treningu
+3. Kliknij ikonę profilu (litera w kółku, prawy górny róg) i wklej klucz API Anthropic (zaczyna się od `sk-ant-...`)
    - Utwórz klucz na [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys
    - Wymagane doładowanie konta (minimum 5 USD)
-4. Wybierz system treningowy (PPL / Upper-Lower / Full Body) i typ sesji
+4. Wybierz system treningowy z dropdownu (PPL / Upper-Lower / Full Body) i konkretny dzień
 5. Kliknij **Generuj plan** — plan pojawi się w ciągu 2–3 sekund
 6. Ćwicz — przechodź przez partie mięśniowe, wpisuj powtórzenia i ciężary, korzystaj z timera
 7. Po ostatniej partii kliknij **Zakończ trening** — dane trafią do historii
+
+> Bez klucza API korzystaj z **Planu offline** — działa bez internetu i bez kosztów.
 
 ---
 
@@ -160,6 +162,30 @@ Po wygenerowaniu planu ćwiczenia są pogrupowane wg partii (np. klatka → bark
 - Przycisk **Dalej** → przejdź do kolejnej partii (wartości wpisane w poprzedniej są zapamiętane)
 - Przycisk **Poprzednia** → wróć i popraw
 - Na ostatniej partii pojawia się przycisk **Zakończ trening**
+
+---
+
+## 💡 Sugestia następnego treningu
+
+Aplikacja śledzi kolejność treningów i podpowiada co zrobić następnym razem:
+
+- Pod dropdownem pojawia się baner: *„Ostatnio: Push · wczoraj — sugerowany: Pull"*
+- Sugerowany tab lekko pulsuje z żółtą kropką
+- Po kliknięciu sugerowanego taba pulsowanie znika
+- Działa dla wszystkich trybów — PPL, Upper/Lower i Full Body
+
+---
+
+## 🔬 Analiza partii mięśniowych
+
+W zakładce **Analiza** możesz śledzić progresję dla dowolnej partii mięśniowej:
+
+1. Wybierz partię główną z listy (np. **Biceps**, **Klatka piersiowa**, **Plecy**)
+2. Opcjonalnie zawęź do konkretnej głowy mięśnia (np. Głowa długa / Głowa krótka / Wszystkie)
+3. Wykres pokazuje osobną kolorową linię dla każdego ćwiczenia należącego do tej partii
+4. Pod wykresem — rekord, ostatni ciężar, szacowany 1RM i trend dla każdego ćwiczenia
+
+Dostępne partie: Klatka piersiowa, Plecy, Barki, Biceps, Triceps, Czworogłowy, Hamstring, Pośladki, Łydki, Core, Przedramię.
 
 ---
 
@@ -195,7 +221,7 @@ Po wygenerowaniu planu nad przyciskiem „Zakończ trening" pojawia się pole no
 - *„bolało kolano przy martwym ciągu"* → Claude uniknie ćwiczeń obciążających kolana
 - *„świetna sesja, dobry ciężar"* → Claude utrzyma podobną intensywność
 
-Notatka jest zapisywana razem z treningiem i widoczna w historii. Claude czyta **ostatnią notatkę dla danego typu** (Push/Pull/Legs/Upper A itp.) przy każdym kolejnym generowaniu planu.
+Notatka jest zapisywana razem z treningiem i widoczna w historii. Claude czyta **ostatnią notatkę dla danego typu** (Push / Siłowy / Przysiad itp.) przy każdym kolejnym generowaniu planu.
 
 ---
 
@@ -283,7 +309,7 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 - [jsPDF 2.5](https://github.com/parallax/jsPDF) — eksport do PDF
 - [Tabler Icons](https://tabler-icons.io/) — ikony
 - [canvas-confetti](https://github.com/catdad/canvas-confetti) — animacja po zapisaniu treningu
-- [Claude API](https://www.anthropic.com/) — generowanie planów i analiza AI (model Sonnet 4.6)
+- [Claude API](https://www.anthropic.com/) — generowanie planów i analiza AI (model claude-sonnet-4-6)
 - **Web Audio API** — dźwięk dzwonka generowany przez syntezator
 - **Web Speech API** — komunikat głosowy po polsku (synteza mowy)
 - **Vibration API** — wibracja telefonu po zakończeniu przerwy
