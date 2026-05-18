@@ -1,7 +1,7 @@
 {
   "name": "Trening Pro",
   "short_name": "Trening Pro",
-  "description": "Aplikacja treningowa Push/Pull/Press z AI",
+  "description": "Aplikacja treningowa PPL / Upper-Lower / Full Body z AI",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
