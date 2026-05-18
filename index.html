@@ -84,11 +84,44 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .tab[data-type="fbw_a"].active,.tab[data-type="fbw_b"].active,.tab[data-type="fbw_c"].active { border-color: var(--pull); background: var(--pull-soft); color: var(--pull); }
 .tab i { font-size: 15px; vertical-align: -2px; margin-right: 6px; }
 
-/* ===== MODE SWITCHER ===== */
-.mode-switcher { display: flex; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 100px; padding: 3px; gap: 2px; margin-bottom: 12px; }
-.mode-btn { flex: 1; padding: 8px 6px; border-radius: 100px; border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-align: center; }
-.mode-btn:hover:not(.active) { color: var(--text); }
-.mode-btn.active { background: var(--bg-elev-2); color: var(--text); border: 1px solid var(--border-strong); }
+/* ===== MODE DROPDOWN ===== */
+.mode-dropdown-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 100px; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; font-family: inherit; }
+.mode-dropdown-btn:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+.mode-dropdown-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mode-dropdown-icon i { font-size: 14px; color: var(--accent); }
+.mode-dropdown-label { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; text-align: left; }
+.mode-dropdown-sub { font-size: 11px; color: var(--text-muted); }
+.mode-dropdown-chevron { font-size: 16px; color: var(--text-muted); transition: transform 0.2s; }
+.mode-dropdown-btn.open .mode-dropdown-chevron { transform: rotate(180deg); }
+
+.mode-dropdown-menu { display: none; flex-direction: column; gap: 4px; margin-bottom: 12px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px; }
+.mode-dropdown-menu.open { display: flex; }
+.mode-option { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); border: none; background: transparent; cursor: pointer; transition: all 0.15s; font-family: inherit; width: 100%; text-align: left; }
+.mode-option:hover { background: var(--bg-hover); }
+.mode-option.active { background: var(--accent-soft); }
+.mode-option-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-elev-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mode-option.active .mode-option-icon { background: rgba(212,255,58,0.15); }
+.mode-option-icon i { font-size: 16px; color: var(--text-muted); }
+.mode-option.active .mode-option-icon i { color: var(--accent); }
+.mode-option-text { flex: 1; }
+.mode-option-name { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
+.mode-option-desc { font-size: 11px; color: var(--text-muted); display: block; margin-top: 1px; }
+.mode-option-check { font-size: 16px; color: var(--accent); opacity: 0; }
+.mode-option.active .mode-option-check { opacity: 1; }
+
+/* ===== EMPTY STATE (onboarding) ===== */
+.empty-state { display: none; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+.empty-state.visible { display: block; }
+.empty-state-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.empty-state-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 1.25rem; }
+.empty-state-steps { display: flex; flex-direction: column; gap: 10px; }
+.empty-state-step { display: flex; align-items: flex-start; gap: 12px; }
+.empty-state-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); border: 1px solid rgba(212,255,58,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+.empty-state-step-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.empty-state-step-text strong { color: var(--text); font-weight: 600; }
+.empty-state-step-text .tag { display: inline-block; padding: 1px 7px; border-radius: 100px; background: var(--bg-elev-2); border: 1px solid var(--border); font-size: 11px; color: var(--text-muted); font-family: inherit; }
+.empty-state-divider { height: 0.5px; background: var(--border); margin: 1rem 0; }
+.empty-state-offline { font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
 
 /* ===== NEXT WORKOUT SUGGESTION ===== */
 .next-suggestion {
@@ -881,17 +914,75 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <!-- BACKUP REMINDER -->
     <div id="backupBanner" style="display:none;"></div>
     
-    <!-- MODE SWITCHER -->
-  <div class="mode-switcher" id="modeSwitcher">
-    <button class="mode-btn active" data-mode="ppl" onclick="switchMode('ppl')">PPL</button>
-    <button class="mode-btn" data-mode="upper_lower" onclick="switchMode('upper_lower')">Upper / Lower</button>
-    <button class="mode-btn" data-mode="fbw" onclick="switchMode('fbw')">Full Body</button>
+    <!-- MODE DROPDOWN -->
+  <button class="mode-dropdown-btn" id="modeDropdownBtn" onclick="toggleModeDropdown()" aria-expanded="false" aria-haspopup="listbox">
+    <div class="mode-dropdown-icon"><i class="ti ti-arrows-shuffle" id="modeDropdownIcon"></i></div>
+    <span class="mode-dropdown-label" id="modeDropdownLabel">PPL</span>
+    <span class="mode-dropdown-sub" id="modeDropdownSub">Push · Pull · Legs</span>
+    <i class="ti ti-chevron-down mode-dropdown-chevron"></i>
+  </button>
+  <div class="mode-dropdown-menu" id="modeDropdownMenu" role="listbox">
+    <button class="mode-option active" data-mode="ppl" onclick="selectMode('ppl')" role="option" aria-selected="true">
+      <div class="mode-option-icon"><i class="ti ti-arrows-shuffle"></i></div>
+      <div class="mode-option-text">
+        <span class="mode-option-name">PPL</span>
+        <span class="mode-option-desc">Push · Pull · Legs — 3 dni/tydz.</span>
+      </div>
+      <i class="ti ti-check mode-option-check"></i>
+    </button>
+    <button class="mode-option" data-mode="upper_lower" onclick="selectMode('upper_lower')" role="option" aria-selected="false">
+      <div class="mode-option-icon"><i class="ti ti-divide"></i></div>
+      <div class="mode-option-text">
+        <span class="mode-option-name">Upper / Lower</span>
+        <span class="mode-option-desc">Siłowy · Objętościowy · Quad · Hinge — 4 dni/tydz.</span>
+      </div>
+      <i class="ti ti-check mode-option-check"></i>
+    </button>
+    <button class="mode-option" data-mode="fbw" onclick="selectMode('fbw')" role="option" aria-selected="false">
+      <div class="mode-option-icon"><i class="ti ti-refresh"></i></div>
+      <div class="mode-option-text">
+        <span class="mode-option-name">Full Body</span>
+        <span class="mode-option-desc">Przysiad · Martwy · Hip Thrust — 3 dni/tydz.</span>
+      </div>
+      <i class="ti ti-check mode-option-check"></i>
+    </button>
   </div>
 
   <!-- NEXT WORKOUT SUGGESTION -->
   <div class="next-suggestion" id="nextSuggestion">
     <i class="ti ti-arrow-right"></i>
     <span id="nextSuggestionText"></span>
+  </div>
+
+  <!-- EMPTY STATE (onboarding - znika po pierwszym zapisanym treningu) -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-state-title"><i class="ti ti-barbell" style="color:var(--accent)"></i> Jak zacząć?</div>
+    <div class="empty-state-subtitle">Nie masz jeszcze żadnego treningu — oto 3 kroki</div>
+    <div class="empty-state-steps">
+      <div class="empty-state-step">
+        <div class="empty-state-num">1</div>
+        <div class="empty-state-step-text">
+          Wybierz <strong>system treningowy</strong> powyżej — <span class="tag">PPL</span>, <span class="tag">Upper/Lower</span> lub <span class="tag">Full Body</span>, a następnie konkretny dzień treningu
+        </div>
+      </div>
+      <div class="empty-state-step">
+        <div class="empty-state-num">2</div>
+        <div class="empty-state-step-text">
+          Kliknij <strong>Generuj plan</strong> aby AI (Claude) stworzył plan dopasowany do Twojego celu — lub <strong>Plan offline</strong> jeśli nie masz klucza API
+        </div>
+      </div>
+      <div class="empty-state-step">
+        <div class="empty-state-num">3</div>
+        <div class="empty-state-step-text">
+          Wpisz <strong>powtórzenia i ciężar</strong> dla każdego ćwiczenia, a na końcu kliknij <strong>Zakończ trening</strong> — dane trafią do historii
+        </div>
+      </div>
+    </div>
+    <div class="empty-state-divider"></div>
+    <div class="empty-state-offline">
+      <i class="ti ti-key" style="font-size:13px"></i>
+      Klucz API znajdziesz na <strong style="color:var(--text-muted)">console.anthropic.com</strong> → Settings → API Keys
+    </div>
   </div>
 
     <!-- TABS -->
@@ -1865,6 +1956,13 @@ function getTypeShortLabel(type) {
   return labels[type] || type;
 }
 
+function updateEmptyState() {
+  const el = document.getElementById('emptyState');
+  if (!el) return;
+  const profile = getCurrentProfile();
+  el.classList.toggle('visible', profile.history.length === 0);
+}
+
 // ============ MODE & TABS ============
 const MODE_TABS = {
   ppl: [
@@ -1885,13 +1983,60 @@ const MODE_TABS = {
   ]
 };
 
+// ============ MODE DROPDOWN ============
+const MODE_META = {
+  ppl:         { label: 'PPL',           sub: 'Push · Pull · Legs',                          icon: 'ti-arrows-shuffle' },
+  upper_lower: { label: 'Upper / Lower', sub: 'Siłowy · Objętościowy · Quad · Hinge',        icon: 'ti-divide' },
+  fbw:         { label: 'Full Body',     sub: 'Przysiad · Martwy · Hip Thrust',               icon: 'ti-refresh' }
+};
+
+function toggleModeDropdown() {
+  const btn = document.getElementById('modeDropdownBtn');
+  const menu = document.getElementById('modeDropdownMenu');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+  btn.setAttribute('aria-expanded', String(!isOpen));
+  if (!isOpen) {
+    document.addEventListener('click', closeModeDropdownOutside, { once: true, capture: true });
+  }
+}
+
+function closeModeDropdownOutside(e) {
+  const btn = document.getElementById('modeDropdownBtn');
+  const menu = document.getElementById('modeDropdownMenu');
+  if (!btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  } else {
+    document.addEventListener('click', closeModeDropdownOutside, { once: true, capture: true });
+  }
+}
+
+function selectMode(mode) {
+  // Zamknij dropdown
+  document.getElementById('modeDropdownMenu').classList.remove('open');
+  document.getElementById('modeDropdownBtn').classList.remove('open');
+  document.getElementById('modeDropdownBtn').setAttribute('aria-expanded', 'false');
+  // Zaktualizuj UI dropdownu
+  const meta = MODE_META[mode];
+  document.getElementById('modeDropdownLabel').textContent = meta.label;
+  document.getElementById('modeDropdownSub').textContent = meta.sub;
+  document.getElementById('modeDropdownIcon').className = `ti ${meta.icon}`;
+  document.querySelectorAll('.mode-option').forEach(o => {
+    const isActive = o.dataset.mode === mode;
+    o.classList.toggle('active', isActive);
+    o.setAttribute('aria-selected', String(isActive));
+  });
+  switchMode(mode);
+}
+
 function switchMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   const tabs = MODE_TABS[mode];
   const container = document.getElementById('trainingTabs');
   const isUpperLower = mode === 'upper_lower';
-  // Render tabs
   let html = tabs.map(t => `
     <button class="tab" data-type="${t.type}" onclick="switchTab('${t.type}')">
       <i class="ti ${t.icon}"></i>${t.label}
@@ -1899,7 +2044,6 @@ function switchMode(mode) {
   container.innerHTML = html + (isUpperLower
     ? `<button class="goal-badge locked" title="Upper/Lower zawsze Masa+Siła"><i class="ti ti-lock"></i>Masa+Siła</button>`
     : `<button class="goal-badge clickable" id="goalBadge" onclick="openGoalModal(false)" title="Zmień cel"><i class="ti ti-flame"></i><span id="goalBadgeText">Masa</span></button>`);
-  // Switch to suggested tab or first
   const suggestion = getSuggestedNextType(mode);
   const firstType = suggestion ? suggestion.type : tabs[0].type;
   switchTab(firstType);
@@ -2753,6 +2897,7 @@ function saveWorkout() {
   // Informacja o dacie jeśli różna od dzisiaj
   const savedDate = entry.date.split(',')[0] || entry.date.split(' ')[0];
   showToast(`Trening zapisany! ${totalReps} rep${durStr}`, 'success');
+  updateEmptyState();
   initWorkoutDateInput(); // Reset daty na dziś po zapisie
   // Wyczyść ekran po zapisaniu
   currentExercises = [];
@@ -4893,6 +5038,7 @@ refreshExerciseSelect();
 checkBackupReminder();
 updateGoalBadge();
 updateNextSuggestion('ppl');
+updateEmptyState();
 // Przywróć draft PO załadowaniu UI — opóźnienie zapewnia że DOM jest gotowy
 setTimeout(() => {
   const restored = restoreDraft();
