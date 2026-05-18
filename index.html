@@ -79,7 +79,23 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .tab[data-type="push"].active { border-color: var(--push); background: var(--push-soft); color: var(--push); }
 .tab[data-type="pull"].active { border-color: var(--pull); background: var(--pull-soft); color: var(--pull); }
 .tab[data-type="legs"].active { border-color: var(--legs); background: var(--legs-soft); color: var(--legs); }
+.tab[data-type="upper_a"].active,.tab[data-type="upper_b"].active { border-color: var(--push); background: var(--push-soft); color: var(--push); }
+.tab[data-type="lower_a"].active,.tab[data-type="lower_b"].active { border-color: var(--legs); background: var(--legs-soft); color: var(--legs); }
+.tab[data-type="fbw_a"].active,.tab[data-type="fbw_b"].active,.tab[data-type="fbw_c"].active { border-color: var(--pull); background: var(--pull-soft); color: var(--pull); }
 .tab i { font-size: 15px; vertical-align: -2px; margin-right: 6px; }
+
+/* ===== MODE SWITCHER ===== */
+.mode-switcher { display: flex; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 100px; padding: 3px; gap: 2px; margin-bottom: 12px; }
+.mode-btn { flex: 1; padding: 8px 6px; border-radius: 100px; border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-align: center; }
+.mode-btn:hover:not(.active) { color: var(--text); }
+.mode-btn.active { background: var(--bg-elev-2); color: var(--text); border: 1px solid var(--border-strong); }
+
+/* ===== GOAL BADGE ===== */
+.goal-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; white-space: nowrap; margin-left: auto; }
+.goal-badge.clickable { border-color: rgba(212,255,58,0.3); background: rgba(212,255,58,0.08); color: var(--accent); }
+.goal-badge.clickable:hover { background: rgba(212,255,58,0.15); border-color: var(--accent); }
+.goal-badge.locked { border-color: var(--border-strong); background: var(--bg-elev); color: var(--text-muted); cursor: default; }
+.goal-badge i { font-size: 12px; }
 
 /* ===== SECTION HEADER ===== */
 .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 12px; }
@@ -198,6 +214,9 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .history-badge.push { background: var(--push-soft); color: var(--push); }
 .history-badge.pull { background: var(--pull-soft); color: var(--pull); }
 .history-badge.legs { background: var(--legs-soft); color: var(--legs); }
+.history-badge.upper_a,.history-badge.upper_b { background: var(--push-soft); color: var(--push); }
+.history-badge.lower_a,.history-badge.lower_b { background: var(--legs-soft); color: var(--legs); }
+.history-badge.fbw_a,.history-badge.fbw_b,.history-badge.fbw_c { background: var(--pull-soft); color: var(--pull); }
 .history-stats { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
 .history-stats strong { color: var(--text); font-weight: 500; }
 .history-exs { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
@@ -837,8 +856,15 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <!-- BACKUP REMINDER -->
     <div id="backupBanner" style="display:none;"></div>
     
+    <!-- MODE SWITCHER -->
+  <div class="mode-switcher" id="modeSwitcher">
+    <button class="mode-btn active" data-mode="ppl" onclick="switchMode('ppl')">PPL</button>
+    <button class="mode-btn" data-mode="upper_lower" onclick="switchMode('upper_lower')">Upper / Lower</button>
+    <button class="mode-btn" data-mode="fbw" onclick="switchMode('fbw')">Full Body</button>
+  </div>
+
     <!-- TABS -->
-  <div class="tabs">
+  <div class="tabs" id="trainingTabs">
     <button class="tab active" data-type="push" onclick="switchTab('push')">
       <i class="ti ti-arrow-up-right"></i>Push
     </button>
@@ -847,6 +873,9 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </button>
     <button class="tab" data-type="legs" onclick="switchTab('legs')">
       <i class="ti ti-stairs-up"></i>Legs
+    </button>
+    <button class="goal-badge clickable" id="goalBadge" onclick="openGoalModal(false)" title="Zmień cel">
+      <i class="ti ti-flame"></i><span id="goalBadgeText">Masa</span>
     </button>
   </div>
 
@@ -1229,6 +1258,7 @@ const BACKUP_INTERVAL_DAYS = 21; // 3 tygodnie
 const BACKUP_DISMISS_DAYS = 7;   // jeśli odłożone — przypomnij za tydzień
 
 let currentType = 'push';
+let currentMode = 'ppl'; // 'ppl' | 'upper_lower' | 'fbw'
 let currentExercises = [];
 let currentSource = null; // 'ai' lub null (offline)
 let isLoading = false;
@@ -1277,7 +1307,14 @@ const MUSCLE_TO_GROUP = {
 const GROUP_ORDER = {
   push: ['klatka', 'barki', 'triceps'],
   pull: ['plecy', 'barki', 'biceps', 'przedramię'],
-  legs: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core']
+  legs: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core'],
+  upper_a: ['klatka', 'plecy', 'barki', 'biceps', 'triceps'],
+  upper_b: ['klatka', 'plecy', 'barki', 'biceps', 'triceps'],
+  lower_a: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core'],
+  lower_b: ['czworogłowy', 'hamstring', 'pośladki', 'łydki', 'core'],
+  fbw_a: ['czworogłowy', 'klatka', 'plecy', 'barki', 'hamstring', 'biceps', 'core'],
+  fbw_b: ['hamstring', 'klatka', 'plecy', 'czworogłowy', 'barki', 'triceps', 'core'],
+  fbw_c: ['czworogłowy', 'klatka', 'plecy', 'pośladki', 'barki', 'biceps', 'łydki']
 };
 
 // Grupowanie po indeksie dla planów AI (deterministyczne, niezależne od nazw)
@@ -1300,6 +1337,59 @@ const INDEX_GROUPS = {
     { group: 'pośladki',    count: 1 },
     { group: 'łydki',       count: 1 },
     { group: 'core',        count: 1 }
+  ],
+  upper_a: [
+    { group: 'klatka',  count: 2 },
+    { group: 'plecy',   count: 2 },
+    { group: 'barki',   count: 1 },
+    { group: 'biceps',  count: 1 },
+    { group: 'triceps', count: 1 }
+  ],
+  upper_b: [
+    { group: 'klatka',  count: 2 },
+    { group: 'plecy',   count: 2 },
+    { group: 'barki',   count: 1 },
+    { group: 'biceps',  count: 1 },
+    { group: 'triceps', count: 1 }
+  ],
+  lower_a: [
+    { group: 'czworogłowy', count: 2 },
+    { group: 'hamstring',   count: 2 },
+    { group: 'pośladki',    count: 1 },
+    { group: 'łydki',       count: 1 }
+  ],
+  lower_b: [
+    { group: 'czworogłowy', count: 2 },
+    { group: 'hamstring',   count: 2 },
+    { group: 'pośladki',    count: 1 },
+    { group: 'łydki',       count: 1 }
+  ],
+  fbw_a: [
+    { group: 'czworogłowy', count: 1 },
+    { group: 'klatka',      count: 1 },
+    { group: 'plecy',       count: 1 },
+    { group: 'barki',       count: 1 },
+    { group: 'hamstring',   count: 1 },
+    { group: 'biceps',      count: 1 },
+    { group: 'core',        count: 1 }
+  ],
+  fbw_b: [
+    { group: 'hamstring',   count: 1 },
+    { group: 'klatka',      count: 1 },
+    { group: 'plecy',       count: 1 },
+    { group: 'czworogłowy', count: 1 },
+    { group: 'barki',       count: 1 },
+    { group: 'triceps',     count: 1 },
+    { group: 'core',        count: 1 }
+  ],
+  fbw_c: [
+    { group: 'czworogłowy', count: 1 },
+    { group: 'klatka',      count: 1 },
+    { group: 'plecy',       count: 1 },
+    { group: 'pośladki',    count: 1 },
+    { group: 'barki',       count: 1 },
+    { group: 'biceps',      count: 1 },
+    { group: 'łydki',       count: 1 }
   ]
 };
 
@@ -1659,11 +1749,72 @@ function syncBottomNav(viewId) {
   if (id) { const el = document.getElementById(id); if (el) el.classList.add('active'); }
 }
 
-// ============ TABS ============
+function getTypeLabel(type) {
+  const labels = {
+    push: 'Push', pull: 'Pull', legs: 'Legs',
+    upper_a: 'Upper A', upper_b: 'Upper B',
+    lower_a: 'Lower A', lower_b: 'Lower B',
+    fbw_a: 'FBW A', fbw_b: 'FBW B', fbw_c: 'FBW C'
+  };
+  return labels[type] || type;
+}
+
+// ============ MODE & TABS ============
+const MODE_TABS = {
+  ppl: [
+    { type: 'push',  icon: 'ti-arrow-up-right',   label: 'Push' },
+    { type: 'pull',  icon: 'ti-arrow-down-left',  label: 'Pull' },
+    { type: 'legs',  icon: 'ti-stairs-up',        label: 'Legs' }
+  ],
+  upper_lower: [
+    { type: 'upper_a', icon: 'ti-trending-up',    label: 'Upper A' },
+    { type: 'upper_b', icon: 'ti-trending-up',    label: 'Upper B' },
+    { type: 'lower_a', icon: 'ti-trending-down',  label: 'Lower A' },
+    { type: 'lower_b', icon: 'ti-trending-down',  label: 'Lower B' }
+  ],
+  fbw: [
+    { type: 'fbw_a', icon: 'ti-circle-letter-a',  label: 'FBW A' },
+    { type: 'fbw_b', icon: 'ti-circle-letter-b',  label: 'FBW B' },
+    { type: 'fbw_c', icon: 'ti-circle-letter-c',  label: 'FBW C' }
+  ]
+};
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const tabs = MODE_TABS[mode];
+  const container = document.getElementById('trainingTabs');
+  const badge = document.getElementById('goalBadge');
+  const isUpperLower = mode === 'upper_lower';
+  // Render tabs
+  let html = tabs.map(t => `
+    <button class="tab" data-type="${t.type}" onclick="switchTab('${t.type}')">
+      <i class="ti ${t.icon}"></i>${t.label}
+    </button>`).join('');
+  container.innerHTML = html + (isUpperLower
+    ? `<button class="goal-badge locked" title="Upper/Lower zawsze Masa+Siła"><i class="ti ti-lock"></i>Masa+Siła</button>`
+    : `<button class="goal-badge clickable" id="goalBadge" onclick="openGoalModal(false)" title="Zmień cel"><i class="ti ti-flame"></i><span id="goalBadgeText">Masa</span></button>`);
+  // Switch to first tab of this mode
+  switchTab(tabs[0].type);
+  updateGoalBadge();
+}
+
+function updateGoalBadge() {
+  const badge = document.getElementById('goalBadge');
+  const badgeText = document.getElementById('goalBadgeText');
+  if (!badge || !badgeText) return;
+  const profile = getCurrentProfile();
+  const goalKey = profile.goal || 'mass';
+  const goal = GOALS_DATA[goalKey];
+  if (goal) badgeText.textContent = goal.name;
+}
+
 function switchTab(type) {
   currentType = type;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
   currentExercises = [];
+  exerciseGroups = [];
+  currentMuscleGroupIndex = 0;
   clearDraft();
   reminderShown = false;
   reminderDismissed = false;
@@ -1760,14 +1911,20 @@ function confirmGoal() {
     return p;
   });
   closeGoalModal();
+  updateGoalBadge();
   if (pendingGenerate) executeGeneratePlan();
   else {
     showToast('Cel zaktualizowany', 'success');
-    refreshMuscleStats(); // Refresh just in case
+    refreshMuscleStats();
   }
 }
 
 async function generatePlan() {
+  const isUpperLower = ['upper_a','upper_b','lower_a','lower_b'].includes(currentType);
+  if (isUpperLower) {
+    executeGeneratePlan();
+    return;
+  }
   const profile = getCurrentProfile();
   if (profile.askGoalEveryTime !== false) {
     openGoalModal(true);
@@ -1801,7 +1958,14 @@ async function executeGeneratePlan() {
   const typeLabels = { 
     push: 'Push',
     pull: 'Pull',
-    legs: 'Legs'
+    legs: 'Legs',
+    upper_a: 'Upper A',
+    upper_b: 'Upper B',
+    lower_a: 'Lower A',
+    lower_b: 'Lower B',
+    fbw_a: 'Full Body A',
+    fbw_b: 'Full Body B',
+    fbw_c: 'Full Body C'
   };
   
   const profile = getCurrentProfile();
@@ -1814,7 +1978,12 @@ async function executeGeneratePlan() {
   const lastNote = lastNoteEntry?.note || '';
 
   const profileForGoal = getCurrentProfile();
-  const goalData = GOALS_DATA[profileForGoal.goal || 'reduction'];
+  // Upper/Lower zawsze masa+siła, reszta według celu użytkownika
+  const isUpperLower = ['upper_a','upper_b','lower_a','lower_b'].includes(currentType);
+  const effectiveGoalKey = isUpperLower ? 'mass_strength' : (profileForGoal.goal || 'reduction');
+  const goalData = effectiveGoalKey === 'mass_strength'
+    ? { name: 'Masa + Siła', reps: '5-10', sets: '3-4', rest: 120, restText: '2-4 min', desc: 'Podstawowe ćwiczenia wielostawowe, progresja ciężaru' }
+    : GOALS_DATA[effectiveGoalKey] || GOALS_DATA['mass'];
 
   const schemaByType = {
     push: `SCHEMAT PUSH — DOKŁADNIE 7 ćwiczeń, w tej kolejności:
@@ -1831,7 +2000,60 @@ async function executeGeneratePlan() {
 2. HAMSTRING/POŚLADKI ×2 — RDL, hip thrust, leg curl, martwy ciąg na prostych nogach.
 3. JEDNOSTRONNE ×1 — wykroki, Bulgarian split squat, step-up (jednonóż).
 4. ŁYDKI ×1 — wspięcia na palce (stojąc lub siedząc).
-5. CORE ×1 — plank, hanging leg raise, ab wheel, rollout.`
+5. CORE ×1 — plank, hanging leg raise, ab wheel, rollout.`,
+    upper_a: `SCHEMAT UPPER A — DOKŁADNIE 7 ćwiczeń, nacisk na siłę bazową, w tej kolejności:
+1. KLATKA ×2 — wyciskanie sztangi płaska LUB skośna (główne ćwiczenie wielostawowe).
+2. PLECY ×2 — wiosłowanie sztangą/hantlem + podciąganie/ściąganie drążka.
+3. BARKI ×1 — wyciskanie nad głowę (OHP, żołnierskie, arnolda).
+4. BICEPS ×1 — uginanie sztangą lub hantlami.
+5. TRICEPS ×1 — wyprosty, pushdown lub wąski chwyt.
+WAŻNE: Upper A to cięższe ćwiczenia bazowe (sztanga priorytet). Serie 4×5-8 dla głównych ruchów.`,
+    upper_b: `SCHEMAT UPPER B — DOKŁADNIE 7 ćwiczeń, inne warianty niż Upper A, w tej kolejności:
+1. KLATKA ×2 — hantlowe LUB maszyna (nie to samo co Upper A).
+2. PLECY ×2 — podciąganie/ściąganie + wiosłowanie maszyną lub hantlem jednoręcz.
+3. BARKI ×1 — hantlowe lub arnolda + wznosy bokiem.
+4. BICEPS ×1 — inny wariant niż Upper A (młotkowe, na modlitewniku itp.).
+5. TRICEPS ×1 — inny wariant niż Upper A.
+WAŻNE: Upper B uzupełnia Upper A — używaj innych ćwiczeń dla tej samej partii.`,
+    lower_a: `SCHEMAT LOWER A — DOKŁADNIE 6 ćwiczeń, priorytet czworogłowy, w tej kolejności:
+1. CZWOROGŁOWY ×2 — przysiad ze sztangą (główne) + leg press lub hack squat.
+2. HAMSTRING/POŚLADKI ×2 — martwy ciąg rumuński + uginanie nóg lub hip thrust.
+3. JEDNOSTRONNE ×1 — wykroki lub Bulgarian split squat.
+4. ŁYDKI ×1 — wspięcia na palce stojąc.
+5. CORE ×1 — plank, hanging leg raise lub ab wheel.
+WAŻNE: Lower A = przysiad jest głównym ćwiczeniem. Serie 4×5-8.`,
+    lower_b: `SCHEMAT LOWER B — DOKŁADNIE 6 ćwiczeń, inne ćwiczenia niż Lower A, priorytet hip hinge, w tej kolejności:
+1. HIP HINGE ×1 — martwy ciąg klasyczny LUB trap bar (główne, ciężkie 3-4×3-6).
+2. CZWOROGŁOWY ×2 — front squat, hack squat lub leg press (inne niż Lower A).
+3. POŚLADKI ×1 — hip thrust.
+4. IZOLACJA NÓG ×1 — uginanie nóg lub wyprosty.
+5. ŁYDKI ×1 — wspięcia (inny wariant niż Lower A).
+6. CORE ×1 — ab wheel lub plank.
+WAŻNE: Lower B = martwy ciąg jest głównym ćwiczeniem. Inne ćwiczenia niż Lower A.`,
+    fbw_a: `SCHEMAT FBW A — DOKŁADNIE 7 ćwiczeń, cały plan na całe ciało, w tej kolejności:
+1. NOGI ×1 — przysiad ze sztangą (główne, 4×5-8).
+2. PUSH ×1 — wyciskanie sztangi na ławce poziomej (4×5-8).
+3. PULL ×1 — wiosłowanie sztangą (4×6-10).
+4. BARKI ×1 — wyciskanie żołnierskie (3×6-10).
+5. HAMSTRING ×1 — uginanie nóg lub RDL (3×10-15).
+6. BICEPS ×1 — uginanie sztangą lub hantlami (2-3×10-15).
+7. CORE ×1 — plank, hanging leg raise lub ab wheel (3 serie).`,
+    fbw_b: `SCHEMAT FBW B — DOKŁADNIE 7 ćwiczeń, inne warianty niż FBW A, w tej kolejności:
+1. HIP HINGE ×1 — martwy ciąg klasyczny (3×3-5, ciężki).
+2. PUSH ×1 — wyciskanie hantli skos dodatni (4×8-12).
+3. PULL ×1 — podciąganie lub lat pulldown (4×6-10).
+4. NOGI JEDNOSTRONNE ×1 — Bulgarian split squat lub wykroki (3×8-12).
+5. BARKI ×1 — wznosy bokiem lub unoszenie hantli (3×12-20).
+6. TRICEPS ×1 — pushdown, wyprosty lub wąski chwyt (2-3×10-15).
+7. CORE ×1 — plank lub ab wheel (3 serie).`,
+    fbw_c: `SCHEMAT FBW C — DOKŁADNIE 7 ćwiczeń, uzupełnia FBW A i B, w tej kolejności:
+1. NOGI ×1 — front squat, hack squat lub goblet squat (4×6-10).
+2. PUSH ×1 — wyciskanie hantli na ławce poziomej (4×6-10).
+3. PULL ×1 — wiosłowanie hantlem jednoręcz lub maszyna (4×8-12).
+4. HIP THRUST/RDL ×1 — hip thrust lub RDL (3×8-12).
+5. BARKI ×1 — face pull lub wznosy bokiem (3×12-20).
+6. BICEPS lub TRICEPS ×1 — naprzemiennie z FBW A/B (2 serie).
+7. ŁYDKI ×1 — wspięcia na palce (4×12-20).`
   };
 
   const prompt = `Jesteś trenerem personalnym. Wygeneruj plan treningowy ${typeLabels[currentType]} dla osoby trenującej na siłowni z pełnym wyposażeniem.
@@ -1847,7 +2069,8 @@ ${schemaByType[currentType]}
 
 ZASADY OGÓLNE:
 - BEZWZGLĘDNIE trzymaj się schematu — nie mieszaj partii mięśniowych
-${lastNote ? `- WAŻNE: Użytkownik po ostatnim treningu napisał: "${lastNote}". Uwzględnij to przy planowaniu (np. jeśli napisał "za dużo ćwiczeń" — daj mniej, jeśli "za mało" — daj więcej, jeśli "bolało kolano" — unikaj ćwiczeń obciążających kolana).` : ''}
+${recentNames !== 'brak historii' ? `- Ostatnio użyte ćwiczenia (unikaj powtarzania): ${recentNames}` : ''}
+${lastNote ? `- WAŻNE: Użytkownik po ostatnim treningu napisał: "${lastNote}". Uwzględnij to przy planowaniu.` : ''}
 - Podaj zalecaną liczbę powtórzeń zgodnie z celem
 - Krótka wskazówka techniczna do każdego ćwiczenia (max 6 słów)
 
@@ -2488,7 +2711,7 @@ function refreshHistory() {
       <div class="history-meta">
         <span class="history-date-full">${formatHistoryDate(e.date, e.timestamp)}</span>
         <div>
-          <span class="history-badge ${e.type}">${e.type}</span>
+          <span class="history-badge ${e.type}">${getTypeLabel(e.type)}</span>
           <button class="history-del" onclick="deleteEntry('${e.id}')" aria-label="Usuń"><i class="ti ti-trash" style="font-size:14px"></i></button>
         </div>
       </div>
@@ -4441,6 +4664,7 @@ refreshChart();
 refreshMuscleStats();
 refreshExerciseSelect();
 checkBackupReminder();
+updateGoalBadge();
 // Przywróć draft PO załadowaniu UI — opóźnienie zapewnia że DOM jest gotowy
 setTimeout(() => {
   const restored = restoreDraft();
@@ -4448,14 +4672,6 @@ setTimeout(() => {
     showToast('Przywrócono poprzedni trening', 'success');
   }
 }, 100);
-setTimeout(() => {
-  const profile = getCurrentProfile();
-  const goalMs = profile.goalSetAt || 0;
-  if (Date.now() - goalMs > 28 * 86400000) {
-    const goalData = GOALS_DATA[profile.goal || 'reduction'];
-    showToast(`💡 Twój cel to <b>${goalData.name}</b>. <button class="btn btn-primary" onclick="openGoalModal()" style="padding: 2px 8px; font-size: 11px; margin-left: 8px;">Zmień</button>`);
-  }
-}, 2000);
 </script>
 
 </body>
