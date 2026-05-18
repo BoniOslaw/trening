@@ -90,6 +90,31 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .mode-btn:hover:not(.active) { color: var(--text); }
 .mode-btn.active { background: var(--bg-elev-2); color: var(--text); border: 1px solid var(--border-strong); }
 
+/* ===== NEXT WORKOUT SUGGESTION ===== */
+.next-suggestion {
+  display: none; align-items: center; gap: 10px;
+  padding: 8px 14px; margin-bottom: 10px;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 12px; color: var(--text-muted);
+}
+.next-suggestion.visible { display: flex; }
+.next-suggestion i { color: var(--accent); font-size: 14px; flex-shrink: 0; }
+.next-suggestion strong { color: var(--text); }
+
+/* ===== TAB PULSE (suggested) ===== */
+@keyframes tabPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,255,58,0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(212,255,58,0); }
+}
+.tab.suggested { animation: tabPulse 2s ease-in-out infinite; border-color: var(--accent) !important; }
+.tab.suggested::after {
+  content: ''; position: absolute; top: -4px; right: -4px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+}
+
 /* ===== GOAL BADGE ===== */
 .goal-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; white-space: nowrap; margin-left: auto; }
 .goal-badge.clickable { border-color: rgba(212,255,58,0.3); background: rgba(212,255,58,0.08); color: var(--accent); }
@@ -863,6 +888,12 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     <button class="mode-btn" data-mode="fbw" onclick="switchMode('fbw')">Full Body</button>
   </div>
 
+  <!-- NEXT WORKOUT SUGGESTION -->
+  <div class="next-suggestion" id="nextSuggestion">
+    <i class="ti ti-arrow-right"></i>
+    <span id="nextSuggestionText"></span>
+  </div>
+
     <!-- TABS -->
   <div class="tabs" id="trainingTabs">
     <button class="tab active" data-type="push" onclick="switchTab('push')">
@@ -1023,23 +1054,32 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 
   <!-- VIEW: ANALYSIS -->
   <div id="view-analysis" class="view">
-    <!-- ANALIZA PER ĆWICZENIE -->
   <div class="section-divider">
     <div class="section-divider-title">
       <span class="live-dot"></span>
-      Analiza ćwiczeń
+      Analiza partii mięśniowych
     </div>
   </div>
 
   <div class="exercise-stats-grid">
     <div class="panel">
-      <div class="panel-title"><i class="ti ti-target"></i>Statystyki ćwiczenia</div>
-      <select class="exercise-select" id="exerciseSelect" onchange="renderExerciseStats()">
-        <option value="">Wybierz ćwiczenie...</option>
+      <div class="panel-title"><i class="ti ti-target"></i>Wybierz partię</div>
+
+      <!-- Wybór partii głównej -->
+      <select class="exercise-select" id="muscleGroupSelect" onchange="onMuscleGroupChange()">
+        <option value="">Wybierz partię mięśniową...</option>
       </select>
-      <div id="exerciseStatsContent">
+
+      <!-- Pod-filtr głowy -->
+      <div id="muscleSubSelect" style="display:none; margin-top: 8px;">
+        <select class="exercise-select" id="muscleSubGroupSelect" onchange="renderMuscleAnalysis()">
+        </select>
+      </div>
+
+      <!-- Statystyki -->
+      <div id="muscleStatsContent" style="margin-top: 12px;">
         <div class="empty" style="padding: 1.5rem 1rem;">
-          <p style="font-size: 12px; color: var(--text-muted);">Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki</p>
+          <p style="font-size: 12px; color: var(--text-muted);">Wybierz partię mięśniową, aby zobaczyć statystyki</p>
         </div>
       </div>
     </div>
@@ -1048,7 +1088,7 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       <div class="panel-title"><i class="ti ti-trending-up"></i>Progresja ciężaru</div>
       <div class="weight-chart-wrap">
         <canvas id="weightChart"></canvas>
-        <div class="weight-chart-empty" id="weightChartEmpty">Wybierz ćwiczenie z lewej strony</div>
+        <div class="weight-chart-empty" id="weightChartEmpty">Wybierz partię z lewej strony</div>
       </div>
     </div>
   </div>
@@ -1752,9 +1792,75 @@ function syncBottomNav(viewId) {
 function getTypeLabel(type) {
   const labels = {
     push: 'Push', pull: 'Pull', legs: 'Legs',
-    upper_a: 'Upper A', upper_b: 'Upper B',
-    lower_a: 'Lower A', lower_b: 'Lower B',
-    fbw_a: 'FBW A', fbw_b: 'FBW B', fbw_c: 'FBW C'
+    upper_a: 'Upper · Siłowy', upper_b: 'Upper · Objętościowy',
+    lower_a: 'Lower · Quad', lower_b: 'Lower · Hinge',
+    fbw_a: 'FBW · Przysiad', fbw_b: 'FBW · Martwy', fbw_c: 'FBW · Hip Thrust'
+  };
+  return labels[type] || type;
+}
+
+// ============ NEXT WORKOUT SUGGESTION ============
+const TYPE_SEQUENCE = {
+  ppl:         ['push', 'pull', 'legs'],
+  upper_lower: ['upper_a', 'upper_b', 'lower_a', 'lower_b'],
+  fbw:         ['fbw_a', 'fbw_b', 'fbw_c']
+};
+
+function getSuggestedNextType(mode) {
+  const profile = getCurrentProfile();
+  const sequence = TYPE_SEQUENCE[mode];
+  if (!sequence) return null;
+  // Znajdź ostatni trening z tej sekwencji
+  const last = profile.history.find(h => sequence.includes(h.type));
+  if (!last) return { type: sequence[0], lastType: null, lastDate: null };
+  const lastIdx = sequence.indexOf(last.type);
+  const nextIdx = (lastIdx + 1) % sequence.length;
+  return { type: sequence[nextIdx], lastType: last.type, lastDate: last.date, lastTimestamp: last.timestamp };
+}
+
+function updateNextSuggestion(mode) {
+  const banner = document.getElementById('nextSuggestion');
+  const text = document.getElementById('nextSuggestionText');
+  if (!banner || !text) return;
+
+  const suggestion = getSuggestedNextType(mode);
+  if (!suggestion || !suggestion.lastType) {
+    banner.classList.remove('visible');
+    document.querySelectorAll('.tab.suggested').forEach(t => t.classList.remove('suggested'));
+    return;
+  }
+
+  const lastLabel = getTypeLabel(suggestion.lastType);
+  const nextLabel = getTypeShortLabel(suggestion.type);
+
+  // Formatuj datę ostatniego
+  let dateStr = '';
+  if (suggestion.lastTimestamp) {
+    const diff = Math.floor((Date.now() - suggestion.lastTimestamp) / 86400000);
+    if (diff === 0) dateStr = 'dziś';
+    else if (diff === 1) dateStr = 'wczoraj';
+    else dateStr = diff + ' dni temu';
+  }
+
+  text.innerHTML = `Ostatnio: <strong>${lastLabel}</strong>${dateStr ? ' · ' + dateStr : ''} — sugerowany: <strong>${nextLabel}</strong>`;
+  banner.classList.add('visible');
+
+  // Podświetl sugerowany tab
+  document.querySelectorAll('.tab.suggested').forEach(t => t.classList.remove('suggested'));
+  setTimeout(() => {
+    const suggestedTab = document.querySelector(`.tab[data-type="${suggestion.type}"]`);
+    if (suggestedTab && !suggestedTab.classList.contains('active')) {
+      suggestedTab.classList.add('suggested');
+    }
+  }, 50);
+}
+
+function getTypeShortLabel(type) {
+  const labels = {
+    push: 'Push', pull: 'Pull', legs: 'Legs',
+    upper_a: 'Siłowy', upper_b: 'Objętościowy',
+    lower_a: 'Quad', lower_b: 'Hinge',
+    fbw_a: 'Przysiad', fbw_b: 'Martwy', fbw_c: 'Hip Thrust'
   };
   return labels[type] || type;
 }
@@ -1767,15 +1873,15 @@ const MODE_TABS = {
     { type: 'legs',  icon: 'ti-stairs-up',        label: 'Legs' }
   ],
   upper_lower: [
-    { type: 'upper_a', icon: 'ti-trending-up',    label: 'Upper A' },
-    { type: 'upper_b', icon: 'ti-trending-up',    label: 'Upper B' },
-    { type: 'lower_a', icon: 'ti-trending-down',  label: 'Lower A' },
-    { type: 'lower_b', icon: 'ti-trending-down',  label: 'Lower B' }
+    { type: 'upper_a', icon: 'ti-barbell',        label: 'Siłowy' },
+    { type: 'upper_b', icon: 'ti-dumbbell',       label: 'Objętościowy' },
+    { type: 'lower_a', icon: 'ti-legs',           label: 'Quad' },
+    { type: 'lower_b', icon: 'ti-arrow-bar-down', label: 'Hinge' }
   ],
   fbw: [
-    { type: 'fbw_a', icon: 'ti-circle-letter-a',  label: 'FBW A' },
-    { type: 'fbw_b', icon: 'ti-circle-letter-b',  label: 'FBW B' },
-    { type: 'fbw_c', icon: 'ti-circle-letter-c',  label: 'FBW C' }
+    { type: 'fbw_a', icon: 'ti-arrows-down',      label: 'Przysiad' },
+    { type: 'fbw_b', icon: 'ti-angle',            label: 'Martwy' },
+    { type: 'fbw_c', icon: 'ti-arrow-autofit-up', label: 'Hip Thrust' }
   ]
 };
 
@@ -1784,7 +1890,6 @@ function switchMode(mode) {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   const tabs = MODE_TABS[mode];
   const container = document.getElementById('trainingTabs');
-  const badge = document.getElementById('goalBadge');
   const isUpperLower = mode === 'upper_lower';
   // Render tabs
   let html = tabs.map(t => `
@@ -1794,9 +1899,12 @@ function switchMode(mode) {
   container.innerHTML = html + (isUpperLower
     ? `<button class="goal-badge locked" title="Upper/Lower zawsze Masa+Siła"><i class="ti ti-lock"></i>Masa+Siła</button>`
     : `<button class="goal-badge clickable" id="goalBadge" onclick="openGoalModal(false)" title="Zmień cel"><i class="ti ti-flame"></i><span id="goalBadgeText">Masa</span></button>`);
-  // Switch to first tab of this mode
-  switchTab(tabs[0].type);
+  // Switch to suggested tab or first
+  const suggestion = getSuggestedNextType(mode);
+  const firstType = suggestion ? suggestion.type : tabs[0].type;
+  switchTab(firstType);
   updateGoalBadge();
+  updateNextSuggestion(mode);
 }
 
 function updateGoalBadge() {
@@ -1811,7 +1919,10 @@ function updateGoalBadge() {
 
 function switchTab(type) {
   currentType = type;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.type === type);
+    if (t.dataset.type === type) t.classList.remove('suggested');
+  });
   currentExercises = [];
   exerciseGroups = [];
   currentMuscleGroupIndex = 0;
@@ -1959,13 +2070,13 @@ async function executeGeneratePlan() {
     push: 'Push',
     pull: 'Pull',
     legs: 'Legs',
-    upper_a: 'Upper A',
-    upper_b: 'Upper B',
-    lower_a: 'Lower A',
-    lower_b: 'Lower B',
-    fbw_a: 'Full Body A',
-    fbw_b: 'Full Body B',
-    fbw_c: 'Full Body C'
+    upper_a: 'Upper Siłowy',
+    upper_b: 'Upper Objętościowy',
+    lower_a: 'Lower Quad',
+    lower_b: 'Lower Hinge',
+    fbw_a: 'Full Body Przysiad',
+    fbw_b: 'Full Body Martwy',
+    fbw_c: 'Full Body Hip Thrust'
   };
   
   const profile = getCurrentProfile();
@@ -3060,179 +3171,272 @@ function restoreDraft() {
 }
 
 // ============ EXERCISE STATS ============
-function getAllUniqueExercises() {
-  const p = getCurrentProfile();
-  const map = new Map();
-  p.history.forEach(w => {
-    w.exercises.forEach(ex => {
-      if (ex.kg > 0 && ex.reps > 0) {
-        if (!map.has(ex.name)) map.set(ex.name, 0);
-        map.set(ex.name, map.get(ex.name) + 1);
-      }
-    });
-  });
-  // Sortuj wg liczby wystąpień (najpopularniejsze na górze)
-  return Array.from(map.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, count]) => ({ name, count }));
-}
+// ============ ANALIZA PARTII MIĘŚNIOWYCH ============
+
+// Grupy główne i ich pod-grupy (klucze muscle_names)
+const MUSCLE_GROUPS = {
+  'Klatka piersiowa': {
+    'Wszystkie': ['chest_upper', 'chest_middle', 'chest_lower'],
+    'Klatka górna': ['chest_upper'],
+    'Klatka środkowa': ['chest_middle'],
+    'Klatka dolna': ['chest_lower']
+  },
+  'Plecy': {
+    'Wszystkie': ['back_lats', 'back_middle', 'back_upper', 'back_lower'],
+    'Najszersze (lats)': ['back_lats'],
+    'Środkowe (równoległoboczne)': ['back_middle'],
+    'Górne (kapturowy)': ['back_upper'],
+    'Dolne (prostowniki)': ['back_lower']
+  },
+  'Barki': {
+    'Wszystkie': ['shoulder_front', 'shoulder_side', 'shoulder_rear'],
+    'Przednie': ['shoulder_front'],
+    'Boczne': ['shoulder_side'],
+    'Tylne': ['shoulder_rear']
+  },
+  'Biceps': {
+    'Wszystkie': ['biceps_long', 'biceps_short', 'biceps_brach'],
+    'Głowa długa': ['biceps_long'],
+    'Głowa krótka': ['biceps_short'],
+    'Brachialis': ['biceps_brach']
+  },
+  'Triceps': {
+    'Wszystkie': ['triceps_long', 'triceps_lat', 'triceps_med'],
+    'Głowa długa': ['triceps_long'],
+    'Głowa boczna': ['triceps_lat'],
+    'Głowa przyśrodkowa': ['triceps_med']
+  },
+  'Nogi — Czworogłowy': {
+    'Wszystkie': ['quads'],
+    'Czworogłowy': ['quads']
+  },
+  'Nogi — Hamstring': {
+    'Wszystkie': ['hamstrings'],
+    'Hamstring': ['hamstrings']
+  },
+  'Nogi — Pośladki': {
+    'Wszystkie': ['glutes', 'adductors'],
+    'Pośladki': ['glutes'],
+    'Przywodziciele': ['adductors']
+  },
+  'Łydki': {
+    'Wszystkie': ['calves'],
+    'Łydki': ['calves']
+  },
+  'Core': {
+    'Wszystkie': ['abs', 'obliques', 'core'],
+    'Proste brzucha': ['abs'],
+    'Skośne': ['obliques'],
+    'Core (głębokie)': ['core']
+  },
+  'Przedramię': {
+    'Wszystkie': ['forearms'],
+    'Przedramię': ['forearms']
+  }
+};
+
+// Paleta kolorów dla ćwiczeń na wykresie
+const CHART_COLORS = [
+  '#d4ff3a', '#4a8eff', '#ff5f4a', '#b566ff', '#4ade80',
+  '#fbbf24', '#f472b6', '#38bdf8', '#a78bfa', '#fb923c'
+];
 
 function refreshExerciseSelect() {
-  const select = document.getElementById('exerciseSelect');
-  if (!select) return;
-  const prevValue = select.value;
-  const exercises = getAllUniqueExercises();
-  select.innerHTML = '<option value="">Wybierz ćwiczenie...</option>' +
-    exercises.map(e => `<option value="${escapeHtml(e.name)}">${escapeHtml(e.name)} (${e.count}×)</option>`).join('');
-  if (prevValue && exercises.some(e => e.name === prevValue)) {
-    select.value = prevValue;
-    renderExerciseStats();
+  // Wypełnij select partii głównych
+  const sel = document.getElementById('muscleGroupSelect');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Wybierz partię mięśniową...</option>' +
+    Object.keys(MUSCLE_GROUPS).map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+  if (prev && Object.keys(MUSCLE_GROUPS).includes(prev)) {
+    sel.value = prev;
+    onMuscleGroupChange(true);
   } else {
-    const content = document.getElementById('exerciseStatsContent');
-    if (content) {
-      content.innerHTML = `
-      <div class="empty" style="padding: 1.5rem 1rem;">
-        <p style="font-size: 12px; color: var(--text-muted);">${exercises.length ? 'Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki' : 'Brak danych — zapisz trening z ciężarem'}</p>
-      </div>`;
-    }
+    document.getElementById('muscleSubSelect').style.display = 'none';
+    document.getElementById('muscleStatsContent').innerHTML =
+      '<div class="empty" style="padding:1.5rem 1rem;"><p style="font-size:12px;color:var(--text-muted);">Wybierz partię mięśniową, aby zobaczyć statystyki</p></div>';
     if (weightChart) { weightChart.destroy(); weightChart = null; }
     const emptyEl = document.getElementById('weightChartEmpty');
     if (emptyEl) emptyEl.style.display = 'flex';
   }
 }
 
-function getExerciseHistory(name) {
+function onMuscleGroupChange(keepSub = false) {
+  const group = document.getElementById('muscleGroupSelect').value;
+  const subWrap = document.getElementById('muscleSubSelect');
+  const subSel = document.getElementById('muscleSubGroupSelect');
+  if (!group) {
+    subWrap.style.display = 'none';
+    return;
+  }
+  const subs = Object.keys(MUSCLE_GROUPS[group]);
+  if (subs.length <= 1) {
+    subWrap.style.display = 'none';
+  } else {
+    subSel.innerHTML = subs.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+    if (!keepSub) subSel.value = subs[0];
+    subWrap.style.display = 'block';
+  }
+  renderMuscleAnalysis();
+}
+
+function getExercisesForMuscles(muscleKeys) {
+  if (!window.TPDB) return [];
+  const result = [];
+  const em = window.TPDB.exerciseToMuscle;
+  for (const [exName, muscleKey] of Object.entries(em)) {
+    if (muscleKeys.includes(muscleKey)) result.push(exName);
+  }
+  return result;
+}
+
+function getMuscleExerciseHistory(muscleKeys) {
   const p = getCurrentProfile();
-  const points = [];
+  const exerciseNames = getExercisesForMuscles(muscleKeys);
+  const byExercise = {};
+
   p.history.forEach(w => {
     w.exercises.forEach(ex => {
-      if (ex.name === name && ex.kg > 0 && ex.reps > 0) {
-        points.push({
-          timestamp: w.timestamp,
-          date: w.date,
-          kg: ex.kg,
-          reps: ex.reps,
-          total: ex.total,
-          volume: Math.round(ex.kg * ex.total * 10) / 10
-        });
+      if (ex.kg > 0 && ex.reps > 0) {
+        const nameLower = ex.name.toLowerCase().trim();
+        // Sprawdź czy ćwiczenie pasuje do partii
+        const matches = exerciseNames.some(en => nameLower.includes(en) || en.includes(nameLower));
+        if (matches) {
+          const key = ex.name;
+          if (!byExercise[key]) byExercise[key] = [];
+          byExercise[key].push({
+            timestamp: w.timestamp,
+            date: w.date,
+            kg: ex.kg,
+            reps: ex.reps,
+            total: ex.total,
+            volume: Math.round(ex.kg * ex.total * 10) / 10
+          });
+        }
       }
     });
   });
-  return points.sort((a, b) => a.timestamp - b.timestamp);
+
+  // Posortuj każde ćwiczenie chronologicznie i filtruj tylko te z min. 2 sesjami
+  const result = {};
+  for (const [name, pts] of Object.entries(byExercise)) {
+    const sorted = pts.sort((a, b) => a.timestamp - b.timestamp);
+    if (sorted.length >= 1) result[name] = sorted;
+  }
+  return result;
 }
 
-function renderExerciseStats() {
-  const select = document.getElementById('exerciseSelect');
-  const content = document.getElementById('exerciseStatsContent');
+function renderMuscleAnalysis() {
+  const group = document.getElementById('muscleGroupSelect').value;
+  if (!group) return;
+
+  const subSel = document.getElementById('muscleSubGroupSelect');
+  const subVal = subSel.value || Object.keys(MUSCLE_GROUPS[group])[0];
+  const muscleKeys = MUSCLE_GROUPS[group][subVal] || MUSCLE_GROUPS[group][Object.keys(MUSCLE_GROUPS[group])[0]];
+
+  const content = document.getElementById('muscleStatsContent');
   const chartEmpty = document.getElementById('weightChartEmpty');
   const canvas = document.getElementById('weightChart');
-  if (!select || !content || !chartEmpty || !canvas) return;
-  const name = select.value;
 
-  if (!name) {
-    content.innerHTML = '<div class="empty" style="padding: 1.5rem 1rem;"><p style="font-size: 12px; color: var(--text-muted);">Wybierz ćwiczenie, aby zobaczyć szczegółowe statystyki</p></div>';
+  const byExercise = getMuscleExerciseHistory(muscleKeys);
+  const exercises = Object.keys(byExercise);
+
+  if (!exercises.length) {
+    content.innerHTML = '<div class="empty" style="padding:1.5rem 1rem;"><p style="font-size:12px;color:var(--text-muted);">Brak danych dla tej partii — zapisz trening z ciężarem</p></div>';
     if (weightChart) { weightChart.destroy(); weightChart = null; }
-    chartEmpty.style.display = 'flex';
-    canvas.style.display = 'none';
+    if (chartEmpty) { chartEmpty.style.display = 'flex'; chartEmpty.textContent = 'Brak danych dla tej partii'; }
+    if (canvas) canvas.style.display = 'none';
     return;
   }
 
-  const history = getExerciseHistory(name);
-  if (!history.length) return;
+  // Statystyki sumaryczne
+  let statsHtml = '<div style="display:flex;flex-direction:column;gap:8px;">';
+  exercises.forEach((name, i) => {
+    const pts = byExercise[name];
+    const maxKg = Math.max(...pts.map(p => p.kg));
+    const lastKg = pts[pts.length - 1].kg;
+    const firstKg = pts[0].kg;
+    const progress = lastKg - firstKg;
+    const bestOrm = Math.max(...pts.map(p => calculate1RM(p.kg, p.reps)).filter(o => o > 0));
+    const color = CHART_COLORS[i % CHART_COLORS.length];
 
-  const maxKg = Math.max(...history.map(h => h.kg));
-  const lastKg = history[history.length - 1].kg;
-  const firstKg = history[0].kg;
-  const avgKg = Math.round((history.reduce((s, h) => s + h.kg, 0) / history.length) * 10) / 10;
-  const progress = lastKg - firstKg;
-  const progressPct = firstKg > 0 ? Math.round((progress / firstKg) * 100) : 0;
-
-  // Trend: porównaj średnią ostatnich 3 vs poprzednich 3
-  let trendText = '', trendClass = 'flat';
-  if (history.length >= 4) {
-    const recent = history.slice(-3);
-    const prev = history.slice(-6, -3);
-    if (prev.length) {
-      const recentAvg = recent.reduce((s, h) => s + h.kg, 0) / recent.length;
-      const prevAvg = prev.reduce((s, h) => s + h.kg, 0) / prev.length;
-      const diff = recentAvg - prevAvg;
-      if (diff > 0.5) { trendText = `↑ +${diff.toFixed(1)} kg`; trendClass = 'up'; }
-      else if (diff < -0.5) { trendText = `↓ ${diff.toFixed(1)} kg`; trendClass = 'down'; }
-      else { trendText = '→ stagnacja'; trendClass = 'flat'; }
+    // Trend
+    let trendIcon = '→', trendClass = 'flat';
+    if (pts.length >= 4) {
+      const recent = pts.slice(-3);
+      const prev = pts.slice(-6, -3);
+      if (prev.length) {
+        const diff = (recent.reduce((s,p)=>s+p.kg,0)/recent.length) - (prev.reduce((s,p)=>s+p.kg,0)/prev.length);
+        if (diff > 0.5) { trendIcon = '↑'; trendClass = 'up'; }
+        else if (diff < -0.5) { trendIcon = '↓'; trendClass = 'down'; }
+      }
     }
-  }
 
-  // Ile dni od ostatniego rekordu
-  const lastRecordIdx = history.map(h => h.kg).lastIndexOf(maxKg);
-  const daysSinceRecord = Math.floor((Date.now() - history[lastRecordIdx].timestamp) / 86400000);
+    statsHtml += `
+      <div style="padding:10px 12px;background:var(--bg-elev);border:1px solid var(--border);border-left:3px solid ${color};border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;">${escapeHtml(name)}</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:11px;color:var(--text-muted);">Rekord: <strong style="color:var(--text)">${maxKg} kg</strong></span>
+          <span style="font-size:11px;color:var(--text-muted);">Ostatnio: <strong style="color:var(--text)">${lastKg} kg</strong></span>
+          ${bestOrm > 0 ? `<span style="font-size:11px;color:var(--text-muted);">1RM: <strong style="color:var(--accent)">${bestOrm} kg</strong></span>` : ''}
+          <span style="font-size:11px;" class="ex-stat-trend ${trendClass}">${trendIcon} ${progress >= 0 ? '+' : ''}${progress.toFixed(1)} kg</span>
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">${pts.length} sesji</div>
+      </div>`;
+  });
+  statsHtml += '</div>';
+  content.innerHTML = statsHtml;
 
-  // Oblicz najlepszy 1RM z historii
-  const ormHistory = history.map(h => calculate1RM(h.kg, h.reps)).filter(o => o > 0);
-  const bestOrm = ormHistory.length ? Math.max(...ormHistory) : 0;
-  const lastOrm = calculate1RM(history[history.length - 1].kg, history[history.length - 1].reps);
-
-  content.innerHTML = `
-    <div class="ex-stat-row">
-      <div class="ex-stat">
-        <div class="ex-stat-label">Rekord</div>
-        <div class="ex-stat-value">${maxKg}<span class="unit">kg</span></div>
-        <div class="ex-stat-trend flat">${daysSinceRecord === 0 ? 'dziś' : daysSinceRecord + ' dni temu'}</div>
-      </div>
-      <div class="ex-stat">
-        <div class="ex-stat-label">Ostatnio</div>
-        <div class="ex-stat-value">${lastKg}<span class="unit">kg</span></div>
-        ${trendText ? `<div class="ex-stat-trend ${trendClass}">${trendText}</div>` : '<div class="ex-stat-trend flat">—</div>'}
-      </div>
-      <div class="ex-stat">
-        <div class="ex-stat-label">Średnia</div>
-        <div class="ex-stat-value">${avgKg}<span class="unit">kg</span></div>
-        <div class="ex-stat-trend ${progress > 0 ? 'up' : progress < 0 ? 'down' : 'flat'}">${progress >= 0 ? '+' : ''}${progress.toFixed(1)} kg (${progressPct >= 0 ? '+' : ''}${progressPct}%)</div>
-      </div>
-    </div>
-    ${bestOrm > 0 ? `
-    <div class="ex-stat-orm">
-      <div class="ex-stat-orm-icon"><i class="ti ti-flame"></i></div>
-      <div class="ex-stat-orm-content">
-        <div class="ex-stat-orm-label">Szacowany 1RM (rekord)</div>
-        <div class="ex-stat-orm-value">${bestOrm}<span class="unit">kg</span> · ostatnio ~${lastOrm}kg</div>
-      </div>
-      <div class="ex-stat-orm-formula">Brzycki + Epley</div>
-    </div>` : ''}
-    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
-      ${history.length} sesji · pierwszy raz: ${new Date(history[0].timestamp).toLocaleDateString('pl-PL')}
-    </div>
-  `;
-
-  // Wykres wagi
+  // Wykres — linia dla każdego ćwiczenia
   if (chartEmpty) chartEmpty.style.display = 'none';
   if (canvas) canvas.style.display = 'block';
   if (weightChart) weightChart.destroy();
 
-  const labels = history.map(h => new Date(h.timestamp).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }));
+  // Zbierz wszystkie daty
+  const allTimestamps = [...new Set(
+    exercises.flatMap(n => byExercise[n].map(p => p.timestamp))
+  )].sort((a, b) => a - b);
+
+  const labels = allTimestamps.map(ts =>
+    new Date(ts).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' })
+  );
+
+  const datasets = exercises.map((name, i) => {
+    const pts = byExercise[name];
+    const ptMap = new Map(pts.map(p => [p.timestamp, p]));
+    const color = CHART_COLORS[i % CHART_COLORS.length];
+    return {
+      label: name,
+      data: allTimestamps.map(ts => ptMap.has(ts) ? ptMap.get(ts).kg : null),
+      borderColor: color,
+      backgroundColor: color + '22',
+      borderWidth: 2,
+      tension: 0.3,
+      fill: false,
+      spanGaps: true,
+      pointRadius: 4,
+      pointBackgroundColor: color,
+      pointBorderColor: '#0a0a0b',
+      pointBorderWidth: 2,
+      pointHoverRadius: 6
+    };
+  });
+
   weightChart = new Chart(canvas, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Ciężar (kg)',
-        data: history.map(h => h.kg),
-        borderColor: '#d4ff3a',
-        backgroundColor: 'rgba(212,255,58,0.1)',
-        borderWidth: 2,
-        tension: 0.3,
-        fill: true,
-        pointRadius: 4,
-        pointBackgroundColor: '#d4ff3a',
-        pointBorderColor: '#0a0a0b',
-        pointBorderWidth: 2,
-        pointHoverRadius: 6
-      }]
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: exercises.length > 1,
+          labels: {
+            color: '#8a8a92', font: { size: 10 },
+            boxWidth: 12, padding: 8,
+            usePointStyle: true
+          }
+        },
         tooltip: {
           backgroundColor: '#131316',
           borderColor: 'rgba(255,255,255,0.12)',
@@ -3243,8 +3447,13 @@ function renderExerciseStats() {
           cornerRadius: 8,
           callbacks: {
             label: (ctx) => {
-              const h = history[ctx.dataIndex];
-              return [`${h.kg} kg × ${h.reps} powt.`, `Volume: ${h.volume} kg`];
+              if (ctx.raw === null) return null;
+              const name = ctx.dataset.label;
+              const pts = byExercise[name];
+              const ts = allTimestamps[ctx.dataIndex];
+              const pt = pts.find(p => p.timestamp === ts);
+              if (!pt) return `${ctx.raw} kg`;
+              return [`${name}: ${pt.kg} kg × ${pt.reps} powt.`, `Volume: ${pt.volume} kg`];
             }
           }
         }
@@ -3255,6 +3464,24 @@ function renderExerciseStats() {
       }
     }
   });
+}
+
+// Backward compat — stare funkcje które mogą być wywoływane z innych miejsc
+function renderExerciseStats() { renderMuscleAnalysis(); }
+function getExerciseHistory(name) {
+  const p = getCurrentProfile();
+  return p.history.flatMap(w => w.exercises
+    .filter(ex => ex.name === name && ex.kg > 0 && ex.reps > 0)
+    .map(ex => ({ timestamp: w.timestamp, date: w.date, kg: ex.kg, reps: ex.reps, total: ex.total, volume: Math.round(ex.kg * ex.total * 10) / 10 }))
+  ).sort((a, b) => a.timestamp - b.timestamp);
+}
+function getAllUniqueExercises() {
+  const p = getCurrentProfile();
+  const map = new Map();
+  p.history.forEach(w => w.exercises.forEach(ex => {
+    if (ex.kg > 0 && ex.reps > 0) map.set(ex.name, (map.get(ex.name) || 0) + 1);
+  }));
+  return Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
 }
 
 // ============ AI COACH ============
@@ -4665,6 +4892,7 @@ refreshMuscleStats();
 refreshExerciseSelect();
 checkBackupReminder();
 updateGoalBadge();
+updateNextSuggestion('ppl');
 // Przywróć draft PO załadowaniu UI — opóźnienie zapewnia że DOM jest gotowy
 setTimeout(() => {
   const restored = restoreDraft();
