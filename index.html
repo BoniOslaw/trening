@@ -72,14 +72,14 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .profile-icon-btn:hover { transform: scale(1.05); }
 
 /* ===== TABS ===== */
-.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
-.tab { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elev); cursor: pointer; transition: all 0.2s ease; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; position: relative; overflow: hidden; }
-.tab:hover:not(.active) { background: var(--bg-hover); color: var(--text); }
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 9px 18px; border: 1px solid var(--border); border-radius: 100px; background: var(--bg-elev); cursor: pointer; transition: all 0.2s ease; color: var(--text-muted); font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.3px; text-transform: none; position: relative; overflow: hidden; }
+.tab:hover:not(.active) { background: var(--bg-hover); color: var(--text); border-color: var(--border-strong); }
 .tab.active { color: var(--text); }
 .tab[data-type="push"].active { border-color: var(--push); background: var(--push-soft); color: var(--push); }
 .tab[data-type="pull"].active { border-color: var(--pull); background: var(--pull-soft); color: var(--pull); }
 .tab[data-type="legs"].active { border-color: var(--legs); background: var(--legs-soft); color: var(--legs); }
-.tab i { font-size: 16px; vertical-align: -2px; margin-right: 6px; }
+.tab i { font-size: 15px; vertical-align: -2px; margin-right: 6px; }
 
 /* ===== SECTION HEADER ===== */
 .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 12px; }
@@ -102,24 +102,35 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 
 /* ===== STATS BAR ===== */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
-.stat-card { padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; }
-.stat-card:hover { border-color: var(--border-strong); }
+.stat-card { padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; position: relative; overflow: hidden; }
+.stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; border-radius: 0; }
+.stat-card:nth-child(1)::after { background: var(--accent); }
+.stat-card:nth-child(2)::after { background: var(--pull); }
+.stat-card:nth-child(3)::after { background: var(--push); }
+.stat-card:nth-child(4)::after { background: var(--legs); }
+.stat-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
 .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
 .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; }
 .stat-value .unit { font-size: 12px; color: var(--text-muted); margin-left: 3px; font-weight: 400; }
 
 /* ===== EXERCISES ===== */
 .exercise-list { display: flex; flex-direction: column; gap: 10px; min-height: 100px; }
-.exercise-card { display: grid; grid-template-columns: 28px 1fr auto auto auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s ease; animation: slideIn 0.3s ease backwards; }
-.exercise-card:nth-child(1) { animation-delay: 0.05s; }
-.exercise-card:nth-child(2) { animation-delay: 0.10s; }
-.exercise-card:nth-child(3) { animation-delay: 0.15s; }
-.exercise-card:nth-child(4) { animation-delay: 0.20s; }
-.exercise-card:nth-child(5) { animation-delay: 0.25s; }
+.exercise-card { display: grid; grid-template-columns: 28px 1fr auto auto auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--border); border-left: 3px solid var(--border-strong); border-radius: 0 var(--radius) var(--radius) 0; transition: all 0.2s ease; animation: slideIn 0.3s ease backwards; }
+.exercise-card:nth-child(1) { animation-delay: 0.05s; border-left-color: var(--accent); }
+.exercise-card:nth-child(2) { animation-delay: 0.10s; border-left-color: var(--pull); }
+.exercise-card:nth-child(3) { animation-delay: 0.15s; border-left-color: var(--push); }
+.exercise-card:nth-child(4) { animation-delay: 0.20s; border-left-color: var(--legs); }
+.exercise-card:nth-child(5) { animation-delay: 0.25s; border-left-color: var(--accent); }
+.exercise-card:nth-child(6) { animation-delay: 0.30s; border-left-color: var(--pull); }
+.exercise-card:nth-child(7) { animation-delay: 0.35s; border-left-color: var(--push); }
+.exercise-card:nth-child(8) { animation-delay: 0.40s; border-left-color: var(--legs); }
 @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.exercise-card:hover { border-color: var(--border-strong); }
+.exercise-card:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+.exercise-card.completed { border-left-color: var(--success) !important; background: rgba(74,222,128,0.04); }
+.exercise-card.completed .ex-name { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--text-dim); }
+.exercise-card.completed .ex-num { background: rgba(74,222,128,0.15); color: var(--success); }
 
-.ex-num { width: 28px; height: 28px; border-radius: 8px; background: var(--bg-elev-2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; }
+.ex-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-elev-2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; transition: all 0.3s; }
 .ex-info { min-width: 0; }
 .ex-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
 .ex-detail { font-size: 12px; color: var(--text-muted); }
@@ -340,11 +351,11 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   100% { left: 100%; }
 }
 
-/* ===== EXERCISES PROGRESS BAR ===== */
+/* ===== EXERCISES PROGRESS RING ===== */
 .exercises-progress {
   display: none;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   padding: 10px 14px;
   background: var(--bg-elev);
   border: 1px solid var(--border);
@@ -353,42 +364,38 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   font-size: 12px;
 }
 .exercises-progress.visible { display: flex; }
+.progress-ring-wrap { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+.progress-ring-wrap svg { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--bg-elev-2); stroke-width: 4; }
+.progress-ring-fill {
+  fill: none; stroke: var(--accent); stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 119.4;
+  stroke-dashoffset: 119.4;
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s;
+}
+.exercises-progress.complete .progress-ring-fill { stroke: var(--success); }
+.progress-ring-center {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 700;
+  color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1;
+}
+.exercises-progress.complete .progress-ring-center { color: var(--success); }
+.exercises-progress-info { flex: 1; min-width: 0; }
 .exercises-progress-label {
-  color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 11px;
-  white-space: nowrap;
-}
-.exercises-progress-bar {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-elev2);
-  border-radius: 100px;
-  overflow: hidden;
-}
-.exercises-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--pull));
-  border-radius: 100px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 0;
+  color: var(--text-muted); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 10px; display: block; margin-bottom: 3px;
 }
 .exercises-progress-count {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 600;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  color: var(--text); font-variant-numeric: tabular-nums;
   font-size: 13px;
-  white-space: nowrap;
 }
-.exercises-progress.complete .exercises-progress-fill {
-  background: var(--success);
-}
-.exercises-progress.complete .exercises-progress-count {
-  color: var(--success);
-}
+.exercises-progress.complete .exercises-progress-count { color: var(--success); }
+/* keep old bar styles for backward compat but hidden */
+.exercises-progress-bar { display: none; }
+.exercises-progress-fill-bar { display: none; }
 
 /* ===== MUSCLE BALANCE ===== */
 .muscle-balance-alert {
@@ -742,12 +749,40 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
 .sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
 .sidebar-nav { padding: 1rem; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
 .sidebar-link { padding: 12px 16px; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; text-align: left; }
-.sidebar-link:hover { background: var(--bg-elev2); color: var(--text); }
+.sidebar-link:hover { background: var(--bg-elev-2); color: var(--text); }
 .sidebar-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); }
 .sidebar-link i { font-size: 18px; }
 
 .menu-btn { background: transparent; border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.menu-btn:hover { background: var(--bg-elev2); border-color: var(--text-muted); }
+.menu-btn:hover { background: var(--bg-elev-2); border-color: var(--text-muted); }
+
+/* ===== BOTTOM NAV BAR ===== */
+.bottom-nav {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  padding: calc(6px + env(safe-area-inset-top)) 4px 6px;
+  z-index: 200;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.bottom-nav-inner { display: flex; justify-content: space-around; align-items: center; max-width: 500px; margin: 0 auto; }
+.bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 10px; border-radius: 12px; border: none; background: transparent; cursor: pointer; transition: all 0.2s ease; font-family: inherit; flex: 1; }
+.bnav-item i { font-size: 22px; color: var(--text-muted); transition: all 0.2s; }
+.bnav-label { font-size: 10px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.2px; transition: all 0.2s; }
+.bnav-item.active { background: var(--accent-soft); }
+.bnav-item.active i { color: var(--accent); }
+.bnav-item.active .bnav-label { color: var(--accent); font-weight: 700; }
+.bnav-item:not(.active):hover { background: var(--bg-hover); }
+.bnav-item:not(.active):hover i { color: var(--text); }
+
+@media (max-width: 767px) {
+  .bottom-nav { display: block; }
+  .menu-btn { display: none; }
+  .header { display: none; }
+  .app { padding-top: calc(80px + env(safe-area-inset-top)); padding-bottom: 1rem; }
+}
 
 </style>
 </head>
@@ -855,13 +890,19 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
     </div>
   </div>
 
-    <!-- EXERCISES PROGRESS BAR -->
+    <!-- EXERCISES PROGRESS RING -->
   <div class="exercises-progress" id="exercisesProgress">
-    <span class="exercises-progress-label">Postęp</span>
-    <div class="exercises-progress-bar">
-      <div class="exercises-progress-fill" id="exercisesProgressFill"></div>
+    <div class="progress-ring-wrap">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <circle class="progress-ring-bg" cx="22" cy="22" r="19"/>
+        <circle class="progress-ring-fill" id="exercisesProgressRing" cx="22" cy="22" r="19"/>
+      </svg>
+      <div class="progress-ring-center" id="exercisesProgressPct">0%</div>
     </div>
-    <span class="exercises-progress-count" id="exercisesProgressCount">0/0</span>
+    <div class="exercises-progress-info">
+      <span class="exercises-progress-label">Postęp treningu</span>
+      <span class="exercises-progress-count" id="exercisesProgressCount">0 z 0 ćwiczeń</span>
+    </div>
   </div>
 
     <!-- DATA TRENINGU (kompaktowa, nad listą ćwiczeń) -->
@@ -1148,6 +1189,31 @@ Notatka: dobra forma"></textarea>
     <button class="install-prompt-close" onclick="dismissInstall()" aria-label="Zamknij"><i class="ti ti-x"></i></button>
   </div>
 </div>
+
+<nav class="bottom-nav" id="bottomNav" aria-label="Nawigacja główna">
+  <div class="bottom-nav-inner">
+    <button class="bnav-item active" id="bnav-plan" onclick="switchViewMobile('view-plan', 'bnav-plan')" aria-label="Plan na dziś">
+      <i class="ti ti-barbell"></i>
+      <span class="bnav-label">Plan</span>
+    </button>
+    <button class="bnav-item" id="bnav-history" onclick="switchViewMobile('view-history', 'bnav-history')" aria-label="Historia">
+      <i class="ti ti-history"></i>
+      <span class="bnav-label">Historia</span>
+    </button>
+    <button class="bnav-item" id="bnav-stats" onclick="switchViewMobile('view-stats', 'bnav-stats')" aria-label="Statystyki">
+      <i class="ti ti-chart-pie"></i>
+      <span class="bnav-label">Stats</span>
+    </button>
+    <button class="bnav-item" id="bnav-analysis" onclick="switchViewMobile('view-analysis', 'bnav-analysis')" aria-label="Analiza ćwiczeń">
+      <i class="ti ti-target"></i>
+      <span class="bnav-label">Analiza</span>
+    </button>
+    <button class="bnav-item" id="bnav-coach" onclick="switchViewMobile('view-coach', 'bnav-coach')" aria-label="AI Coach">
+      <i class="ti ti-brain"></i>
+      <span class="bnav-label">Coach</span>
+    </button>
+  </div>
+</nav>
 
 <div class="toast" id="toast"></div>
 
@@ -1557,11 +1623,40 @@ function switchView(viewId, btnEl) {
     btnEl.classList.add('active');
   }
   
+  syncBottomNav(viewId);
   toggleMenu();
   
   if (viewId === 'view-history') refreshHistory();
   if (viewId === 'view-stats') { refreshStats(); refreshChart(); refreshMuscleStats(); }
   if (viewId === 'view-analysis') refreshExerciseSelect();
+}
+
+function switchViewMobile(viewId, bnavId) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  syncBottomNav(viewId);
+  // sync sidebar too
+  const viewToSidebar = {
+    'view-plan': 0, 'view-history': 1, 'view-stats': 2, 'view-analysis': 3, 'view-coach': 4
+  };
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  sidebarLinks.forEach(el => el.classList.remove('active'));
+  const idx = viewToSidebar[viewId];
+  if (idx !== undefined && sidebarLinks[idx]) sidebarLinks[idx].classList.add('active');
+  if (viewId === 'view-history') refreshHistory();
+  if (viewId === 'view-stats') { refreshStats(); refreshChart(); refreshMuscleStats(); }
+  if (viewId === 'view-analysis') refreshExerciseSelect();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function syncBottomNav(viewId) {
+  const map = {
+    'view-plan': 'bnav-plan', 'view-history': 'bnav-history',
+    'view-stats': 'bnav-stats', 'view-analysis': 'bnav-analysis', 'view-coach': 'bnav-coach'
+  };
+  document.querySelectorAll('.bnav-item').forEach(el => el.classList.remove('active'));
+  const id = map[viewId];
+  if (id) { const el = document.getElementById(id); if (el) el.classList.add('active'); }
 }
 
 // ============ TABS ============
@@ -2157,13 +2252,19 @@ function stepKg(i, dir) {
 }
 
 function updateExercisesProgress(filled, total) {
-  const fill = document.getElementById('exercisesProgressFill');
+  const ring = document.getElementById('exercisesProgressRing');
+  const pctEl = document.getElementById('exercisesProgressPct');
   const count = document.getElementById('exercisesProgressCount');
   const wrapper = document.getElementById('exercisesProgress');
-  if (!fill || !count || !wrapper) return;
+  if (!count || !wrapper) return;
   const pct = total > 0 ? (filled / total) * 100 : 0;
-  fill.style.width = pct + '%';
-  count.textContent = filled + '/' + total;
+  if (ring) {
+    const circumference = 119.4;
+    const offset = circumference - (pct / 100) * circumference;
+    ring.style.strokeDashoffset = offset;
+  }
+  if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+  count.textContent = filled + ' z ' + total + ' ćwiczeń';
   wrapper.classList.toggle('complete', filled === total && total > 0);
 }
 
@@ -2198,6 +2299,9 @@ function updateTotal(i) {
     el.textContent = '— rep';
     el.classList.remove('has-val');
   }
+  // Mark card as completed when reps entered
+  const card = repsEl.closest('.exercise-card');
+  if (card) card.classList.toggle('completed', v > 0);
   saveDraft();
   checkAllFilled();
   recountFilledExercises();
