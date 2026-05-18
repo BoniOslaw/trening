@@ -1,58 +1,70 @@
 # 💪 Trening Pro
 
-Osobista aplikacja treningowa Push / Pull / Legs z generowaniem planów przez AI (Claude), historią treningów, wykresami postępu i analizą siły. Działa offline jako PWA — możesz zainstalować ją na telefonie i komputerze.
+Osobista aplikacja treningowa z generowaniem planów przez AI (Claude), historią treningów, wykresami postępu i analizą siły. Obsługuje trzy systemy treningowe: **Push/Pull/Legs**, **Upper/Lower** i **Full Body**. Działa offline jako PWA — możesz zainstalować ją na telefonie i komputerze.
 
-Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej literaturze naukowej z dziedziny fizjologii sportu, treningu siłowego i periodyzacji. Dobór ćwiczeń, liczba powtórzeń, serie i kolejność ruchów są zgodne z aktualną wiedzą naukową dotyczącą treningu siłowego. Dodatkowo Claude uwzględnia Twoją indywidualną historię — nie powtarza tych samych ćwiczeń i dostosowuje plan do Twojego poziomu zaawansowania.
+Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej literaturze naukowej z dziedziny fizjologii sportu, treningu siłowego i periodyzacji. Dobór ćwiczeń, liczba powtórzeń, serie i kolejność ruchów są zgodne z aktualną wiedzą naukową. Claude uwzględnia Twoją indywidualną historię — nie powtarza tych samych ćwiczeń i dostosowuje plan do Twojego poziomu zaawansowania.
 
 ---
 
 ## ✨ Funkcje
 
 ### 🎯 Plany treningowe
-- **3 typy treningu:** Push (klatka, barki, triceps) / Pull (plecy, biceps) / Legs (nogi, dolny odcinek pleców)
-- **Generowanie planu przez Claude AI** — 7 ćwiczeń, pogrupowanych klasterowo wg partii mięśniowych, z opisem techniki wykonania
+
+- **3 systemy treningowe** do wyboru (przełącznik na górze ekranu):
+  - **PPL** — Push (klatka, barki, triceps) / Pull (plecy, biceps, przedramię) / Legs (nogi, core)
+  - **Upper / Lower** — Upper A, Upper B, Lower A, Lower B (split 4-dniowy, zawsze cel masa+siła)
+  - **Full Body** — FBW A, FBW B, FBW C (3 razy w tygodniu, całe ciało)
+- **Generowanie planu przez Claude AI** — ćwiczenia pogrupowane klasterowo wg partii mięśniowych, z opisem techniki wykonania
 - **Nawigacja po partiach mięśniowych** — ćwiczenia podzielone na grupy (np. klatka → barki → triceps), przechodź przez nie kolejno przyciskami
-- **Spersonalizowane plany** — Claude analizuje Twoją historię treningów i dobiera ćwiczenia pod Twój poziom zaawansowania
-- **Zróżnicowanie ćwiczeń** — aplikacja nie powtarza tych samych ćwiczeń przy kolejnych sesjach tego samego typu
+- **Spersonalizowane plany** — Claude analizuje Twoją historię treningów, unika powtarzania tych samych ćwiczeń
 - **Wskazówki techniczne** przy każdym ćwiczeniu
-- **🎬 Linki do YouTube** — przycisk „Pokaż" przy każdym ćwiczeniu otwiera wyszukiwanie techniki na YouTube
-- **🎯 Wybór celu treningowego** — Redukcja / Masa / Siła / Rzeźba / Kondycja (wpływa na liczbę serii, powtórzeń i czas przerw)
-- **📦 Plan offline** — 30 gotowych planów (10 × Push, 10 × Pull, 10 × Legs) bez internetu i bez kosztów API, inteligentny wybór uzupełniający brakujące partie
+- **🎬 Linki do YouTube** — przycisk „Pokaż" przy każdym ćwiczeniu otwiera wyszukiwanie techniki
+- **🎯 Cel treningowy** — klikalny badge przy tabach (Redukcja / Masa / Siła / Rzeźba / Kondycja); Upper/Lower zawsze masa+siła (zablokowane)
+- **📦 Plan offline** — 67 gotowych planów bez internetu i bez kosztów API:
+  - 10 × Push, 10 × Pull, 10 × Legs
+  - 3 × Upper A, 3 × Upper B, 3 × Lower A, 3 × Lower B
+  - 2 × FBW A, 2 × FBW B, 2 × FBW C
+  - Inteligentny wybór uzupełniający brakujące partie
 
 ### 📝 Rejestrowanie treningu
+
 - **Powtórzenia × serie** — wpisujesz liczbę powtórzeń, aplikacja liczy łączną sumę automatycznie
 - **Ciężar w kg** — śledzenie postępu obciążeń
-- **🏷️ Hint ostatniego ciężaru** — pod polem ciężaru wyświetla się szary tekst z ostatnio używanym obciążeniem (np. `🏋️ ostatnio: 80 kg`), a przy pierwszym użyciu ćwiczenia — sugerowany ciężar startowy. Typ sprzętu (sztanga / hantle / maszyna / drążek) wykrywany automatycznie z nazwy ćwiczenia
+- **🏷️ Hint ostatniego ciężaru** — pod polem ciężaru wyświetla się ostatnio używane obciążenie (np. `🏋️ ostatnio: 80 kg`); przy pierwszym użyciu ćwiczenia — sugerowany ciężar startowy
 - **💪 Kalkulator 1RM** — szacowany maksymalny ciężar jednopowtórzeniowy (wzory Brzycki i Epley)
 - **⏱️ Stoper czasu treningu** — mierzy czas całej sesji od wygenerowania planu do zapisu
-- **📅 Wybór daty treningu** — możliwość wpisania treningu z poprzedniego dnia gdy zapomnisz uruchomić aplikację na siłowni
-- **⏰ Timer odpoczynku (FAB)** z presetami 60 s / 90 s / 120 s (domyślny preset dostosowany do wybranego celu), SVG pierścień wizualizujący upływający czas
-- **🖐️ Przeciągany timer** — timer można swobodnie przesuwać palcem po ekranie, pozycja zapamiętywana między sesjami
+- **📅 Wybór daty treningu** — możliwość wpisania treningu z poprzedniego dnia
+- **⏰ Timer odpoczynku (FAB)** z presetami 60 s / 90 s / 120 s, SVG pierścień wizualizujący czas
+- **🖐️ Przeciągany timer** — timer można swobodnie przesuwać palcem po ekranie, pozycja zapamiętywana
 - **🎤 Komunikat głosowy po polsku** — informuje o końcu przerwy (Web Speech API)
 - **🔔 Dźwięk dzwonka i wibracja** — konfigurowalne niezależnie
-- **💾 Automatyczny zapis roboczy** — odświeżenie strony przywraca poprzedni trening automatycznie
+- **💾 Automatyczny zapis roboczy** — odświeżenie strony przywraca poprzedni trening
 - **⚠️ Przypomnienie o zapisaniu** — pojawia się gdy wszystkie pola są wypełnione
-- **📊 Pasek postępu ćwiczeń** — pokazuje ile ćwiczeń zostało wypełnionych (np. 3/7)
-- **🚫 Zakończ bez zapisywania** — czerwony przycisk obok „Zapisz trening", czyści plan bez wpisu do historii
-- **📝 Notatka do treningu** — pole tekstowe po sesji z feedbackiem (np. „za dużo ćwiczeń", „bolało kolano"); Claude uwzględnia ją przy kolejnym planie tego samego typu
+- **📊 Kołowy progress ring** — pokazuje procentowy postęp wypełnienia ćwiczeń w sesji
+- **✅ Wizualne oznaczenie ukończonych ćwiczeń** — karta zielenieje po wpisaniu powtórzeń
+- **🚫 Zakończ bez zapisywania** — czyści plan bez wpisu do historii
+- **📝 Notatka do treningu** — pole tekstowe z feedbackiem po sesji; Claude uwzględnia ją przy kolejnym planie tego samego typu
 
 ### 📊 Analiza i statystyki
+
 - **Statystyki tygodniowe** — liczba treningów, powtórzeń, wartości średnie
 - **Wykres ostatnich 45 dni** — podział na Push / Pull / Legs
 - **Analiza wybranego ćwiczenia** — rekord, średnia, trend ciężaru
 - **🔥 Najlepszy 1RM** — historyczny rekord siły dla każdego ćwiczenia
 - **Wykres progresji ciężaru** dla wybranego ćwiczenia
-- **🧠 AI Coach** — Claude analizuje historię treningów i wskazuje stagnację, postępy oraz sugestie zwiększenia obciążenia
-- **💪 Statystyki partii mięśniowych** — podział na klatka górna/środkowa/dolna, biceps długa/krótka głowa, plecy szerokie/środkowe, czworogłowy, hamstring i inne (ostatnie 45 dni)
+- **🧠 AI Coach** — Claude analizuje historię treningów i wskazuje stagnację, postępy oraz sugestie
+- **💪 Statystyki partii mięśniowych** — podział na klatka górna/środkowa/dolna, biceps, plecy, czworogłowy, hamstring i inne (ostatnie 45 dni)
 
 ### 📥 Import treningu
-- **Import z tekstu (AI)** — wklej opis treningu w dowolnym formacie, a Claude rozpozna wszystkie dane
-- **Import z pliku CSV** — wczytaj wcześniej wyeksportowany plik CSV bez użycia API (bezpłatnie)
-- **Podgląd przed zapisem** — sprawdź poprawność danych zanim trafią do historii
-- **Obsługa niestandardowej liczby serii** — np. 2×8 zamiast 3×8, gdy trening był przerwany
+
+- **Import z tekstu (AI)** — wklej opis treningu w dowolnym formacie, Claude rozpozna dane
+- **Import z pliku CSV** — wczytaj wcześniej wyeksportowany plik CSV (bezpłatnie, bez API)
+- **Podgląd przed zapisem** — sprawdź poprawność zanim dane trafią do historii
+- **Obsługa niestandardowej liczby serii** — np. 2×8 zamiast 3×8
 - **Wykrywanie duplikatów** — treningi już obecne w historii nie zostaną dodane ponownie
 
 ### 👥 Profile i dane
+
 - **Wiele profili** — osobne profile dla Ciebie, partnera lub znajomych
 - **Trwała historia** — dane przechowywane lokalnie w przeglądarce
 - **Czytelna data w historii** — format DD.MM.YYYY · HH:MM z oznaczeniem „dziś" i „wczoraj"
@@ -60,19 +72,60 @@ Plany treningowe generuje **Claude** — model AI wytrenowany na obszernej liter
 - **🛡️ Przypomnienie o kopii zapasowej** co 3 tygodnie
 
 ### 📱 Progresywna Aplikacja Webowa (PWA)
+
 - **Instalacja na telefonie** — działa jak natywna aplikacja
 - **Instalacja na komputerze** — Chrome i Edge
 - **Pełna obsługa trybu offline** (z wyjątkiem generowania planów przez AI i AI Coach)
 - **Automatyczne wykrywanie aktualizacji** — aplikacja wyświetli powiadomienie o nowej wersji
+- **Nawigacja dolna / górna** — na mobile dostępny pasek nawigacji z ikonami sekcji
 - **Ekran startowy** z logo i animacją przy uruchomieniu
 - **Ikona na ekranie głównym** i ciemny motyw (dark mode)
-- **Wskaźnik trybu offline** — widoczna informacja o braku połączenia z internetem
+- **Wskaźnik trybu offline** — widoczna informacja o braku połączenia
 
 ---
 
-## 🎯 Cele treningowe
+## 🗂️ Systemy treningowe
 
-Przed wygenerowaniem planu wybierasz cel — Claude dostosowuje plan do Twojego priorytetu:
+### PPL — Push / Pull / Legs
+
+Klasyczny split 3-dniowy. Cel dobierany przez użytkownika (Redukcja / Masa / Siła / Rzeźba / Kondycja).
+
+| Tab | Partie mięśniowe | Ćwiczenia |
+|---|---|---|
+| Push | Klatka, barki, triceps | 7 |
+| Pull | Plecy, tylne barki, biceps, przedramię | 8 |
+| Legs | Czworogłowy, hamstring, pośladki, łydki, core | 7 |
+
+### Upper / Lower — split 4-dniowy
+
+Cel zawsze: **masa + siła** (zablokowane — nie można zmienić). Warianty A i B różnią się ćwiczeniami, żeby unikać stagnacji.
+
+| Tab | Skupienie | Ćwiczenia |
+|---|---|---|
+| Upper A | Klatka + plecy (bazowe sztangowe), barki, biceps, triceps | 7 |
+| Upper B | Klatka + plecy (hantlowe/maszyny), barki, biceps, triceps | 7 |
+| Lower A | Czworogłowy priorytet (przysiad), hamstring, jednostronne, łydki, core | 6 |
+| Lower B | Hip hinge priorytet (martwy ciąg), czworogłowy, pośladki, łydki, core | 6 |
+
+**Układ tygodnia:** Pon — Upper A · Wt — Lower A · Czw — Upper B · Pt — Lower B
+
+**Progresja:** górna część +2,5 kg · dolna część +5 kg gdy osiągniesz górny zakres powtórzeń
+
+### Full Body — 3 razy w tygodniu
+
+Każdy trening angażuje całe ciało. Warianty A, B, C rotują ćwiczeniami.
+
+| Tab | Główne ruchy | Ćwiczenia |
+|---|---|---|
+| FBW A | Przysiad + bench + wiosłowanie + OHP + hamstring + biceps + core | 7 |
+| FBW B | Martwy ciąg + skos + podciąganie + split squat + wznosy + triceps + core | 7 |
+| FBW C | Front squat + bench hantle + wiosłowanie + hip thrust + face pull + biceps/tri + łydki | 7 |
+
+**Układ tygodnia:** Pon — FBW A · Śr — FBW B · Pt — FBW C
+
+---
+
+## 🎯 Cele treningowe (PPL i Full Body)
 
 | Cel | Powtórzenia | Serie | Przerwy |
 |---|---|---|---|
@@ -82,7 +135,7 @@ Przed wygenerowaniem planu wybierasz cel — Claude dostosowuje plan do Twojego 
 | **Siła** | 3–5 | 4–5 | 3–5 min |
 | **Kondycja** | 15–20 | 3 | 30–45 s |
 
-Cel jest zapisany w profilu. Aplikacja przypomni o jego weryfikacji co 4 tygodnie.
+Cel zapisany jest w profilu. Zmieniasz go klikając badge przy tabbach — bez żadnych wyskakujących okienek.
 
 ---
 
@@ -93,10 +146,10 @@ Cel jest zapisany w profilu. Aplikacja przypomni o jego weryfikacji co 4 tygodni
 3. Wklej klucz API Anthropic (zaczyna się od `sk-ant-...`)
    - Utwórz klucz na [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys
    - Wymagane doładowanie konta (minimum 5 USD)
-4. Wybierz typ treningu (Push / Pull / Legs) i cel
+4. Wybierz system treningowy (PPL / Upper-Lower / Full Body) i typ sesji
 5. Kliknij **Generuj plan** — plan pojawi się w ciągu 2–3 sekund
-6. Ćwicz — przechodź przez partie mięśniowe, wpisuj powtórzenia i ciężary, korzystaj z timera odpoczynku
-7. Po ostatniej partii kliknij **Zakończ trening** — dane trafią do historii wraz z datą i czasem trwania sesji
+6. Ćwicz — przechodź przez partie mięśniowe, wpisuj powtórzenia i ciężary, korzystaj z timera
+7. Po ostatniej partii kliknij **Zakończ trening** — dane trafią do historii
 
 ---
 
@@ -106,7 +159,7 @@ Po wygenerowaniu planu ćwiczenia są pogrupowane wg partii (np. klatka → bark
 
 - Przycisk **Dalej** → przejdź do kolejnej partii (wartości wpisane w poprzedniej są zapamiętane)
 - Przycisk **Poprzednia** → wróć i popraw
-- Na ostatniej partii pojawia się przycisk **Zakończ trening** — zapisuje wyniki wszystkich partii
+- Na ostatniej partii pojawia się przycisk **Zakończ trening**
 
 ---
 
@@ -125,7 +178,7 @@ Timer wyświetla się jako pływający element (FAB) z wizualnym pierścieniem S
 
 Jeśli zapomniałeś uruchomić aplikację na siłowni:
 
-1. Wygeneruj plan normalnie (Push / Pull / Legs)
+1. Wygeneruj plan normalnie
 2. Tuż nad listą ćwiczeń znajdziesz pole **Data treningu**
 3. Kliknij w datę i wybierz właściwy dzień
 4. Pojawi się badge **„zmieniono"** — aplikacja wie że wpisujesz trening wsteczny
@@ -135,14 +188,14 @@ Jeśli zapomniałeś uruchomić aplikację na siłowni:
 
 ## 📝 Notatka do treningu
 
-Po wygenerowaniu planu nad przyciskiem „Zakończ trening" pojawia się pole notatki. Możesz wpisać dowolny komentarz po sesji — np.:
+Po wygenerowaniu planu nad przyciskiem „Zakończ trening" pojawia się pole notatki. Możesz wpisać dowolny komentarz:
 
 - *„za dużo ćwiczeń, byłem wykończony"* → Claude wygeneruje mniej ćwiczeń przy kolejnym planie
 - *„za mało, miałem dużo energii"* → Claude doda więcej ćwiczeń
 - *„bolało kolano przy martwym ciągu"* → Claude uniknie ćwiczeń obciążających kolana
 - *„świetna sesja, dobry ciężar"* → Claude utrzyma podobną intensywność
 
-Notatka jest zapisywana razem z treningiem i widoczna w historii. Claude czyta **ostatnią notatkę dla danego typu** (Push/Pull/Legs) przy każdym kolejnym generowaniu planu.
+Notatka jest zapisywana razem z treningiem i widoczna w historii. Claude czyta **ostatnią notatkę dla danego typu** (Push/Pull/Legs/Upper A itp.) przy każdym kolejnym generowaniu planu.
 
 ---
 
@@ -150,12 +203,12 @@ Notatka jest zapisywana razem z treningiem i widoczna w historii. Claude czyta *
 
 Gdy nie masz dostępu do internetu lub nie chcesz korzystać z API:
 
-1. Wybierz typ treningu (Push / Pull / Legs)
+1. Wybierz system i typ treningu
 2. Kliknij przycisk **Plan offline** (obok „Generuj plan")
-3. Aplikacja wybiera plan z wbudowanej bazy — **inteligentnie**, tzn. preferuje ćwiczenia i partie mięśniowe których nie robiłeś w ostatnich 7 dniach
+3. Aplikacja wybiera plan z wbudowanej bazy — preferuje ćwiczenia i partie których nie robiłeś w ostatnich 7 dniach
 4. Plan działa tak samo jak plan z AI — timer, zapis, statystyki
 
-Baza zawiera **30 gotowych planów** (10 × Push, 10 × Pull, 10 × Legs) oraz **276 ćwiczeń** zmapowanych na 25 głów mięśniowych.
+Baza zawiera **67 gotowych planów** oraz **276+ ćwiczeń** zmapowanych na 25 głów mięśniowych.
 
 > Plan offline nie wymaga klucza API — działa całkowicie lokalnie, bez kosztów.
 
@@ -163,7 +216,7 @@ Baza zawiera **30 gotowych planów** (10 × Push, 10 × Pull, 10 × Legs) oraz *
 
 ## 💪 Kalkulator 1RM — jak to działa
 
-**1RM (One-Rep Max)** to szacowany maksymalny ciężar, który możesz podnieść w jednym powtórzeniu. Aplikacja oblicza go jako średnią z dwóch sprawdzonych wzorów:
+**1RM (One-Rep Max)** to szacowany maksymalny ciężar w jednym powtórzeniu. Aplikacja oblicza go jako średnią z dwóch wzorów:
 
 ```
 Brzycki:  1RM = ciężar × (36 / (37 − powtórzenia))
@@ -243,7 +296,7 @@ Jeśli wcześniej wykonałeś eksport historii do CSV, możesz go z powrotem wcz
 
 ```
 trening/
-├── index.html              # Główny plik aplikacji (~175 KB)
+├── index.html              # Główny plik aplikacji
 ├── db.js                   # Baza planów offline + słownik głów mięśniowych
 ├── manifest.json           # Konfiguracja PWA
 ├── sw.js                   # Service Worker (offline i automatyczne aktualizacje)
