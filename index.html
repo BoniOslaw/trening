@@ -3536,7 +3536,11 @@ function renderMuscleAnalysis() {
   if (canvas) canvas.style.display = 'block';
   if (weightChart) weightChart.destroy();
 
-  // Zbierz wszystkie daty
+  // Ogranicz do max 5 ćwiczeń na wykresie (te z największą liczbą sesji)
+  const exercisesForChart = [...exercises]
+    .sort((a, b) => byExercise[b].length - byExercise[a].length)
+    .slice(0, 5);
+
   const allTimestamps = [...new Set(
     exercisesForChart.flatMap(n => byExercise[n].map(p => p.timestamp))
   )].sort((a, b) => a - b);
@@ -3544,11 +3548,6 @@ function renderMuscleAnalysis() {
   const labels = allTimestamps.map(ts =>
     new Date(ts).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' })
   );
-
-  // Ogranicz do max 5 ćwiczeń na wykresie (te z największą liczbą sesji)
-  const exercisesForChart = [...exercises]
-    .sort((a, b) => byExercise[b].length - byExercise[a].length)
-    .slice(0, 5);
 
   const datasets = exercisesForChart.map((name, i) => {
     const pts = byExercise[name];
@@ -4376,7 +4375,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredInstallPrompt = e;
   // Pokaż prompt jeśli użytkownik wcześniej go nie zamknął (lub minęło 7 dni)
   const dismissed = localStorage.getItem(STORAGE_INSTALL_DISMISSED);
-  if (!dismissed || (dismissed !== 'permanent' && (Date.now() - parseInt(dismissed)) > 7 * 86400000)) {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!isStandalone && (!dismissed || (dismissed !== 'permanent' && (Date.now() - parseInt(dismissed)) > 7 * 86400000))) {
     setTimeout(() => {
       const prompt = document.getElementById('installPrompt');
       if (prompt) prompt.classList.add('show');
