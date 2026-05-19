@@ -3538,14 +3538,19 @@ function renderMuscleAnalysis() {
 
   // Zbierz wszystkie daty
   const allTimestamps = [...new Set(
-    exercises.flatMap(n => byExercise[n].map(p => p.timestamp))
+    exercisesForChart.flatMap(n => byExercise[n].map(p => p.timestamp))
   )].sort((a, b) => a - b);
 
   const labels = allTimestamps.map(ts =>
     new Date(ts).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' })
   );
 
-  const datasets = exercises.map((name, i) => {
+  // Ogranicz do max 5 ćwiczeń na wykresie (te z największą liczbą sesji)
+  const exercisesForChart = [...exercises]
+    .sort((a, b) => byExercise[b].length - byExercise[a].length)
+    .slice(0, 5);
+
+  const datasets = exercisesForChart.map((name, i) => {
     const pts = byExercise[name];
     const ptMap = new Map(pts.map(p => [p.timestamp, p]));
     const color = CHART_COLORS[i % CHART_COLORS.length];
@@ -3557,8 +3562,8 @@ function renderMuscleAnalysis() {
       borderWidth: 2,
       tension: 0.3,
       fill: false,
-      spanGaps: true,
-      pointRadius: 4,
+      spanGaps: false,
+      pointRadius: 5,
       pointBackgroundColor: color,
       pointBorderColor: '#0a0a0b',
       pointBorderWidth: 2,
@@ -3690,22 +3695,24 @@ async function analyzeWithAI() {
   const lastWeekTimestamp = Date.now() - 7 * 86400000;
   const lastWeekCount = profile.history.filter(w => w.timestamp > lastWeekTimestamp).length;
 
-  const prompt = `Jesteś doświadczonym trenerem personalnym. Przeanalizuj historię treningową i wskaż konkretne, spersonalizowane porady. Bądź zwięzły, konkretny, bez ogólników.
+  const prompt = `Jesteś analitykiem danych treningowych. Twoim zadaniem jest wyłącznie analiza liczb z historii — zero wymyślania, zero ogólników.
 
 DANE TRENINGOWE:
 - Łącznie treningów: ${profile.history.length}
 - Push: ${totalsByType.push}, Pull: ${totalsByType.pull}, Legs: ${totalsByType.legs}
 - Treningi w ostatnim tygodniu: ${lastWeekCount}
 
-HISTORIA CIĘŻARÓW (chronologicznie, najstarsze pierwsze):
+HISTORIA CIĘŻARÓW (każde ćwiczenie osobno, chronologicznie):
 ${JSON.stringify(dataForAI, null, 1)}
 
-ZASADY ANALIZY:
-1. Znajdź 3-5 najważniejszych obserwacji (max 5)
-2. Skup się na: stagnacji ciężaru >3 sesje (trzeba zwiększyć), szybkim progresie (gratulacje), zaniedbanych grupach mięśniowych (nierówny stosunek push/pull/legs), ciężarach które idą w dół (co się stało?)
-3. Każda porada MUSI być konkretna - z nazwą ćwiczenia i liczbami
-4. Używaj polskiego, zwracaj się per "Ty"
-5. Ton: rzeczowy trener, bez infantylizacji
+ZASADY — przestrzegaj bezwzględnie:
+1. Każde ćwiczenie analizuj OSOBNO. Nigdy nie łącz trendów ćwiczeń ze sztangą i hantlami w jedną obserwację — to osobne ćwiczenia, nawet jeśli angażują tę samą partię.
+2. Podaj TYLKO obserwacje które WYNIKAJĄ WPROST z danych. Jeśli dane nie pokazują wyraźnego trendu — nie twórz porady dla tego ćwiczenia.
+3. Stagnacja = ten sam ciężar ≥3 kolejne sesje. Postęp = wyraźny wzrost ciężaru między sesjami. Regres = ciężar spadł między sesjami.
+4. Dla każdej obserwacji podaj konkretne liczby z danych (np. "4 sesje z rzędu po 60 kg").
+5. Balans Push/Pull/Legs — komentuj tylko jeśli różnica jest wyraźna (np. 2× więcej Push niż Pull).
+6. Zwracaj się per "Ty", po polsku, ton rzeczowy.
+7. Max 5 insightów — wybierz tylko najważniejsze.
 
 Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
 {
@@ -3713,17 +3720,17 @@ Odpowiedz TYLKO w formacie JSON, bez tekstu przed/po, bez markdown:
     {
       "type": "warning|progress|tip|success",
       "title": "Krótki tytuł (max 6 słów)",
-      "message": "Konkretna porada z liczbami i nazwami ćwiczeń (1-3 zdania)"
+      "message": "Konkretna obserwacja z liczbami z danych (1-2 zdania)"
     }
   ],
-  "summary": "Jedna zdanie podsumowania całości"
+  "summary": "Jedno zdanie podsumowania na podstawie danych"
 }
 
 Typy:
-- "warning" = stagnacja, problem, coś do poprawy (pomarańczowy)
-- "progress" = trend rosnący, postęp (zielony akcent)
-- "tip" = sugestia, rada (niebieski)
-- "success" = osiągnięcie, rekord, gratulacje (zielony)`;
+- "warning" = stagnacja, regres, zaniedbana partia
+- "progress" = wyraźny wzrost ciężaru lub częstotliwości
+- "tip" = sugestia wynikająca z danych
+- "success" = rekord, najlepszy wynik w historii`;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -4369,7 +4376,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredInstallPrompt = e;
   // Pokaż prompt jeśli użytkownik wcześniej go nie zamknął (lub minęło 7 dni)
   const dismissed = localStorage.getItem(STORAGE_INSTALL_DISMISSED);
-  if (!dismissed || (Date.now() - parseInt(dismissed)) > 7 * 86400000) {
+  if (!dismissed || (dismissed !== 'permanent' && (Date.now() - parseInt(dismissed)) > 7 * 86400000)) {
     setTimeout(() => {
       const prompt = document.getElementById('installPrompt');
       if (prompt) prompt.classList.add('show');
@@ -4381,6 +4388,7 @@ window.addEventListener('appinstalled', () => {
   const prompt = document.getElementById('installPrompt');
   if (prompt) prompt.classList.remove('show');
   deferredInstallPrompt = null;
+  localStorage.setItem(STORAGE_INSTALL_DISMISSED, 'permanent');
   showToast('Aplikacja zainstalowana! 🎉', 'success');
 });
 
