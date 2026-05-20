@@ -904,7 +904,6 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
       <button class="sidebar-link active" onclick="switchView('view-plan', this)"><i class="ti ti-barbell"></i> Plan na dziś</button>
       <button class="sidebar-link" onclick="switchView('view-history', this)"><i class="ti ti-history"></i> Historia</button>
       <button class="sidebar-link" onclick="switchView('view-stats', this)"><i class="ti ti-chart-pie"></i> Statystyki i mięśnie</button>
-      <button class="sidebar-link" onclick="switchView('view-analysis', this)"><i class="ti ti-target"></i> Analiza ćwiczeń</button>
       <button class="sidebar-link" onclick="switchView('view-coach', this)"><i class="ti ti-brain"></i> AI Coach</button>
     </nav>
   </aside>
@@ -1144,47 +1143,6 @@ body { background-image: radial-gradient(circle at 0% 0%, rgba(212,255,58,0.04) 
   </div>
 
   <!-- VIEW: ANALYSIS -->
-  <div id="view-analysis" class="view">
-  <div class="section-divider">
-    <div class="section-divider-title">
-      <span class="live-dot"></span>
-      Analiza partii mięśniowych
-    </div>
-  </div>
-
-  <div class="exercise-stats-grid">
-    <div class="panel">
-      <div class="panel-title"><i class="ti ti-target"></i>Wybierz partię</div>
-
-      <!-- Wybór partii głównej -->
-      <select class="exercise-select" id="muscleGroupSelect" onchange="onMuscleGroupChange()">
-        <option value="">Wybierz partię mięśniową...</option>
-      </select>
-
-      <!-- Pod-filtr głowy -->
-      <div id="muscleSubSelect" style="display:none; margin-top: 8px;">
-        <select class="exercise-select" id="muscleSubGroupSelect" onchange="renderMuscleAnalysis()">
-        </select>
-      </div>
-
-      <!-- Statystyki -->
-      <div id="muscleStatsContent" style="margin-top: 12px;">
-        <div class="empty" style="padding: 1.5rem 1rem;">
-          <p style="font-size: 12px; color: var(--text-muted);">Wybierz partię mięśniową, aby zobaczyć statystyki</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title"><i class="ti ti-trending-up"></i>Progresja ciężaru</div>
-      <div class="weight-chart-wrap">
-        <canvas id="weightChart"></canvas>
-        <div class="weight-chart-empty" id="weightChartEmpty">Wybierz partię z lewej strony</div>
-      </div>
-    </div>
-  </div>
-  </div>
-
   <!-- VIEW: COACH -->
   <div id="view-coach" class="view">
     <!-- AI COACH -->
@@ -1364,10 +1322,7 @@ Notatka: dobra forma"></textarea>
       <i class="ti ti-chart-pie"></i>
       <span class="bnav-label">Stats</span>
     </button>
-    <button class="bnav-item" id="bnav-analysis" onclick="switchViewMobile('view-analysis', 'bnav-analysis')" aria-label="Analiza ćwiczeń">
-      <i class="ti ti-target"></i>
-      <span class="bnav-label">Analiza</span>
-    </button>
+
     <button class="bnav-item" id="bnav-coach" onclick="switchViewMobile('view-coach', 'bnav-coach')" aria-label="AI Coach">
       <i class="ti ti-brain"></i>
       <span class="bnav-label">Coach</span>
@@ -1849,7 +1804,6 @@ function switchView(viewId, btnEl) {
   
   if (viewId === 'view-history') refreshHistory();
   if (viewId === 'view-stats') { refreshStats(); refreshChart(); refreshMuscleStats(); }
-  if (viewId === 'view-analysis') refreshExerciseSelect();
 }
 
 function switchViewMobile(viewId, bnavId) {
@@ -1858,7 +1812,7 @@ function switchViewMobile(viewId, bnavId) {
   syncBottomNav(viewId);
   // sync sidebar too
   const viewToSidebar = {
-    'view-plan': 0, 'view-history': 1, 'view-stats': 2, 'view-analysis': 3, 'view-coach': 4
+    'view-plan': 0, 'view-history': 1, 'view-stats': 2, 'view-coach': 3
   };
   const sidebarLinks = document.querySelectorAll('.sidebar-link');
   sidebarLinks.forEach(el => el.classList.remove('active'));
@@ -1866,14 +1820,13 @@ function switchViewMobile(viewId, bnavId) {
   if (idx !== undefined && sidebarLinks[idx]) sidebarLinks[idx].classList.add('active');
   if (viewId === 'view-history') refreshHistory();
   if (viewId === 'view-stats') { refreshStats(); refreshChart(); refreshMuscleStats(); }
-  if (viewId === 'view-analysis') refreshExerciseSelect();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function syncBottomNav(viewId) {
   const map = {
     'view-plan': 'bnav-plan', 'view-history': 'bnav-history',
-    'view-stats': 'bnav-stats', 'view-analysis': 'bnav-analysis', 'view-coach': 'bnav-coach'
+    'view-stats': 'bnav-stats', 'view-coach': 'bnav-coach'
   };
   document.querySelectorAll('.bnav-item').forEach(el => el.classList.remove('active'));
   const id = map[viewId];
@@ -1936,12 +1889,12 @@ function updateNextSuggestion(mode) {
   text.innerHTML = `Ostatnio: <strong>${lastLabel}</strong>${dateStr ? ' · ' + dateStr : ''} — sugerowany: <strong>${nextLabel}</strong>`;
   banner.classList.add('visible');
 
-  // Podświetl sugerowany tab
-  document.querySelectorAll('.tab.suggested').forEach(t => t.classList.remove('suggested'));
+  // Auto-zaznacz sugerowany tab jeśli żaden trening nie jest w toku
   setTimeout(() => {
-    const suggestedTab = document.querySelector(`.tab[data-type="${suggestion.type}"]`);
-    if (suggestedTab && !suggestedTab.classList.contains('active')) {
-      suggestedTab.classList.add('suggested');
+    const activeTab = document.querySelector('.tab.active');
+    const currentActive = activeTab ? activeTab.dataset.type : null;
+    if (currentActive !== suggestion.type) {
+      switchTab(suggestion.type);
     }
   }, 50);
 }
@@ -4369,6 +4322,17 @@ if ('speechSynthesis' in window) {
 // ============ PWA INSTALL & OFFLINE ============
 let deferredInstallPrompt = null;
 const STORAGE_INSTALL_DISMISSED = 'tp_install_dismissed_v1';
+
+// Ukryj popup jeśli apka już działa jako PWA
+(function() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const p = document.getElementById('installPrompt');
+      if (p) p.style.display = 'none';
+    });
+  }
+})();
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
